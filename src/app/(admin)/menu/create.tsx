@@ -5,7 +5,7 @@ import { Image } from 'react-native';
 import { DefaultPhoto } from '@/src/components/ProductListItem';
 import Colors from '@/src/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
 
 const CreateProductScreen = () => {
@@ -13,6 +13,9 @@ const CreateProductScreen = () => {
     const [price, setPrice] = useState('');
     const [error, setError] = useState('');
     const [image, setImage] = useState <string | null >(null);
+
+    const {id} = useLocalSearchParams();
+    const isUpdating = !!id;
 
     const validate = () => {
         setError('');
@@ -33,6 +36,15 @@ const CreateProductScreen = () => {
         setPrice('');
     }
 
+    const onSubmit = () => {
+        if (isUpdating) {
+           //update();
+           onUpdateCreate();
+        } else {
+            onCreate();
+        }
+    }
+
     const onCreate = () => {
         if (!validate()) {
             return;
@@ -40,6 +52,18 @@ const CreateProductScreen = () => {
         console.warn('create', names, price);
         resetFields();
     }
+
+    const onUpdateCreate = () => {
+        if (!validate()) {
+            return;
+        }
+
+        //database blabla
+       
+        resetFields();
+    }
+
+
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -58,7 +82,7 @@ const CreateProductScreen = () => {
 
   return (
     <View style = {styles.container}>
-      <Stack.Screen options={{title:'Create Product'}}/>
+      <Stack.Screen options={{title: isUpdating? 'Update Product' : 'Create Product'}}/>
 
       <Image source={{uri: image || DefaultPhoto}} style = {styles.image}/>
       <Text onPress={pickImage} style = {styles.textButton}> Select Image </Text>
@@ -81,7 +105,7 @@ const CreateProductScreen = () => {
       />
 
      {error ? <Text style = {{color: 'red'}}>{error}</Text> : null}
-      <Button onPress={onCreate} text = 'Create'/>
+      <Button onPress={onSubmit} text = {isUpdating? 'Update' : 'Create'}/>
 
     </View>
   )

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Text, Image, StyleSheet, Pressable} from 'react-native';
 import { View } from '@/src/components/Themed';
-import { useLocalSearchParams, Stack, router } from 'expo-router';
+import { useLocalSearchParams, Stack, router, Link } from 'expo-router';
 import products from '@/assets/data/products';
 import { useState } from 'react';
 import DefaultPhoto from '@/src/components/ProductListItem'; // nagka error dito
@@ -10,6 +10,8 @@ import { UseCart } from '@/src/providers/CartProvider';
 import CartProvider from '@/src/providers/CartProvider';
 import type { PizzaSize } from '@/src/types';
 import { useRoute } from '@react-navigation/native';
+import { FontAwesome } from '@expo/vector-icons';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 
 function ProductDetailScreen() {
@@ -43,6 +45,23 @@ function ProductDetailScreen() {
   return (
     <View style = {styles.container}>
       <Stack.Screen  options = {{title : product.name}} />
+      <Stack.Screen 
+        options = {{
+         title : 'Menu',
+         headerRight: () => (
+          <Link href={`/(admin)/menu/create?id=${id}`} asChild>
+            <Pressable>
+              {({ pressed }) => (
+                <FontAwesome
+                  name="pencil"
+                  size={25}
+                  color={Colors.light.tint}
+                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                />
+              )}
+            </Pressable>
+          </Link>
+        ),}} />
 
       <Image  
       source = {{uri : product.image }}
