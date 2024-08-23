@@ -5,21 +5,23 @@ import { Image } from 'react-native';
 import { DefaultPhoto } from '@/src/components/ProductListItem';
 import Colors from '@/src/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useInsertProduct } from '@/src/api/products';
 
 
 const CreateProductScreen = () => {
-    const [names, setNames] = useState('');
+    const [name, setNames] = useState('');
     const [price, setPrice] = useState('');
     const [error, setError] = useState('');
     const [image, setImage] = useState <string | null >(null);
-
     const {id} = useLocalSearchParams();
     const isUpdating = !!id;
+    const { mutate: insertProduct } = useInsertProduct();
+    const router = useRouter();
 
     const validate = () => {
         setError('');
-        if (!names || !price) {
+        if (!name || !price) {
             setError('Please fill all fields');
             return false;
         }
@@ -49,21 +51,23 @@ const CreateProductScreen = () => {
         if (!validate()) {
             return;
         }
-        console.warn('create', names, price);
-        resetFields();
+        insertProduct({ name, price: parseFloat(price), image},
+       {onSuccess: () => {
+            resetFields();
+            router.back();
+        },
+       }
+    );
+
     }
 
     const onUpdateCreate = () => {
         if (!validate()) {
             return;
         }
-
         //database blabla
-       
         resetFields();
     }
-
-
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -72,8 +76,6 @@ const CreateProductScreen = () => {
           aspect: [4, 3],
           quality: 1,
         });
-
-        console.log(result);
 
         if (!result.canceled) {
           setImage(result.assets[0].uri);
@@ -89,7 +91,7 @@ const CreateProductScreen = () => {
 
       <Text style = {styles.label}> name </Text>
       <TextInput 
-      value = {names}
+      value = {name}
       onChangeText = {setNames} 
       placeholder='name' 
       style = {styles.input}
