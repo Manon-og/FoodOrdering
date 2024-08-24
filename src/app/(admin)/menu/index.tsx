@@ -13,8 +13,6 @@ export default function MenuScreen() {
     return <Text>Failed to fetch Product</Text>
   }
 
-
-
   return (
     <FlatList
     data = {products}
@@ -22,7 +20,6 @@ export default function MenuScreen() {
     numColumns={2}
     columnWrapperStyle={{gap: 10}}
     contentContainerStyle={{gap: 10, padding: 10}}
-
     />
   );
 }

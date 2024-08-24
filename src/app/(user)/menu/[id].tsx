@@ -14,7 +14,6 @@ import { useProduct } from '@/src/api/products';
 
 function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState<PizzaSize>('M');
-
   const { id: idString } = useLocalSearchParams();
   const id = parseFloat(typeof idString === 'string'? idString : idString[0]);
   const { data: product, error, isLoading } = useProduct(id);
@@ -22,25 +21,12 @@ function ProductDetailScreen() {
   const route = useRoute();
 
   const sizes: PizzaSize[] = ['S', 'M', 'L', 'XL'];
-  
-  // const product = products.find((product) => 
-  // product.id.toString() === id);
 
   const addToCart = () => { 
     if(!product) {return;}
     addItem(product, selectedSize);
     router.push('/cart');
     }
-
-  if (!product) {
-    return (
-      <View>
-        <Text style = {{ fontSize : 20}}>
-          Product not found
-        </Text>
-      </View>
-    )
-  }
 
   if(isLoading) {
     return <ActivityIndicator/>
@@ -50,19 +36,14 @@ function ProductDetailScreen() {
     return <Text>Failed to fetch Product</Text>
   }
 
-
-
   return (
     <View style = {styles.container}>
       <Stack.Screen  options = {{title : product.name}} />
-
       <Image  
       source = {{uri : product.image || DefaultPhoto}}
       style = {styles.image}
       />
 
-      
-      
       <Text>
         Select Size
       </Text>
@@ -80,8 +61,6 @@ function ProductDetailScreen() {
       <Text style = {styles.price}>
         ${product.price}
       </Text>
-
-     
 
       <Button text = "Add to Cart" 
       onPress = {addToCart} />
