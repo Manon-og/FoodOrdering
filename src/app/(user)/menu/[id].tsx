@@ -11,7 +11,6 @@ import type { PizzaSize } from '@/src/types';
 import { useRoute } from '@react-navigation/native';
 import { useProduct } from '@/src/api/products';
 
-
 function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState<PizzaSize>('M');
   const { id: idString } = useLocalSearchParams();

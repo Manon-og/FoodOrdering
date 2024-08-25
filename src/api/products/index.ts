@@ -39,7 +39,9 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
 
         return useMutation({
             async mutationFn(data: any) {
-            const {data: newProduct, error} = await supabase.from('products').insert({
+            const {data: newProduct, error} = await supabase
+            .from('products')
+            .insert({
                 name: data.name,
                 price: data.price,
                 image: data.image,
@@ -79,6 +81,25 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
                 async onSuccess(_, {id}) {
                    await queryClient.invalidateQueries({ queryKey: ['products'] });
                    await queryClient.invalidateQueries({ queryKey: ['products', id] });
+                },
+            })
+            }
+
+        export const useDeleteProduct = () => {
+            const queryClient = useQueryClient();
+    
+            return useMutation({
+                async mutationFn(id: number) {
+                const {error} = await supabase
+                .from('products')
+                .delete()
+                .eq('id', id);
+                if(error) {
+                    throw new Error(error.message);
+                }
+                },
+                async onSuccess() {
+                   await queryClient.invalidateQueries({ queryKey: ['products'] });
                 },
             })
             }

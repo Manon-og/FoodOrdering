@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput } from 'react-native'
+import { View, Text, StyleSheet, TextInput, Alert } from 'react-native'
 import Button from '@/src/components/Button';
 import { useEffect, useState } from 'react';
 import { Image } from 'react-native';
@@ -6,7 +6,7 @@ import { DefaultPhoto } from '@/src/components/ProductListItem';
 import Colors from '@/src/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useInsertProduct, useProduct, useUpdateProduct } from '@/src/api/products';
+import { useDeleteProduct, useInsertProduct, useProduct, useUpdateProduct } from '@/src/api/products';
 
 
 const CreateProductScreen = () => {
@@ -21,6 +21,7 @@ const CreateProductScreen = () => {
 
     const { mutate: insertProduct } = useInsertProduct();
     const { mutate: updateProduct } = useUpdateProduct();
+    const { mutate: deleteProduct } = useDeleteProduct();
     const {data: updatingProduct} = useProduct(id);
 
     const router = useRouter();
@@ -54,7 +55,7 @@ const CreateProductScreen = () => {
 
     const onSubmit = () => {
         if (isUpdating) {
-           onUpdateCreate();
+            onUpdate();
         } else {
             onCreate();
         }
@@ -71,10 +72,9 @@ const CreateProductScreen = () => {
         },
        }
     );
-
     }
 
-    const onUpdateCreate = () => {
+    const onUpdate = () => {
         if (!validate()) {
             return;
         }
@@ -87,6 +87,31 @@ const CreateProductScreen = () => {
        }
      );
     }
+
+    const onDelete = () => {
+        deleteProduct(id, {
+            onSuccess: () => {
+            resetFields();
+            router.replace('/(admin)');
+         },
+        }); 
+      }
+
+    const confirmDelete = () => {
+        Alert.alert('Confirm', 'Are you sure you want to delete this product?',
+        [
+            {
+                text: 'Cancel',
+                style: 'cancel',
+            },
+            {
+                text: 'Delete',
+                onPress: onDelete,
+                style: 'destructive',
+            },
+        ]);
+           }
+        
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -127,6 +152,7 @@ const CreateProductScreen = () => {
 
      {error ? <Text style = {{color: 'red'}}>{error}</Text> : null}
       <Button onPress={onSubmit} text = {isUpdating? 'Update' : 'Create'}/>
+    {isUpdating? <Text onPress={confirmDelete} style = {styles.textButton} > Delete </Text> : null}
 
     </View>
   )
