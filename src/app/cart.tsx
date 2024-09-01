@@ -20,7 +20,7 @@ import Button from '../components/Button';
       <CartListItem cartItem = {item}/>)}
        contentContainerStyle = {{ gap: 10}}
        />
-       <Text style={{marginTop: 20, fontSize:20, fontWeight: '500'}}>Total: ${roundedTotal}</Text>
+       <Text style={{marginTop: 20, fontSize:20, fontWeight: '500'}}>Total: ₱{roundedTotal}</Text>
       <Button text= 'Checkout'/>
 
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />

@@ -19,10 +19,11 @@ const CreateProductScreen = () => {
     const id = parseFloat(typeof idString === 'string'? idString : idString?.[0]);
     const isUpdating = !!idString;
 
-    const { mutate: insertProduct } = useInsertProduct();
-    const { mutate: updateProduct } = useUpdateProduct();
-    const { mutate: deleteProduct } = useDeleteProduct();
-    const {data: updatingProduct} = useProduct(id);
+    const tableName = 'products';
+    const { mutate: insertProduct } = useInsertProduct('products');
+    const { mutate: updateProduct } = useUpdateProduct('products');
+    const { mutate: deleteProduct } = useDeleteProduct('products');
+    const {data: updatingProduct} = useProduct(id,'products');
 
     const router = useRouter();
 

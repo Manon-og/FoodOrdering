@@ -17,7 +17,8 @@ function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState<PizzaSize>('M');
   const { id: idString } = useLocalSearchParams();
   const id = parseFloat(typeof idString === 'string'? idString : idString[0]);
-  const { data: product, error, isLoading } = useProduct(id);
+  const tableName = 'products';
+  const { data: product, error, isLoading } = useProduct(id, tableName);
   const { addItem } = UseCart();
   const route = useRoute();
   const sizes: PizzaSize[] = ['S', 'M', 'L', 'XL'];

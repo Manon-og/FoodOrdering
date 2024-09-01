@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { DefaultPhoto } from '@/src/components/ProductListItem'; // nagka error dito
 import Button from '@/src/components/Button';
 import { UseCart } from '@/src/providers/CartProvider';
-import CartProvider from '@/src/providers/CartProvider';
+import CartProvider from '@/src/providers/CartProvider'; // nagka error dito
 import type { PizzaSize } from '@/src/types';
 import { useRoute } from '@react-navigation/native';
 import { useProduct } from '@/src/api/products';
@@ -15,7 +15,8 @@ function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState<PizzaSize>('M');
   const { id: idString } = useLocalSearchParams();
   const id = parseFloat(typeof idString === 'string'? idString : idString[0]);
-  const { data: product, error, isLoading } = useProduct(id);
+  const tableName = 'products';
+  const { data: product, error, isLoading } = useProduct(id, tableName);
   const { addItem } = UseCart();
   const route = useRoute();
 
@@ -58,7 +59,7 @@ function ProductDetailScreen() {
       </View> 
 
       <Text style = {styles.price}>
-        ${product.price}
+      ₱{product.price}
       </Text>
 
       <Button text = "Add to Cart" 

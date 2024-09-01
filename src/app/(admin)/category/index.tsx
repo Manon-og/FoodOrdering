@@ -7,7 +7,7 @@ const index = () => {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.pressable} onPress={() => router.push('/(user)/menu/')}>
+      <Pressable style={styles.pressable} onPress={() => router.push('/(admin)/menu/')}>
         <Text style={styles.pressableText}>COOKIE</Text>
       </Pressable>
     </View>
