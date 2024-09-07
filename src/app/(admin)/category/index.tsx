@@ -7,8 +7,17 @@ const index = () => {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.pressable} onPress={() => router.push('/(admin)/menu/')}>
+      <Pressable style={styles.pressable} onPress={() => router.push('/(admin)/menu?category=1')}>
         <Text style={styles.pressableText}>COOKIE</Text>
+      </Pressable>
+      <Pressable style={styles.pressable} onPress={() => router.push('/(admin)/menu?category=2')}>
+        <Text style={styles.pressableText}>BREADS</Text>
+      </Pressable>
+      <Pressable style={styles.pressable} onPress={() => router.push('/(admin)/menu?category=3')}>
+        <Text style={styles.pressableText}>CAKES</Text>
+      </Pressable>
+      <Pressable style={styles.pressable} onPress={() => router.push('/(admin)/menu?category=4')}>
+        <Text style={styles.pressableText}>BENTO CAKES</Text>
       </Pressable>
     </View>
   );
@@ -22,16 +31,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
+    marginTop:' 50%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+
   },
   pressable: {
-    width: 100,
+    width: '40%', 
     height: 100,
-    backgroundColor: 'lightgray',
+    backgroundColor: 'lightblue',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    margin: 10, 
+    borderRadius: 15,
   },
   pressableText: {
     color: 'black',
+    fontStyle: 'italic',
   },
 });

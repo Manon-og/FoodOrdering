@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Text, Image, StyleSheet, Pressable, ActivityIndicator} from 'react-native';
 import { View } from '@/src/components/Themed';
 import { useLocalSearchParams, Stack, router, Link } from 'expo-router';
 import { useState } from 'react';
 import { DefaultPhoto } from '@/src/components/ProductListItem'; // nagka error dito
 import { UseCart } from '@/src/providers/CartProvider';
-// import CartProvider from '@/src/providers/CartProvider';
+import CartProvider from '@/src/providers/CartProvider';
 import type { PizzaSize } from '@/src/types';
 import { useRoute } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
@@ -13,12 +13,21 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { useProduct } from '@/src/api/products';
 
 
+
 function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState<PizzaSize>('M');
   const { id: idString } = useLocalSearchParams();
-  const id = parseFloat(typeof idString === 'string'? idString : idString[0]);
-  const tableName = 'products';
-  const { data: product, error, isLoading } = useProduct(id, tableName);
+  const id_products = parseFloat(typeof idString === 'string'? idString : idString[0]);
+
+
+
+  const { category: idCategory } = useLocalSearchParams();
+  console.log('ID',idCategory);
+  const idCategoryString = idCategory ? idCategory.toString() : '';
+  console.log('please?>',idCategoryString);
+
+  const { data: product, error, isLoading } = useProduct(id_products);
+  console.log(product);
   const { addItem } = UseCart();
   const route = useRoute();
   const sizes: PizzaSize[] = ['S', 'M', 'L', 'XL'];
@@ -34,7 +43,8 @@ function ProductDetailScreen() {
     }
   
     if(error) {
-      return <Text>Failed to fetch Product</Text>
+      console.log(error);
+      return  <Text>Error: {error.message}</Text>
     }
 
   return (
@@ -44,7 +54,7 @@ function ProductDetailScreen() {
         options = {{
          title : 'Menu',
          headerRight: () => (
-          <Link href={`/(admin)/menu/create?id=${id}`} asChild>
+          <Link href={`/(admin)/menu/create?id=${id_products}`} asChild>
             <Pressable>
               {({ pressed }) => (
                 <FontAwesome
@@ -67,18 +77,12 @@ function ProductDetailScreen() {
       {product.name}
       </Text>
     
-       {/* <View style = {styles.size }>
-          {sizes.map((size) => (
-            <Pressable style = {[styles.sizes, {backgroundColor : selectedSize == size? 'gainsboro' : 'white'}]} key={size}
-            onPress = {() => setSelectedSize(size)}
-            >
-            <Text style = {[styles.textSize, {color : selectedSize == size? 'black' : 'gray'}]}> {size}</Text>
-            </Pressable>
-          ))}
-      </View>  */}
-
       <Text style = {styles.price}>
-        ${product.price}
+      ₱ {product.id_price.amount}
+      </Text>
+
+      <Text style = {styles.description}>
+         {product.description}
       </Text>
     </View>
   )
@@ -91,6 +95,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   price: {
+    paddingTop: 5,
     fontSize: 20,
     color: 'black',
   },
@@ -103,10 +108,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
   },
-    
-  
-  
-
+  description: {
+    fontSize: 16,
+    color: 'gray',
+    marginTop: 10,
+    fontStyle: 'italic',
+  },
 });
 
 export default ProductDetailScreen;

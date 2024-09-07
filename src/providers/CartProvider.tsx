@@ -4,7 +4,7 @@ import { randomUUID } from 'expo-crypto'
 
 type CartType = {
     items: CartItem[], 
-    addItem: ( product: Product, size: CartItem['size']) => void,
+    addItem: ( product: Product) => void,
     updateQuantity: (itemId: string, amount: -1 | 1) => void, 
     total: number,
 };
@@ -17,21 +17,21 @@ const CartContext = createContext<CartType>({
     
 });
 
-const CartProvider = ({children}:  PropsWithChildren) => {
+const CartProvider = ({children}:  any ) => {
     const [items, setItems] = useState<CartItem[]>([]);
-    const addItem = (product: Product, size: CartItem['size']) => {
-        const existingItem = items.find((item) => item.product_id === product.id && item.size === size);
+    const addItem = (product: any) => {
+        const existingItem = items.find((item) => item.id_products === product.id_products);
         if (existingItem) {
             updateQuantity(existingItem.id, 1);
             return;
         }
 
-        const newItem: CartItem = { 
+        const newItem: CartItem = {
             id: randomUUID(),
-            product, 
-            product_id: product.id,
-            size,
+            product,
+            product_id: product,
             quantity: 1,
+            id_products: product.id_products,
         };
 
         setItems(prevItems => [...prevItems, newItem]);
@@ -45,7 +45,7 @@ const CartProvider = ({children}:  PropsWithChildren) => {
 
     };
 
-   const total = items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+   const total = items.reduce((acc, item) => acc + item.product.id_price.amount * item.quantity, 0);
     const roundedTotal = parseFloat(total.toFixed(2));
     
 

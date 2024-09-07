@@ -12,7 +12,7 @@ type CartListItemProps = {
   cartItem: CartItem;
 };
 
-const CartListItem = ({ cartItem }: CartListItemProps) => {
+const CartListItem = ({ cartItem }: any) => {
   const { updateQuantity } = UseCart();
   return (
     <View style={styles.container}>
@@ -24,8 +24,8 @@ const CartListItem = ({ cartItem }: CartListItemProps) => {
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{cartItem.product.name}</Text>
         <View style={styles.subtitleContainer}>
-          <Text style={styles.price}>₱{cartItem.product.price.toFixed(2)}</Text> 
-          <Text>Size: {cartItem.size}</Text> 
+          <Text style={styles.price}>₱{cartItem.product.id_price.amount.toFixed(2)}</Text> 
+
 
         </View>
       </View>

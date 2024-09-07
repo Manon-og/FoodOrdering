@@ -12,19 +12,19 @@ import { useRoute } from '@react-navigation/native';
 import { useProduct } from '@/src/api/products';
 
 function ProductDetailScreen() {
-  const [selectedSize, setSelectedSize] = useState<PizzaSize>('M');
+
   const { id: idString } = useLocalSearchParams();
   const id = parseFloat(typeof idString === 'string'? idString : idString[0]);
-  const tableName = 'products';
-  const { data: product, error, isLoading } = useProduct(id, tableName);
-  const { addItem } = UseCart();
-  const route = useRoute();
 
-  const sizes: PizzaSize[] = ['S', 'M', 'L', 'XL'];
+  const { data: product, error, isLoading } = useProduct(id);
+  const { addItem } = UseCart();
+
+
+
 
   const addToCart = () => { 
     if(!product) {return;}
-    addItem(product, selectedSize);
+    addItem(product);
     router.push('/cart');
     }
 
@@ -44,22 +44,12 @@ function ProductDetailScreen() {
       style = {styles.image}
       />
 
-      <Text>
-        Select Size
-      </Text>
-    
-       <View style = {styles.size }>
-          {sizes.map((size) => (
-            <Pressable style = {[styles.sizes, {backgroundColor : selectedSize == size? 'gainsboro' : 'white'}]} key={size}
-            onPress = {() => setSelectedSize(size)}
-            >
-            <Text style = {[styles.textSize, {color : selectedSize == size? 'black' : 'gray'}]}> {size}</Text>
-            </Pressable>
-          ))}
-      </View> 
-
       <Text style = {styles.price}>
-      ₱{product.price}
+            ₱ {product.id_price.amount}
+            </Text>
+
+      <Text style = {styles.description}>
+         {product.description}
       </Text>
 
       <Button text = "Add to Cart" 
@@ -78,7 +68,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'black',
-    marginTop: 'auto',
+ 
   },
   image: {
     width: '100%',
@@ -100,6 +90,13 @@ const styles = StyleSheet.create({
   textSize: {
     fontSize: 20,
     fontWeight: '500',
+  },
+  description: {
+    fontSize: 16,
+    color: 'gray',
+    marginTop: 10,
+    paddingBottom: '50%',
+    fontStyle: 'italic',
   },
   
 
