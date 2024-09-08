@@ -72,12 +72,31 @@ const CreateProductScreen = () => {
     }
   };
 
+  // const onCreate = () => {
+  //   if (!validate()) {
+  //     return;
+  //   }
+  //   insertProduct(
+  //     { name, description, image, amount: parseFloat(price) },
+  //     {
+  //       onSuccess: () => {
+  //         console.log('Product inserted successfully');
+  //         resetFields();
+  //         router.back();
+  //       },
+  //       onError: (error) => {
+  //         console.error('Insert Product Error:', error);
+  //       },
+  //     }
+  //   );
+  // };
+
   const onCreate = () => {
     if (!validate()) {
       return;
     }
     insertProduct(
-      { name, description, image, amount: parseFloat(price) },
+      { name, description, image, id_price: { amount: parseFloat(price) }},
       {
         onSuccess: () => {
           console.log('Product inserted successfully');
