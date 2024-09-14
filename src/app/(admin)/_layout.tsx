@@ -7,7 +7,7 @@ import Colors from '@/src/constants/Colors';
 import { useColorScheme } from '@/src/components/useColorScheme';
 import { useClientOnlyValue } from '@/src/components/useClientOnlyValue';
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
+
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
@@ -28,9 +28,17 @@ export default function TabLayout() {
       }}>
 
        <Tabs.Screen name = "index" options = {{ href: null}} />
-       <Tabs.Screen name = "category/index" options = {{ href: null}} />
+       {/* <Tabs.Screen name = "Category" options = {{ href: null}} /> */}
 
 
+       <Tabs.Screen
+        name="category"
+        options={{
+          title: 'nothing',
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
 
       <Tabs.Screen
         name="menu"
@@ -39,22 +47,9 @@ export default function TabLayout() {
           headerShown: false,
           tabBarIcon: ({ color }) => 
           <TabBarIcon name="cutlery" color={color} />,
-          // headerRight: () => (
-          //   <Link href="/modal" asChild>
-          //     <Pressable>
-          //       {({ pressed }) => (
-          //         <FontAwesome
-          //           name="info-circle"
-          //           size={25}
-          //           color={Colors[colorScheme ?? 'light'].text}
-          //           style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-          //         />
-          //       )}
-          //     </Pressable>
-          //   </Link>
-          // ),
         }}
       />
+      
       <Tabs.Screen
         name="two"
         options={{

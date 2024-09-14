@@ -38,6 +38,7 @@ return (
     numColumns={2}
     columnWrapperStyle={{ gap: 10 }}
     contentContainerStyle={{ gap: 10, padding: 10 }}
+    
   />
 );  
 }

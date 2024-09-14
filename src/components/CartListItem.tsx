@@ -25,8 +25,6 @@ const CartListItem = ({ cartItem }: any) => {
         <Text style={styles.title}>{cartItem.product.name}</Text>
         <View style={styles.subtitleContainer}>
           <Text style={styles.price}>₱{cartItem.product.id_price.amount.toFixed(2)}</Text> 
-
-
         </View>
       </View>
       <View style={styles.quantitySelector}>

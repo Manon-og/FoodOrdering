@@ -77,7 +77,7 @@ const CreateProductScreen = () => {
       return;
     }
     insertProduct(
-      { name, description, image, amount: parseFloat(price) },
+      { name, description, image, id_price: { amount: parseFloat(price) }},
       {
         onSuccess: () => {
           console.log('Product inserted successfully');

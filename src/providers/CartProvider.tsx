@@ -14,7 +14,6 @@ const CartContext = createContext<CartType>({
     addItem: () => {},
     updateQuantity: () => {},
     total: 0,
-    
 });
 
 const CartProvider = ({children}:  any ) => {

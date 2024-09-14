@@ -29,7 +29,7 @@ const ProductListItem = ({product} : any) => {
       resizeMode = 'contain'
       />
       <Text style={styles.title}>{product.name}</Text>
-      <Text style={styles.price}>₱ {product.id_price.amount}</Text> 
+      <Text style={styles.price}>Total Stocks: {product.quantity}</Text> 
     </Pressable>
     </Link>
   );

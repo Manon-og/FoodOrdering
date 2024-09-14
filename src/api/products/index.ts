@@ -44,59 +44,64 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
             return useMutation({
               async mutationFn(data: any) {
                 const { data: newIdPrice }: { data: any} = await supabase
-                  .from('price')
-                  .select('id_price')
-                  .eq('amount', data.amount)
-                  .single();
+                .from('price')
+                .select('id_price')
+                .eq('amount', data.id_price.amount)
+                .single();
+              console.log('price',newIdPrice);
 
-                let idPrice;
-                if (newIdPrice) {
-                  idPrice = newIdPrice.id_price;
-                  const { data: newProduct, error }: { data: any, error: any } = await supabase
-                  .from('products')
-                  .insert({
-                    name: data.name,
-                    image: data.image,
-                    id_price: idPrice,
-                    description: data.description,
-                    id_category: id
-                  })
-                  .single();
-                if (error) {
-                  throw new Error(error.message);
-                }
-                console.log(newProduct);
-                return newProduct;
-                }
+              if (newIdPrice) {
+                const { data: updateProduct, error } = await supabase
+                .from('products')
+                .insert({
+                  name: data.name,
+                  description: data.description,
+                  image: data.image,
+                  id_price: newIdPrice.id_price,
+                  id_category: id,
+                })
+                .eq('id_products', data.id)
+                .single();
+              if (error) {
+                throw new Error(error.message);
+              }
+              }
 
-                else {
-                  const { data: newPrice, error: priceError }: { data: any, error: any } = await supabase
-                  .from('price')
-                  .insert({
-                    amount: data.amount,
-                  })
-                  .single();
-                if (priceError) {
-                  throw new Error(priceError.message);
-                }
+             else {
+                console.log('POTA PLEASEEEEEE');
+                const { data: newPrice, error: priceError }: { data: any, error: any } = await supabase
+                .from('price')
+                .insert({
+                  amount: data.id_price.amount,
+                })
+                .single();
 
-                const { data: newProduct, error } = await supabase
-                  .from('products')
-                  .insert({
-                    name: data.name,
-                    image: data.image,
-                    id_price: newPrice.id_price,
-                    description: data.description,
-                    id_category: id
-                  })
-                  .single();
-                if (error) {
-                  throw new Error(error.message);
-                }
-                console.log(newProduct);
-                return newProduct;
-                }
-              },
+                const { data: newIdPrice }: { data: any} = await supabase
+                .from('price')
+                .select('*')
+                .eq('amount', data.id_price.amount)
+                .single();
+                console.log('POTA PLEASEEEEEE');
+                console.log('POTA',newIdPrice);
+            
+              const { data: updateProduct, error } = await supabase
+                .from('products')
+                .insert({
+                  name: data.name,
+                  description: data.description,
+                  image: data.image,
+                  id_price: newIdPrice.id_price,
+                  id_category: id,
+                })
+                .eq('id_products', data.id)
+                .single();
+              if (error) {
+                throw new Error(error.message);
+              }
+
+              return updateProduct;
+              }
+            },
               
               async onSuccess() {
                 await queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -116,7 +121,6 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
                 .eq('amount', data.id_price.amount)
                 .single();
               console.log('price',newIdPrice);
-
 
               if (newIdPrice) {
                 const { data: updateProduct, error } = await supabase
@@ -175,6 +179,7 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
             });
           };
 
+
           export const useDeleteProduct = (id : number) => {
             const queryClient = useQueryClient();
           
@@ -183,9 +188,8 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
                 const { error } = await supabase
                   .from('products')
                   .delete()
-
                   .eq('id_products', id);
-                 
+
                   console.log('id',id);
                 if (error) {
                   throw new Error(error.message);
@@ -196,3 +200,46 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
               },
             });
           };
+
+          
+          export const useInsertBatch = () => {
+            const queryClient = useQueryClient();
+          
+            return useMutation({
+              mutationFn: async (data: any) => {
+                try {
+                  const { data: newBatch, error } = await supabase
+                    .from('batch')
+                    .insert({
+                      batch: data.quantity,
+                      id_products: data.id_products,
+                    });
+                  return newBatch;
+                } catch (error) {
+                  console.error('Error inserting batch:', error);
+                  throw error;
+                }
+              },
+              onSuccess: async (data) => {
+                await queryClient.invalidateQueries({ queryKey: ['batches'] });
+              },
+            });
+          };
+
+          export const useBatchList = (id: number) => {
+            return useQuery({
+              queryKey: ['batch', id],
+              queryFn: async () => {
+                const { data, error } = await supabase
+                  .from('batch')
+                  .select('*, id_products(name)')
+                  .eq('id_products', id)
+                if (error) {
+                  throw new Error(error.message);
+                }
+                return data;
+              },
+            });
+          } 
+
+   
