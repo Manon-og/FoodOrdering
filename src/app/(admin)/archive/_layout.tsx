@@ -34,25 +34,10 @@ export default function MenuStack() {
       <Stack.Screen
         name="index"
         options={{
-          title: `Menu`,
-          headerRight: () => (
-            !id_branch && (
-              <Link href={`/(admin)/menu/create?category=${category}`} asChild>
-                <Pressable>
-                  {({ pressed }) => (
-                    <FontAwesome
-                      name="plus-square-o"
-                      size={25}
-                      color={Colors.light.tint}
-                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                    />
-                  )}
-                </Pressable>
-              </Link>
-            )
-          ),
+          title: `Archives`,
+        
           headerLeft: () => (
-            <Link href={`${change}`} asChild>
+            <Link href={`${change}:any`} asChild>
               <Pressable style={styles.backButton}>
                 {({ pressed }) => (
                   <>

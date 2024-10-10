@@ -3,7 +3,7 @@ import { FlatList, Text, ActivityIndicator, View } from 'react-native';
 import ProductListItem from '@/src/components/ProductListItem';
 import { useProductList } from '@/src/api/products';
 import { useLocalSearchParams } from 'expo-router';
-import {useCategory} from '@/src/components/categoryWTF';
+import {useCategory} from '@/src/components/categoryParams';
 
 const MemoizedProductListItem = memo(ProductListItem);
 

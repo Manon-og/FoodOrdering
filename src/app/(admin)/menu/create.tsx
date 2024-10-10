@@ -7,10 +7,8 @@ import { DefaultPhoto } from '@/src/components/ProductListItem';
 import Colors from '@/src/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useDeleteProduct, useInsertProduct, useProduct, useUpdateProduct } from '@/src/api/products';
-import {useCategory} from '@/src/components/categoryWTF';
-
- // Adjust the import based on your project structure
+import { useInsertProduct, useProduct, useUpdateProduct, useArchiveProduct, useArchiveIdProducts } from '@/src/api/products';
+import { useCategory } from '@/src/components/categoryParams';
 
 const CreateProductScreen = () => {
   const [name, setNames] = useState('');
@@ -20,15 +18,17 @@ const CreateProductScreen = () => {
   const [image, setImage] = useState<string | null>(null);
 
   const { id: idString } = useLocalSearchParams();
+
   const id = parseFloat(typeof idString === 'string' ? idString : idString?.[0]);
 
   const category = +useCategory();
 
   const isUpdating = !!idString;
 
+  const { data: available } = useArchiveIdProducts(id);
   const { mutate: insertProduct } = useInsertProduct(category);
   const { mutate: updateProduct } = useUpdateProduct();
-  const { mutate: deleteProduct } = useDeleteProduct(id);
+  const { mutate: archiveProduct } = useArchiveProduct(id);
   const { data: updatingProduct } = useProduct(id);
 
   const router = useRouter();
@@ -77,15 +77,20 @@ const CreateProductScreen = () => {
       return;
     }
     insertProduct(
-      { name, description, image, id_price: { amount: parseFloat(price) }},
+      { name, description, image, id_price: { amount: parseFloat(price) } },
       {
         onSuccess: () => {
           console.log('Product inserted successfully');
           resetFields();
           router.back();
+          alert(`${name} has been added successfully.`);
         },
         onError: (error) => {
-          console.error('Insert Product Error:', error);
+          if (error.message === 'Product already exists.') {
+            alert(`The product "${name}" already exists.`);
+          } else {
+            console.error('Insert Product Error:', error);
+          }
         },
       }
     );
@@ -113,8 +118,12 @@ const CreateProductScreen = () => {
   };
 
   const onDelete = () => {
-    console.log('Deleting product');
-    deleteProduct(id, {
+    if (available) {
+      alert('The product still has some batches remaining.');
+      return;
+    }
+    console.log('Archiving product');
+    archiveProduct(id, {
       onSuccess: () => {
         resetFields();
         router.replace('/(admin)');
@@ -123,13 +132,13 @@ const CreateProductScreen = () => {
   };
 
   const confirmDelete = () => {
-    Alert.alert('Confirm', 'Are you sure you want to delete this product?', [
+    Alert.alert('Confirm', 'Are you sure you want to archive this product?', [
       {
         text: 'Cancel',
         style: 'cancel',
       },
       {
-        text: 'Delete',
+        text: 'Archive',
         onPress: onDelete,
         style: 'destructive',
       },
@@ -182,7 +191,7 @@ const CreateProductScreen = () => {
       <Button onPress={onSubmit} text={isUpdating ? 'Update' : 'Create'} />
       {isUpdating ? (
         <Text onPress={confirmDelete} style={styles.textButton}>
-          Delete
+          Archive
         </Text>
       ) : null}
     </View>

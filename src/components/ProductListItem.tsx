@@ -22,7 +22,7 @@ const ProductListItem = ({product} : any) => {
   const segments = useSegments();
 
   return (
-    <Link href={`/${segments[0]}/menu/${product.id_products}`} asChild>
+    <Link href={`/${segments[0]}/menu/${product.id_products}: any`} asChild>
     <Pressable style={styles.container}>
       <Image style={styles.image} 
       source={{uri: product.image || DefaultPhoto }} 
