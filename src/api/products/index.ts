@@ -37,7 +37,6 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
           });
         };
 
-        
 
         export const useProductListArchive = () => {
           return useQuery({

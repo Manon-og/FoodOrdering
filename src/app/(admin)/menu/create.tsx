@@ -138,17 +138,21 @@ const CreateProductScreen = () => {
   };
 
   const confirmDelete = () => {
-    Alert.alert('Confirm', 'Are you sure you want to archive this product?', [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Archive',
-        onPress: onDelete,
-        style: 'destructive',
-      },
-    ]);
+    if(updatingProduct.quantity > 0) {
+      alert('The product still has some batches remaining.');
+    } else {
+      Alert.alert('Confirm', 'Are you sure you want to archive this product?', [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Archive',
+          onPress: onDelete,
+          style: 'destructive',
+        },
+      ]);
+    }
   };
 
   const pickImage = async () => {
@@ -200,6 +204,7 @@ const CreateProductScreen = () => {
 
       {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
       <Button onPress={onSubmit} text={isUpdating ? 'Update' : 'Create'} />
+
       {isUpdating ? (
         <Text onPress={confirmDelete} style={styles.textButton}>
           Archive
