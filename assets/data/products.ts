@@ -69,6 +69,8 @@ const products = [
       'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/6cheese.png',
     price: 13.29,
   },
+  
 ];
 
 export default products;
+

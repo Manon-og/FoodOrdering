@@ -1,4 +1,5 @@
 export type Product = {
+  id_price: any;
   id: number;
   image: string | null;
   name: string;
@@ -8,10 +9,10 @@ export type Product = {
 export type PizzaSize = 'S' | 'M' | 'L' | 'XL';
 
 export type CartItem = {
+  id_products: any;
   id: string;
   product: Product;
   product_id: number;
-  size: PizzaSize;
   quantity: number;
 };
 
