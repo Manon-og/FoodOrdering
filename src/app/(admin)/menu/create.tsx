@@ -48,8 +48,14 @@ const CreateProductScreen = () => {
       setError('Please fill all fields');
       return false;
     }
-    if (isNaN(parseFloat(price))) {
-      setError('Price must be a number');
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+      setPrice('0');
+      setError('Price cannot be negative.');
+      return false;
+    }
+    if (parsedPrice === 0) {
+      setError('Please enter a  price');
       return false;
     }
     setError('');
@@ -157,7 +163,7 @@ const CreateProductScreen = () => {
       setImage(result.assets[0].uri);
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: isUpdating ? 'Update Product' : 'Create Product' }} />
@@ -168,9 +174,14 @@ const CreateProductScreen = () => {
       </Text>
 
       <Text style={styles.label}>Name</Text>
-      <TextInput value={name} onChangeText={setNames} placeholder="Name" style={styles.input} />
-
-      <Text style={styles.label}>Price</Text>
+      <TextInput 
+        value={name} 
+        onChangeText={setNames} 
+        placeholder="Name" 
+        style={styles.input} 
+        maxLength={30}
+      />
+      <Text style={styles.label}>Price (PHP)</Text>
       <TextInput
         value={price}
         onChangeText={setPrice}
@@ -178,13 +189,13 @@ const CreateProductScreen = () => {
         style={styles.input}
         keyboardType="numeric"
       />
-
       <Text style={styles.label}>Description</Text>
       <TextInput
         value={description}
         onChangeText={setDescription}
         placeholder="Description"
         style={styles.input}
+        maxLength={255}
       />
 
       {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
