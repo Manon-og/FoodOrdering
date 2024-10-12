@@ -1,8 +1,10 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Alert, Modal, TextInput, Button } from 'react-native';
-import React, { memo, useState } from 'react';
+// quantity.tsx
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Alert, Button } from 'react-native';
+import React, { useState } from 'react';
 import { Stack } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import { useInsertBatch, useProductList } from '@/src/api/products';
+import QuantityModal from '@/src/modals/quantityModals';
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('1');
@@ -53,14 +55,14 @@ const Index = () => {
       Alert.alert('No Changes', 'No products were updated.');
       return;
     }
-  
+
     const summary = Object.entries(productQuantities)
       .map(([productId, quantity]) => {
         const product = products?.find((item) => item.id_products === Number(productId));
         return `${product ? product.name : `Unknown Product (ID: ${productId})`}: ${quantity}`;
       })
       .join('\n');
-  
+
     Alert.alert(
       'Confirm Changes',
       `You are adding:\n\n${summary}`,
@@ -147,28 +149,13 @@ const Index = () => {
         contentContainerStyle={styles.listContainer}
       />
 
-      <Modal visible={isModalVisible} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enter Quantity</Text>
-            <TextInput
-              style={styles.input}
-              value={inputQuantity}
-              onChangeText={(text) => {
-                const numericValue = text.replace(/[^0-9]/g, ''); // Only allow numbers
-                setInputQuantity(numericValue);
-              }}
-              placeholder="99"
-              keyboardType="numeric"
-              maxLength={5}
-            />
-            <View style={styles.modalButtons}>
-              <Button title="Cancel" onPress={handleCloseModal} />
-              <Button title="Confirm" onPress={handleConfirmModal} />
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <QuantityModal
+        visible={isModalVisible}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmModal}
+        inputQuantity={inputQuantity}
+        setInputQuantity={setInputQuantity}
+      />
     </View>
   );
 };
@@ -216,36 +203,5 @@ const styles = StyleSheet.create({
   quantityText: {
     marginTop: 5,
     fontSize: 14,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    width: '80%',
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  input: {
-    borderBottomWidth: 1,
-    width: '100%',
-    textAlign: 'center',
-    padding: 10,
-    fontSize: 16,
-    marginBottom: 20,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
   },
 });
