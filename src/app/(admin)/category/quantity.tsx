@@ -1,26 +1,91 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Alert, Modal, TextInput, Button } from 'react-native';
 import React, { memo, useState } from 'react';
-import { Link, Stack } from 'expo-router';
-import ProductQuantityListItem from '@/src/components/ProductQuantityListItems';
-import { useInsertBatch, useProductList } from '@/src/api/products';
+import { Stack } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { useInsertBatch, useProductList } from '@/src/api/products';
 
 const Index = () => {
-  const MemoizedProductListItem = memo(ProductQuantityListItem);
-
-  const [selectedCategory, setSelectedCategory] = useState('1'); 
+  const [selectedCategory, setSelectedCategory] = useState('1');
   const [productQuantities, setProductQuantities] = useState<{ [key: string]: number }>({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentProductId, setCurrentProductId] = useState<string | null>(null);
+  const [inputQuantity, setInputQuantity] = useState<string>('');
 
   const { data: products, error, isLoading } = useProductList(selectedCategory);
   const { mutate: insertBatch } = useInsertBatch();
-  console.log('asjhdbaksh:', products);
-  console.log('Selected Category:', selectedCategory);
+
+  const handleOpenModal = (productId: string) => {
+    setCurrentProductId(productId);
+    setInputQuantity(productQuantities[productId]?.toString() || ''); // Set input to the existing quantity
+    setIsModalVisible(true);
+  };
+
+  const handleConfirmModal = () => {
+    const quantity = parseInt(inputQuantity);
+    if (quantity > 0) {
+      setProductQuantities((prev) => ({
+        ...prev,
+        [currentProductId as string]: quantity,
+      }));
+      setIsModalVisible(false);
+    } else {
+      Alert.alert('Invalid Input', 'Please enter a valid quantity greater than 0.');
+    }
+  };
+
+  const handleCloseModal = () => {
+    if (inputQuantity) {
+      Alert.alert(
+        'Unsaved Changes',
+        'You have unsaved changes. Are you sure you want to close without saving?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Discard', style: 'destructive', onPress: () => setIsModalVisible(false) },
+        ]
+      );
+    } else {
+      setIsModalVisible(false);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (Object.keys(productQuantities).length === 0) {
+      Alert.alert('No Changes', 'No products were updated.');
+      return;
+    }
   
+    const summary = Object.entries(productQuantities)
+      .map(([productId, quantity]) => {
+        const product = products?.find((item) => item.id_products === Number(productId));
+        return `${product ? product.name : `Unknown Product (ID: ${productId})`}: ${quantity}`;
+      })
+      .join('\n');
+  
+    Alert.alert(
+      'Confirm Changes',
+      `You are adding:\n\n${summary}`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => {
+            Object.entries(productQuantities).forEach(([id_products, quantity]) => {
+              insertBatch({ id_products: Number(id_products), quantity });
+            });
+            Alert.alert('Changes Confirmed', 'You have successfully added the products');
+          },
+        },
+      ]
+    );
+  };
+
   if (isLoading) {
     return <ActivityIndicator />;
   }
-  
+
   if (error) {
     return (
       <View>
@@ -28,71 +93,39 @@ const Index = () => {
       </View>
     );
   }
-  
-  const filteredProductList = Array.isArray(products) ? products.filter(item => item.id_archive === 2) : [];
 
-  console.log('Product List:', filteredProductList.map(item => item.name));
-  
-  const handleIncrement = (productId: any) => {
-    setProductQuantities(prevQuantities => {
-      const newQuantities = { ...prevQuantities };
-      newQuantities[productId] = (newQuantities[productId] || 0) + 1;
-      return newQuantities;
-    });
-  };
-
-  const handleDecrement = (productId: any) => {
-    setProductQuantities(prevQuantities => {
-      const newQuantities = { ...prevQuantities };
-      newQuantities[productId] = Math.max((newQuantities[productId] || 0) - 1, 0);
-      if (newQuantities[productId] === 0) {
-        delete newQuantities[productId];
-      }
-      return newQuantities;
-    });
-  };
+  const filteredProductList = Array.isArray(products)
+    ? products.filter((item) => item.id_archive === 2)
+    : [];
 
   const renderItem = ({ item }: { item: any }) => (
-    <MemoizedProductListItem 
-      product={item} 
-      quantity={productQuantities[item.id_products] || 0}
-      onIncrement={() => handleIncrement(item.id_products)}
-      onDecrement={() => handleDecrement(item.id_products)}
-    />
+    <Pressable onPress={() => handleOpenModal(item.id_products)} style={styles.productItem}>
+      <Text style={styles.productName}>{item.name}</Text>
+      <Text style={styles.quantityText}>
+        Quantity: {productQuantities[item.id_products] || 0}
+      </Text>
+    </Pressable>
   );
-
-  console.log('Product:', productQuantities);
-  console.log('YOO',Object.keys(productQuantities));
-  console.log('YOO',Object.values(productQuantities));
-  Object.entries(productQuantities).forEach(([id, quantity]) => {
-    console.log(`product id: ${id}, quantity: ${quantity}`);
-  });
-
-  const handleSubmit = () => {
-    Object.entries(productQuantities).forEach(([id_products, quantity]) => {
-      console.log(`product id: ${id_products}, quantity: ${quantity}`);
-      insertBatch({ id_products: Number(id_products), quantity });
-    });
-  };
 
   return (
     <View style={styles.screenContainer}>
-      <Stack.Screen options={{ title: 'Update Quantity' }} />
-      <Stack.Screen 
-        options = {{
-         title : 'Update Quantity',
-         headerRight: () => (
+      <Stack.Screen
+        options={{
+          title: 'Update Quantity',
+          headerRight: () => (
             <Pressable onPress={handleSubmit}>
               {({ pressed }) => (
                 <FontAwesome
                   name="check"
                   size={25}
-                  color='green'
+                  color="green"
                   style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                 />
               )}
             </Pressable>
-        ),}} />
+          ),
+        }}
+      />
       <View style={styles.categoryContainer}>
         <Pressable style={styles.pressable} onPress={() => setSelectedCategory('1')}>
           <Text style={styles.pressableText}>COOKIE</Text>
@@ -107,12 +140,35 @@ const Index = () => {
           <Text style={styles.pressableText}>BENTO CAKES</Text>
         </Pressable>
       </View>
-      <FlatList 
+      <FlatList
         data={filteredProductList}
         renderItem={renderItem}
         keyExtractor={(item) => item.id_products.toString()}
         contentContainerStyle={styles.listContainer}
       />
+
+      <Modal visible={isModalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Enter Quantity</Text>
+            <TextInput
+              style={styles.input}
+              value={inputQuantity}
+              onChangeText={(text) => {
+                const numericValue = text.replace(/[^0-9]/g, ''); // Only allow numbers
+                setInputQuantity(numericValue);
+              }}
+              placeholder="99"
+              keyboardType="numeric"
+              maxLength={5}
+            />
+            <View style={styles.modalButtons}>
+              <Button title="Cancel" onPress={handleCloseModal} />
+              <Button title="Confirm" onPress={handleConfirmModal} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -128,16 +184,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 10,
-    backgroundColor: 'white',
-    shadowColor: 'lightblue',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.45,
-    shadowRadius: 5,
   },
   pressable: {
     flex: 1,
     height: 50,
-    backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 5,
@@ -145,10 +195,57 @@ const styles = StyleSheet.create({
   },
   pressableText: {
     color: 'lightblue',
-    fontStyle: 'italic',
     fontWeight: 'bold',
   },
   listContainer: {
     padding: 10,
+  },
+  productItem: {
+    padding: 15,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    marginVertical: 5,
+    shadowColor: 'black',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+  },
+  productName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  quantityText: {
+    marginTop: 5,
+    fontSize: 14,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  input: {
+    borderBottomWidth: 1,
+    width: '100%',
+    textAlign: 'center',
+    padding: 10,
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
   },
 });

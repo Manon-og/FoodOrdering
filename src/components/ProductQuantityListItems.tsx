@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Pressable } from 'react-native';
+import { StyleSheet, Image, Pressable, TextInput } from 'react-native';
 import Colors from '../constants/Colors';
 import { Text, View } from '@/src/components/Themed';
 import React from 'react';
@@ -15,23 +15,30 @@ type ProductListItemProps = {
   quantity: number;
   onIncrement: () => void;
   onDecrement: () => void;
+  onQuantityChange: (quantity: number) => void;
 };
 
-const ProductListItem = ({ product, quantity, onIncrement, onDecrement }: ProductListItemProps) => {
+const ProductListItem = ({ product, quantity, onIncrement, onDecrement, onQuantityChange }: ProductListItemProps) => {
   return (
-    <Pressable onPress={onIncrement} style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.row}>
         <Text style={styles.title}>{product.name}</Text>
-        {quantity > 0 && (
-          <View style={styles.numberContainer}>
-            <Pressable onPress={onDecrement} style={styles.decrementButton}>
-              <Text style={styles.decrementText}>-</Text>
-            </Pressable>
-            <Text style={styles.number}>{quantity}</Text>
-          </View>
-        )}
+        <View style={styles.numberContainer}>
+          <Pressable onPress={onDecrement} style={styles.decrementButton}>
+            <Text style={styles.decrementText}>-</Text>
+          </Pressable>
+          <TextInput
+            style={styles.number}
+            value={quantity.toString()}
+            keyboardType="numeric"
+            onChangeText={(value) => onQuantityChange(Number(value))}
+          />
+          <Pressable onPress={onIncrement} style={styles.incrementButton}>
+            <Text style={styles.incrementText}>+</Text>
+          </Pressable>
+        </View>
       </View>
-    </Pressable>
+    </View>
   );
 };
 
@@ -62,6 +69,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: Colors.light.tint,
     padding: '5%',
+    textAlign: 'center',
   },
   decrementButton: {
     marginRight: 5,
@@ -71,6 +79,17 @@ const styles = StyleSheet.create({
   decrementText: {
     fontSize: 35,
     color: 'darkred',
+    width: 20,  
+    textAlign: 'center',
+  },
+  incrementButton: {
+    marginLeft: 5,
+    padding: 5,
+    backgroundColor: 'white',
+  },
+  incrementText: {
+    fontSize: 35,
+    color: 'green',
     width: 20,  
     textAlign: 'center',
   },
