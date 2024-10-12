@@ -29,8 +29,9 @@ const Index = () => {
     );
   }
   
-  const productList = Array.isArray(products) ? products : [];
-  console.log('Product List:', productList.map(item => item.name));
+  const filteredProductList = Array.isArray(products) ? products.filter(item => item.id_archive === 2) : [];
+
+  console.log('Product List:', filteredProductList.map(item => item.name));
   
   const handleIncrement = (productId: any) => {
     setProductQuantities(prevQuantities => {
@@ -107,7 +108,7 @@ const Index = () => {
         </Pressable>
       </View>
       <FlatList 
-        data={productList}
+        data={filteredProductList}
         renderItem={renderItem}
         keyExtractor={(item) => item.id_products.toString()}
         contentContainerStyle={styles.listContainer}

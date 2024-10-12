@@ -33,9 +33,8 @@ const Index = () => {
       </View>
     );
   }
-
-  const productList = Array.isArray(products) ? products : [];
-  const num = productList.map(item => item.id_products);
+  const filteredProductList = Array.isArray(products) ? products.filter(item => item.id_archive === 2) : [];
+  const num = filteredProductList.map(item => item.id_products);
 
   const handleOpenModal = (productId: number) => {
     setSelectedProductId(productId);
@@ -93,7 +92,7 @@ const Index = () => {
         </Pressable>
       </View>
       <FlatList 
-        data={productList}
+        data={filteredProductList}
         renderItem={renderItem}
         keyExtractor={(item) => item.id_products.toString()}
         contentContainerStyle={styles.listContainer}
