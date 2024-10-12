@@ -47,7 +47,7 @@ const ProductListItem = ({ product, quantity, onIncrement, onDecrement, onBranch
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         id_products={product.id_products}  // Ensure id_products is passed here
-        onSelectBranch={handleSelectBranch}
+        // onSelectBranch={handleSelectBranch}
       />
     </Pressable>
   );
