@@ -3,7 +3,8 @@ import Colors from '../constants/Colors';
 import { Text, View,} from '@/src/components/Themed';
 import { Product } from '@/src/types';
 import { Link, useSegments } from 'expo-router';
-
+import { useArchivedParams } from './archivedParams';
+ 
 type ProductListItemProps = { 
   product: { 
     id: string;
@@ -20,20 +21,23 @@ export const DefaultPhoto = 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com
 
 const ProductListItem = ({product} : any) => {
   const segments = useSegments();
+  const { id_archive } = useArchivedParams(); 
+  
+  const hrefLink = id_archive ? `/${segments[0]}/menu/create?id=${product.id_products}` : `/${segments[0]}/menu/${product.id_products}`;
 
   return (
-    <Link href={`/${segments[0]}/menu/${product.id_products}: any`} asChild>
-    <Pressable style={styles.container}>
-      <Image style={styles.image} 
-      source={{uri: product.image || DefaultPhoto }} 
-      resizeMode = 'contain'
-      />
-      <Text style={styles.title}>{product.name}</Text>
-      <Text style={styles.price}>Total Stocks: {product.quantity}</Text> 
-    </Pressable>
+    <Link href={hrefLink} asChild>
+      <Pressable style={styles.container}>
+        <Image style={styles.image} 
+          source={{uri: product.image || DefaultPhoto }} 
+          resizeMode = 'contain'
+        />
+        <Text style={styles.title}>{product.name}</Text>
+        <Text style={styles.price}>Total Stocks: {product.quantity}</Text> 
+      </Pressable>
     </Link>
   );
-}
+};
 
 export default ProductListItem;
 

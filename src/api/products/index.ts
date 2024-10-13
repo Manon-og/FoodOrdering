@@ -249,6 +249,26 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
             });
           };
 
+          export const useUnarchiveProduct = (id: number) => {
+            const queryClient = useQueryClient();
+          
+            return useMutation({
+              async mutationFn(id: number) {
+                const { error } = await supabase
+                  .from('products')
+                  .update({ id_archive: 2 })
+                  .eq('id_products', id);
+          
+                console.log('id', id);
+                if (error) {
+                  throw new Error(error.message);
+                }
+              },
+              async onSuccess() {
+                await queryClient.invalidateQueries({ queryKey: ['products'] });
+              },
+            });
+          };
 
           export const useArchiveProduct = (id: number) => {
             const queryClient = useQueryClient();

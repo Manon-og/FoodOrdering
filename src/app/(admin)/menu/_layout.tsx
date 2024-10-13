@@ -32,7 +32,7 @@ export default function MenuStack() {
         options={{
           title: `${pageTitle}`,
           headerRight: () => (
-            !id_branch && (
+            id_archive ? null : !id_branch && (
               <Link href={`/(admin)/menu/create?category=${category}`} asChild>
                 <Pressable>
                   {({ pressed }) => (
@@ -48,7 +48,7 @@ export default function MenuStack() {
             )
           ),
           headerLeft: () => (
-            <Link href={`${change}`} asChild>
+            <Link href={id_archive ? `/(admin)/archive` : `${change}`} asChild>
               <Pressable style={styles.backButton}>
                 {({ pressed }) => (
                   <>

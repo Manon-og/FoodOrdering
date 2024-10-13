@@ -13,11 +13,16 @@ const MemoizedProductListItemByBatch = memo(BatchByProductListItem);
 
 export default function MenuScreen() {
   const category = useCategory();
+
   console.log('CATEGORY', category);
+
   const { id_branch, branchName } = useBranchName();
+
   console.log('id_branchASJDASJDAKSD:', id_branch);
+
   const { setBranchName, setIdBranch } = useByBranch();
   const { id_archive} = useArchivedParams();
+
   useEffect(() => {
     setBranchName(branchName);
     setIdBranch(id_branch);
@@ -29,6 +34,7 @@ export default function MenuScreen() {
   const branchId = id_branch || '';
   const { data: productsByBranch } = useBranchProductList(category, branchId);
   const { data: products, error, isLoading } = useProductList(category);
+  
   console.log('PRODUCTS:', productsByBranch);
 
   const IDarchive = id_archive ? 1 : 2;
