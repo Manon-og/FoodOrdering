@@ -4,8 +4,9 @@ import ProductListItem from '@/src/components/ProductListItem';
 import BatchByProductListItem from '@/src/components/ProductListItemByBatch';
 import { useBranchProductList, useProductList } from '@/src/api/products';
 import { useCategory } from '@/src/components/categoryParams';
-import { useByBranch } from '@/src/providers/BranchProvider'; // Adjust the import path as needed
+import { useByBranch } from '@/src/providers/BranchProvider'; 
 import { useBranchName } from '@/src/components/branchParams';
+import { useArchivedParams } from '@/components/archivedParams'; 
 
 const MemoizedProductListItem = memo(ProductListItem);
 const MemoizedProductListItemByBatch = memo(BatchByProductListItem);
@@ -16,7 +17,7 @@ export default function MenuScreen() {
   const { id_branch, branchName } = useBranchName();
   console.log('id_branchASJDASJDAKSD:', id_branch);
   const { setBranchName, setIdBranch } = useByBranch();
-
+  const { id_archive} = useArchivedParams();
   useEffect(() => {
     setBranchName(branchName);
     setIdBranch(id_branch);
@@ -29,6 +30,8 @@ export default function MenuScreen() {
   const { data: productsByBranch } = useBranchProductList(category, branchId);
   const { data: products, error, isLoading } = useProductList(category);
   console.log('PRODUCTS:', productsByBranch);
+
+  const IDarchive = id_archive ? 1 : 2;
 
   if (isLoading) {
     return <ActivityIndicator />;
@@ -48,7 +51,7 @@ export default function MenuScreen() {
 
   const useProduct = id_branch ? productByBranchList : productList;
 
-  const filteredProducts = useProduct.filter(item => item && item.id_archive === 2);
+  const filteredProducts = useProduct.filter(item => item && item.id_archive === IDarchive);
   console.log('OMG:', filteredProducts.map(item => item.id_products));
 
   const renderItem = ({ item }: { item: any }) => {

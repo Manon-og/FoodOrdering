@@ -4,40 +4,30 @@ import { Pressable, Text, View, StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "../../../constants/Colors";
-import { useCategory } from "@/src/components/categoryParams";
 import { useBranchName } from "@/src/components/branchParams";
 import { useByBranch } from "@/src/providers/BranchProvider";
 
 export default function MenuStack() {
-  const category = useCategory();
-  console.log('okay', category);
-
-
   const { id_branch, branchName } = useBranchName();
-  console.log('))):', id_branch);
-  console.log('))):', branchName);
   const {setBranchName, setIdBranch } = useByBranch();
-  console.log('((())):', branchName);
-  console.log('((()))))):', id_branch);
+
 
   useEffect(() => {
     setBranchName(branchName);
     setIdBranch(id_branch);
   }, [branchName, id_branch, setBranchName, setIdBranch]);
 
-  console.log('assd:', branchName, id_branch);
-  const change = id_branch ? `/(admin)/locations?id_branch=${id_branch}&&branchName=${branchName}` : '/(admin)/category';
-  console.log('change:', change);
+  const change = '/(admin)/profile';
 
   return (
     <Stack>
       <Stack.Screen
         name="index"
         options={{
-          title: `Archives`,
+          title: `Archive`,
         
           headerLeft: () => (
-            <Link href={`${change}:any`} asChild>
+            <Link href={`${change}`} asChild>
               <Pressable style={styles.backButton}>
                 {({ pressed }) => (
                   <>
