@@ -241,7 +241,6 @@ export const useUpdateProduct = () => {
   });
 };
 
-
 export const useInsertBatch = () => {
   const queryClient = useQueryClient();
 
@@ -383,113 +382,109 @@ export const usePriceHistory = (id: number) => {
   });
 };
 
-  export const useUnarchiveProduct = (id: number) => {
-    const queryClient = useQueryClient();
+export const useUnarchiveProduct = (id: number) => {
+  const queryClient = useQueryClient();
 
-    return useMutation({
-      async mutationFn(id: number) {
-        const { error } = await supabase
-          .from('products')
-          .update({ id_archive: 2 })
-          .eq('id_products', id);
+  return useMutation({
+    async mutationFn(id: number) {
+      const { error } = await supabase
+        .from("products")
+        .update({ id_archive: 2 })
+        .eq("id_products", id);
 
-        console.log('id', id);
-        if (error) {
-          throw new Error(error.message);
-        }
-      },
-      async onSuccess() {
-        await queryClient.invalidateQueries({ queryKey: ['products'] });
-      },
-    });
-  };
+      console.log("id", id);
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};
 
-  export const useArchiveProduct = (id: number) => {
-    const queryClient = useQueryClient();
+export const useArchiveProduct = (id: number) => {
+  const queryClient = useQueryClient();
 
-    return useMutation({
-      async mutationFn(id: number) {
-        const { error } = await supabase
-          .from('products')
-          .update({ id_archive: 1 })
-          .eq('id_products', id);
+  return useMutation({
+    async mutationFn(id: number) {
+      const { error } = await supabase
+        .from("products")
+        .update({ id_archive: 1 })
+        .eq("id_products", id);
 
-        console.log('id', id);
-        if (error) {
-          throw new Error(error.message);
-        }
-      },
-      async onSuccess() {
-        await queryClient.invalidateQueries({ queryKey: ['products'] });
-      },
-    });
-  };
+      console.log("id", id);
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};
 
-
-  export const useSignIn = () => {
-    return useMutation({
-      mutationFn: async ({
+export const useSignIn = () => {
+  return useMutation({
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-      }: {
-        email: string;
-        password: string;
-      }) => {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) {
-          throw new Error(error.message);
-        }
-      },
-    });
-  };
-  
-    export const handleLogout = async (router: any) => {
-      const { error } = await supabase.auth.signOut();
+      });
       if (error) {
-        Alert.alert("Error", error.message);
-      } else {
-        router.replace("/(auth)/sign-in"); // Redirect to sign-in page after logout
+        throw new Error(error.message);
       }
-    };
-    
-    export const getUserEmail = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
-        Alert.alert("Error", error.message);
-        return null;
-      }
-      return data?.user?.email || null;
-    };
-    
-    export const getUserFullName = async () => {
-      const { data: authData, error } = await supabase.auth.getUser();
-      if (error) {
-        Alert.alert("Error", error.message);
-        return null;
-      }
-    
-      const userId = authData?.user?.id;
-      if (!userId) {
-        Alert.alert("Error", "User not authenticated");
-        return null;
-      }
-    
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", userId)
-        .single();
-    
-      if (profileError) {
-        Alert.alert("Error", profileError.message);
-        return null;
-      }
-    
-      return profileData?.full_name || null;
-    };
+    },
+  });
+};
 
+export const handleLogout = async (router: any) => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    Alert.alert("Error", error.message);
+  } else {
+    router.replace("/(auth)/sign-in"); // Redirect to sign-in page after logout
+  }
+};
 
+export const getUserEmail = async () => {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    Alert.alert("Error", error.message);
+    return null;
+  }
+  return data?.user?.email || null;
+};
 
+export const getUserFullName = async () => {
+  const { data: authData, error } = await supabase.auth.getUser();
+  if (error) {
+    Alert.alert("Error", error.message);
+    return null;
+  }
+
+  const userId = authData?.user?.id;
+  if (!userId) {
+    Alert.alert("Error", "User not authenticated");
+    return null;
+  }
+
+  const { data: profileData, error: profileError } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", userId)
+    .single();
+
+  if (profileError) {
+    Alert.alert("Error", profileError.message);
+    return null;
+  }
+
+  return profileData?.full_name || null;
+};
