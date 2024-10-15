@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
 import Button from '@/src/components/Button';
 import React, { useEffect, useState } from 'react';
-import RNPickerSelect from 'react-native-picker-select';
 import { Image } from 'react-native';
 import { DefaultPhoto } from '@/src/components/ProductListItem';
 import Colors from '@/src/constants/Colors';
@@ -9,6 +8,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useInsertProduct, useProduct, useUpdateProduct, useArchiveProduct, useArchiveIdProducts } from '@/src/api/products';
 import { useCategory } from '@/src/components/categoryParams';
+import { useUnarchiveProduct } from '@/src/api/products'; 
+import { useArchivedParams } from '@/components/archivedParams';
 
 const CreateProductScreen = () => {
   const [name, setNames] = useState('');
@@ -18,17 +19,17 @@ const CreateProductScreen = () => {
   const [image, setImage] = useState<string | null>(null);
 
   const { id: idString } = useLocalSearchParams();
-
+  const { id_archive } = useArchivedParams(); 
+  console.log('Archive param:', id_archive); 
   const id = parseFloat(typeof idString === 'string' ? idString : idString?.[0]);
-
   const category = +useCategory();
-
   const isUpdating = !!idString;
 
   const { data: available } = useArchiveIdProducts(id);
   const { mutate: insertProduct } = useInsertProduct(category);
   const { mutate: updateProduct } = useUpdateProduct();
   const { mutate: archiveProduct } = useArchiveProduct(id);
+  const { mutate: unarchiveProduct } = useUnarchiveProduct(id); 
   const { data: updatingProduct } = useProduct(id);
 
   const router = useRouter();
@@ -55,7 +56,7 @@ const CreateProductScreen = () => {
       return false;
     }
     if (parsedPrice === 0) {
-      setError('Please enter a  price');
+      setError('Please enter a price');
       return false;
     }
     setError('');
@@ -69,9 +70,7 @@ const CreateProductScreen = () => {
   };
 
   const onSubmit = () => {
-    console.log('onSubmit called');
     if (isUpdating) {
-      console.log('onUpdate called');
       onUpdate();
     } else {
       onCreate();
@@ -86,7 +85,6 @@ const CreateProductScreen = () => {
       { name, description, image, id_price: { amount: parseFloat(price) } },
       {
         onSuccess: () => {
-          console.log('Product inserted successfully');
           resetFields();
           router.back();
           alert(`${name} has been added successfully.`);
@@ -104,15 +102,12 @@ const CreateProductScreen = () => {
 
   const onUpdate = () => {
     if (!validate()) {
-      console.log('Validation failed');
       return;
     }
-    console.log('Updating product');
     updateProduct(
       { id, name, id_price: { amount: parseFloat(price) }, description, image },
       {
         onSuccess: () => {
-          console.log('Product updated successfully');
           resetFields();
           router.back();
         },
@@ -128,7 +123,6 @@ const CreateProductScreen = () => {
       alert('The product still has some batches remaining.');
       return;
     }
-    console.log('Archiving product');
     archiveProduct(id, {
       onSuccess: () => {
         resetFields();
@@ -138,7 +132,7 @@ const CreateProductScreen = () => {
   };
 
   const confirmDelete = () => {
-    if(updatingProduct.quantity > 0) {
+    if (updatingProduct.quantity > 0) {
       alert('The product still has some batches remaining.');
     } else {
       Alert.alert('Confirm', 'Are you sure you want to archive this product?', [
@@ -167,7 +161,22 @@ const CreateProductScreen = () => {
       setImage(result.assets[0].uri);
     }
   };
-  
+
+  const handleUnarchive = () => {
+    unarchiveProduct(id, {
+      onSuccess: () => {
+        alert('Product unarchived successfully.');
+      },
+      onError: (error) => {
+        console.error('Unarchive Product Error:', error);
+        alert('Failed to unarchive product.');
+      },
+    });
+  };
+
+  const isArchived = id_archive === '2';
+  console.log('THIS IS IT HEREE'+isArchived);
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: isUpdating ? 'Update Product' : 'Create Product' }} />
@@ -206,9 +215,17 @@ const CreateProductScreen = () => {
       <Button onPress={onSubmit} text={isUpdating ? 'Update' : 'Create'} />
 
       {isUpdating ? (
-        <Text onPress={confirmDelete} style={styles.textButton}>
-          Archive
-        </Text>
+        <>
+          {isArchived ? (
+            <Text onPress={handleUnarchive} style={styles.textButton}>
+              Unarchive
+            </Text>
+          ) : (
+            <Text onPress={confirmDelete} style={styles.textButton}>
+              Archive
+            </Text>
+          )}
+        </>
       ) : null}
     </View>
   );
