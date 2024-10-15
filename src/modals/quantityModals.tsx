@@ -17,7 +17,7 @@ const QuantityModal: React.FC<QuantityModalProps> = ({
   setInputQuantity,
 }) => {
   return (
-    <Modal visible={visible} transparent={true} animationType="slide">
+    <Modal visible={visible} transparent={true} animationType="fade">
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Enter Quantity</Text>

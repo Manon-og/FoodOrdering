@@ -1,5 +1,6 @@
 import { supabase } from "@/src/lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Alert } from "react-native";
 
 export const useProductList = (id: string) => {
   return useQuery({
@@ -444,3 +445,51 @@ export const usePriceHistory = (id: number) => {
       },
     });
   };
+  
+    export const handleLogout = async (router: any) => {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        Alert.alert("Error", error.message);
+      } else {
+        router.replace("/(auth)/sign-in"); // Redirect to sign-in page after logout
+      }
+    };
+    
+    export const getUserEmail = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        Alert.alert("Error", error.message);
+        return null;
+      }
+      return data?.user?.email || null;
+    };
+    
+    export const getUserFullName = async () => {
+      const { data: authData, error } = await supabase.auth.getUser();
+      if (error) {
+        Alert.alert("Error", error.message);
+        return null;
+      }
+    
+      const userId = authData?.user?.id;
+      if (!userId) {
+        Alert.alert("Error", "User not authenticated");
+        return null;
+      }
+    
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", userId)
+        .single();
+    
+      if (profileError) {
+        Alert.alert("Error", profileError.message);
+        return null;
+      }
+    
+      return profileData?.full_name || null;
+    };
+
+
+
