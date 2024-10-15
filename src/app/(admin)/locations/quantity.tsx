@@ -1,31 +1,38 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable } from 'react-native';
-import React, { memo, useState } from 'react';
-import { Stack } from 'expo-router';
-import ProductQuantityListItemByBranch from '@/src/components/ProductQuantityListItemsByBranch';
-import { useProductList, useBatchListByCategory, useInsertBatch } from '@/src/api/products';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Alert } from 'react-native';
+import React, { memo, useState, useEffect } from 'react';
+import { Link, Stack } from 'expo-router';
+import ProductQuantityListItem from '@/src/components/ProductQuantityListItems';
+import { useBatchList, useInsertBatch, useProduct, useProductList } from '@/src/api/products';
 import { FontAwesome } from '@expo/vector-icons';
-import BatchListModal from '@/src/modals/branchSelectionModals';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import QuantityListItem from '@/components/QuantityListItem';
+import BatchModal from '@/modals/BatchModals';
 
 const Index = () => {
-  const MemoizedProductListItem = memo(ProductQuantityListItemByBranch);
+  const MemoizedProductListItem = memo(ProductQuantityListItem);
 
   const [selectedCategory, setSelectedCategory] = useState('1'); 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
-
+  const [productQuantities, setProductQuantities] = useState<{ [key: string]: number }>({});
+  const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
+  const [selectedProductId, setSelectedProductId] = useState<string>(''); // State to store selected product ID
+  const [selectedBatch, setSelectedBatch] = useState<any[]>([]); // State to store selected batch data
+  
   const { data: products, error, isLoading } = useProductList(selectedCategory);
-  const { data: productQuantity } = useBatchListByCategory(selectedCategory);
   const { mutate: insertBatch } = useInsertBatch();
 
-  console.log('Product Quantity:', productQuantity);
-  console.log('Products:', products);
-  console.log('Selected Category:', selectedCategory);
-  console.log('Selected Product ID:', selectedProductId);
+  // Fetch batch data based on selectedProductId
+  const { data: batch } = useBatchList(selectedProductId);
+  
+  useEffect(() => {
+    if (batch) {
+      setSelectedBatch(batch);
+    }
+  }, [batch]);
 
   if (isLoading) {
     return <ActivityIndicator />;
   }
-
+  
   if (error) {
     return (
       <View>
@@ -33,37 +40,59 @@ const Index = () => {
       </View>
     );
   }
+  
   const filteredProductList = Array.isArray(products) ? products.filter(item => item.id_archive === 2) : [];
-  const num = filteredProductList.map(item => item.id_products);
 
-  const handleOpenModal = (productId: number) => {
-    setSelectedProductId(productId);
-    setModalVisible(true);
+  const handleIncrement = (productId: any) => {
+    setProductQuantities(prevQuantities => {
+      const newQuantities = { ...prevQuantities };
+      newQuantities[productId] = (newQuantities[productId] || 1);
+      return newQuantities;
+    });
+  };
+
+  const handleDecrement = (productId: any) => {
+    setProductQuantities(prevQuantities => {
+      const newQuantities = { ...prevQuantities };
+      newQuantities[productId] = Math.max((newQuantities[productId] || 0) - 1, 0);
+      if (newQuantities[productId] === 0) {
+        delete newQuantities[productId];
+      }
+      return newQuantities;
+    });
   };
 
   const renderItem = ({ item }: { item: any }) => (
-    <Pressable onPress={() => handleOpenModal(item.id_products)}>
-      <MemoizedProductListItem 
-        product={item}
-        quantity={productQuantity?.[item.id_products] ?? 0}
-        onIncrement={() => {}}
-        onDecrement={() => {}}
-        onBranchChange={() => {}}
-      />
-    </Pressable>
+    <MemoizedProductListItem 
+      product={item} 
+      quantity={productQuantities[item.id_products] || 0}
+      onIncrement={() => handleIncrement(item.id_products)}
+      onDecrement={() => handleDecrement(item.id_products)}
+      onOpenModal={() => {
+        setSelectedProductId(item.id_products.toString()); // Update selectedProductId
+        setModalVisible(true);
+      }}
+    />
   );
 
   const handleSubmit = () => {
-    // Handle submit logic here if needed
+    Object.entries(productQuantities).forEach(([id_products, quantity]) => {
+      insertBatch({ id_products: Number(id_products), quantity });
+    });
+  };
+
+  const MemoizedQuantityListItemByBatch = memo(QuantityListItem);
+  const renderItemByBatch = ({ item }: { item: any }) => {
+    return <MemoizedQuantityListItemByBatch batch={item} />;
   };
 
   return (
     <View style={styles.screenContainer}>
       <Stack.Screen options={{ title: 'Update Quantity' }} />
       <Stack.Screen 
-        options={{
-          title: 'Update Quantity',
-          headerRight: () => (
+        options = {{
+         title : 'Update Quantity',
+         headerRight: () => (
             <Pressable onPress={handleSubmit}>
               {({ pressed }) => (
                 <FontAwesome
@@ -74,9 +103,7 @@ const Index = () => {
                 />
               )}
             </Pressable>
-          ),
-        }} 
-      />
+        ),}} />
       <View style={styles.categoryContainer}>
         <Pressable style={styles.pressable} onPress={() => setSelectedCategory('1')}>
           <Text style={styles.pressableText}>COOKIE</Text>
@@ -97,15 +124,11 @@ const Index = () => {
         keyExtractor={(item) => item.id_products.toString()}
         contentContainerStyle={styles.listContainer}
       />
-      {selectedProductId && (
-        <BatchListModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          id_products={num}
-        />
-      )}
-
-
+      <BatchModal
+        visible={isModalVisible}
+        onClose={() => setModalVisible(false)}
+        batch={selectedBatch}
+      />
     </View>
   );
 };

@@ -1,43 +1,64 @@
 import React, { memo, useEffect } from 'react';
-import { FlatList, Text, ActivityIndicator, View } from 'react-native';
+import { FlatList, ActivityIndicator } from 'react-native';
 import ProductListItem from '@/src/components/ProductListItem';
 import { useProductList, useProductListArchive } from '@/src/api/products';
 import { useCategory } from '@/src/components/categoryParams';
 
-const MemoizedProductListItem = memo(ProductListItem);
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Link,  } from 'expo-router';
 
-export default function ArchiveProductsScreen() {
-  const category = useCategory();
-  const { data: products, error, isLoading } = useProductListArchive();
-  console.log('PRODUCTSARCHUIVw:', products);
-
-  if (isLoading) {
-    return <ActivityIndicator />;
-  }
-
-  if (error) {
-    return (
-      <View>
-        <Text>Error: {error.message}</Text>
-      </View>
-    );
-  }
-
-  const productList = Array.isArray(products) ? products : [];
-  const filteredProducts = productList.filter(item => item && item.id_archive === 1);
-
-  const renderItem = ({ item }: { item: any }) => {
-    return <MemoizedProductListItem product={item} />;
-  };
-
+const Index = () => {
   return (
-    <FlatList 
-      data={filteredProducts}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id_products.toString()}
-      numColumns={2}
-      columnWrapperStyle={{ gap: 10 }}
-      contentContainerStyle={{ gap: 10, padding: 10 }}
-    />
-  );  
-}
+    <View>
+      <View style={styles.container}>
+        <Link href={`/(admin)/menu?category=1&id_archive=1`} asChild>
+          <Pressable style={styles.pressable}>
+            <Text style={styles.pressableText}>COOKIE</Text>
+          </Pressable>
+        </Link>
+        <Link href={`/(admin)/menu?category=2&id_archive=1`} asChild>
+          <Pressable style={styles.pressable}>
+            <Text style={styles.pressableText}>BREADS</Text>
+          </Pressable>
+        </Link>
+        <Link href={`/(admin)/menu?category=3&id_archive=1`} asChild>
+          <Pressable style={styles.pressable}>
+            <Text style={styles.pressableText}>CAKES</Text>
+          </Pressable>
+        </Link>
+        <Link href={`/(admin)/menu?category=4&id_archive=1`} asChild>
+          <Pressable style={styles.pressable}>
+            <Text style={styles.pressableText}>BENTO CAKES</Text>
+          </Pressable>
+        </Link>
+      </View>
+      </View>
+  );
+};
+
+export default Index;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    marginTop: '50%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  pressable: {
+    width: '40%',
+    height: 100,
+    backgroundColor: 'lightblue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 10,
+    borderRadius: 15,
+  },
+  pressableText: {
+    color: 'black',
+    fontStyle: 'italic',
+  },
+});

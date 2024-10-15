@@ -9,6 +9,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useInsertProduct, useProduct, useUpdateProduct, useArchiveProduct, useArchiveIdProducts } from '@/src/api/products';
 import { useCategory } from '@/src/components/categoryParams';
+import { useUnarchiveProduct } from '@/src/api/products'; 
+import { useArchivedParams } from '@/components/archivedParams';
 
 const CreateProductScreen = () => {
   const [name, setNames] = useState('');
@@ -18,6 +20,8 @@ const CreateProductScreen = () => {
   const [image, setImage] = useState<string | null>(null);
 
   const { id: idString } = useLocalSearchParams();
+  const { id_archive } = useArchivedParams(); 
+  console.log('Archive param:', id_archive); 
 
   const id = parseFloat(typeof idString === 'string' ? idString : idString?.[0]);
 
@@ -30,6 +34,7 @@ const CreateProductScreen = () => {
   const { mutate: updateProduct } = useUpdateProduct();
   const { mutate: archiveProduct } = useArchiveProduct(id);
   const { data: updatingProduct } = useProduct(id);
+  const { mutate: unarchiveProduct } = useUnarchiveProduct(id); 
 
   const router = useRouter();
 
@@ -155,6 +160,21 @@ const CreateProductScreen = () => {
     }
   };
 
+  const handleUnarchive = () => {
+    unarchiveProduct(id, {
+      onSuccess: () => {
+        alert('Product unarchived successfully.');
+      },
+      onError: (error) => {
+        console.error('Unarchive Product Error:', error);
+        alert('Failed to unarchive product.');
+      },
+    });
+  };
+
+  const isArchived = id_archive === '2';
+  console.log('THIS IS IT HEREE'+isArchived);
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -206,9 +226,17 @@ const CreateProductScreen = () => {
       <Button onPress={onSubmit} text={isUpdating ? 'Update' : 'Create'} />
 
       {isUpdating ? (
-        <Text onPress={confirmDelete} style={styles.textButton}>
-          Archive
-        </Text>
+       <>
+       {isArchived ? (
+         <Text onPress={handleUnarchive} style={styles.textButton}>
+           Unarchive
+         </Text>
+       ) : (
+         <Text onPress={confirmDelete} style={styles.textButton}>
+           Archive
+         </Text>
+       )}
+     </>
       ) : null}
     </View>
   );

@@ -1,8 +1,10 @@
 import { StyleSheet, Image, Pressable } from 'react-native';
 import Colors from '../constants/Colors';
-import { Text, View,} from '@/src/components/Themed';
+import { Text, View } from '@/src/components/Themed';
 import { Product } from '@/src/types';
 import { Link, useSegments } from 'expo-router';
+import React from 'react';
+import { useArchivedParams } from './archivedParams';
 
 type ProductListItemProps = { 
   product: { 
@@ -14,36 +16,39 @@ type ProductListItemProps = {
     };
   };
   amount: number;
- };
+};
 
 export const DefaultPhoto = 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png';
 
-const ProductListItem = ({product} : any) => {
+const ProductListItem = ({ product }: any) => {
   const segments = useSegments();
+  const { id_archive } = useArchivedParams(); 
+  const hrefLink = id_archive ? `/${segments[0]}/menu/create?id=${product.id_products}` : `/${segments[0]}/menu/${product.id_products}`;
 
   return (
-    <Link href={`/${segments[0]}/menu/${product.id_products}: any`} asChild>
-    <Pressable style={styles.container}>
-      <Image style={styles.image} 
-      source={{uri: product.image || DefaultPhoto }} 
-      resizeMode = 'contain'
-      />
-      <Text style={styles.title}>{product.name}</Text>
-      <Text style={styles.price}>Total Stocks: {product.quantity}</Text> 
-    </Pressable>
+    <Link href={hrefLink} asChild>
+      <Pressable style={styles.container}>
+        <Image
+          style={styles.image}
+          source={{ uri: product.image || DefaultPhoto }}
+          resizeMode="contain"
+        />
+        <Text style={styles.title}>{product.name}</Text>
+        <Text style={styles.price}>Total Stocks: {product.quantity}</Text>
+      </Pressable>
     </Link>
   );
-}
+};
 
 export default ProductListItem;
 
 const styles = StyleSheet.create({
   container: {
-   backgroundColor: 'white',
-   padding: 10,
-   borderRadius: 20,
-   flex: 1,
-   maxWidth: '50%',
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 20,
+    flex: 1,
+    maxWidth: '50%',
   },
   title: {
     fontSize: 17,
@@ -56,7 +61,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   image: {
-    width: "100%",
+    width: '100%',
     aspectRatio: 1,
   },
 });

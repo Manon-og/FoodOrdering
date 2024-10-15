@@ -16,19 +16,6 @@ function TabBarIcon(props: {
   return <FontAwesome size={20} style={{ marginBottom: -3 }} {...props} />;
 }
 
-// const MenuTabButton = ({ color }) => {
-//   const navigation = useNavigation();
-
-//   return (
-//     <Pressable
-//       onPress={() => navigation.navigate({ routeName: '/(admin)/category' })}
-//       style={{ alignItems: 'center', justifyContent: 'center' }}
-//     >
-//       <TabBarIcon name="cutlery" color={color} />
-//     </Pressable>
-//   );
-// };
-
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
@@ -89,7 +76,8 @@ export default function TabLayout() {
         options={{
           title: 'Menu',
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon name="cutlery" color={color} />,
+          tabBarIcon: ({ color }) => 
+        <TabBarIcon name="cutlery" color={color} />,
           tabBarButton: (props) => (
             <Link href="/(admin)/category" asChild>
               <TouchableOpacity {...props} />
@@ -104,6 +92,7 @@ export default function TabLayout() {
           title: 'Profile',
           tabBarIcon: ({ color }) => 
          <Ionicons name="person-circle" color={color} size={24} />,
+          
         }}
       />
 

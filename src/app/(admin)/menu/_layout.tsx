@@ -7,12 +7,13 @@ import Colors from "../../../constants/Colors";
 import { useCategory } from "@/src/components/categoryParams";
 import { useBranchName } from "@/src/components/branchParams";
 import { useByBranch } from "@/src/providers/BranchProvider";
+import { useArchivedParams } from "@/components/archivedParams";
 
 export default function MenuStack() {
   const category = useCategory();
   console.log('okay', category);
 
-
+  const { id_archive } = useArchivedParams();
   const { id_branch, branchName } = useBranchName();
   console.log('))):', id_branch);
   console.log('))):', branchName);
@@ -29,14 +30,16 @@ export default function MenuStack() {
   const change = id_branch ? `/(admin)/locations?id_branch=${id_branch}&&branchName=${branchName}` : '/(admin)/category';
   console.log('change:', change);
 
+  const pageTitle = id_archive ? `Archived Products` : `Menu`;
+
   return (
     <Stack>
       <Stack.Screen
         name="index"
         options={{
-          title: `Menu`,
+          title: `${pageTitle}`,
           headerRight: () => (
-            !id_branch && (
+            id_archive ? null : !id_branch && (
               <Link href={`/(admin)/menu/create?category=${category}`} asChild>
                 <Pressable>
                   {({ pressed }) => (
@@ -52,7 +55,7 @@ export default function MenuStack() {
             )
           ),
           headerLeft: () => (
-            <Link href={`${change}`} asChild>
+            <Link href={id_archive ? `/(admin)/archive` : `${change}`} asChild>
               <Pressable style={styles.backButton}>
                 {({ pressed }) => (
                   <>
