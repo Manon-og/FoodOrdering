@@ -20,14 +20,14 @@ export default function MenuStack() {
   console.log('((())):', branchName);
   console.log('((()))))):', id_branch);
 
+
+
   useEffect(() => {
     setBranchName(branchName);
     setIdBranch(id_branch);
   }, [branchName, id_branch, setBranchName, setIdBranch]);
 
-  console.log('assd:', branchName, id_branch);
-  const change = id_branch ? `/(admin)/locations?id_branch=${id_branch}&&branchName=${branchName}` : '/(admin)/category';
-  console.log('change:', change);
+  const change = '/(admin)/profile';
 
   return (
     <Stack>
@@ -37,7 +37,7 @@ export default function MenuStack() {
           title: `Archives`,
         
           headerLeft: () => (
-            <Link href={`${change}:any`} asChild>
+            <Link href={`${change}`} asChild>
               <Pressable style={styles.backButton}>
                 {({ pressed }) => (
                   <>

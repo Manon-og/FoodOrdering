@@ -4,6 +4,7 @@ import { Text, View } from '@/src/components/Themed';
 import { Product } from '@/src/types';
 import { Link, useSegments } from 'expo-router';
 import React from 'react';
+import { useArchivedParams } from './archivedParams';
 
 type ProductListItemProps = { 
   product: { 
@@ -21,9 +22,11 @@ export const DefaultPhoto = 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com
 
 const ProductListItem = ({ product }: any) => {
   const segments = useSegments();
+  const { id_archive } = useArchivedParams(); 
+  const hrefLink = id_archive ? `/${segments[0]}/menu/create?id=${product.id_products}` : `/${segments[0]}/menu/${product.id_products}`;
 
   return (
-    <Link href={`/${segments[0]}/menu/${product.id_products}`} asChild>
+    <Link href={hrefLink} asChild>
       <Pressable style={styles.container}>
         <Image
           style={styles.image}
