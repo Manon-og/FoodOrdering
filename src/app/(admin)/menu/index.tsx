@@ -6,6 +6,7 @@ import { useBranchProductList, useProductList } from '@/src/api/products';
 import { useCategory } from '@/src/components/categoryParams';
 import { useByBranch } from '@/src/providers/BranchProvider'; // Adjust the import path as needed
 import { useBranchName } from '@/src/components/branchParams';
+import { useArchivedParams } from '@/components/archivedParams'; 
 
 const MemoizedProductListItem = memo(ProductListItem);
 const MemoizedProductListItemByBatch = memo(BatchByProductListItem);
@@ -16,6 +17,11 @@ export default function MenuScreen() {
   const { id_branch, branchName } = useBranchName();
   console.log('id_branchASJDASJDAKSD:', id_branch);
   const { setBranchName, setIdBranch } = useByBranch();
+
+  const { id_archive} = useArchivedParams();
+  const IDarchive = id_archive ? 1 : 2;
+
+
 
   useEffect(() => {
     setBranchName(branchName);
@@ -47,8 +53,15 @@ export default function MenuScreen() {
   console.log('productByBranchList:', productByBranchList);
 
   const useProduct = id_branch ? productByBranchList : productList;
+  console.log('USEPRODUCT:', useProduct);
 
-  const filteredProducts = useProduct.filter(item => item && item.id_archive === 2);
+  
+
+  const filteredProducts = useProduct.filter(item =>
+    id_branch ? item && item.id_products.id_archive === IDarchive :
+                item && item.id_archive === IDarchive);
+                
+  console.log('FILTERED:', filteredProducts);
   console.log('OMG:', filteredProducts.map(item => item.id_products));
 
   const renderItem = ({ item }: { item: any }) => {

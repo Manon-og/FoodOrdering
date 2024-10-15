@@ -7,7 +7,7 @@ type AvailableBatchProps = {
 };
 
 const AvailableBatch = ({ productId }: AvailableBatchProps) => {
-  const { data: batches, error, isLoading } = useAvailableBatch(productId);
+  const { data: batches, error, isLoading } = useAvailableBatch(Number(productId));
 
   if (isLoading) {
     return <Text>{batches}Loading... {batches}</Text>;

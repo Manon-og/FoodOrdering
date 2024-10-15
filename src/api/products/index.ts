@@ -313,6 +313,23 @@ import { useMutation, useQuery, useQueryClient,  } from "@tanstack/react-query";
             });
           } 
 
+          export const useLocalBatchList = (ids: number[]) => {
+            return useQuery({
+              queryKey: ['batches', ids],
+              queryFn: async () => {
+                const { data, error } = await supabase
+                  .from('batch')
+                  .select('*, id_products(*), id_branch(*)')
+                  .in('id_products', ids);
+                if (error) {
+                  console.error('Supabase error:', error); // Log the error object
+                  throw new Error(error.message);
+                }
+                return data;
+              },
+            });
+          };
+
           export const useBatchListByCategory = (id: string) => {
             return useQuery({
               queryKey: ['batch', id],

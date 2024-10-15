@@ -17,9 +17,13 @@ type ProductListItemProps = {
   onDecrement: () => void;
 };
 
-const ProductListItem = ({ product, quantity, onIncrement, onDecrement }: ProductListItemProps) => {
+const ProductListItem = ({ product, quantity, onIncrement, onDecrement, onOpenModal }: any) => {
+  const handlePress = () => {
+    onIncrement();
+    onOpenModal();
+  };
   return (
-    <Pressable onPress={onIncrement} style={styles.container}>
+    <Pressable onPress={handlePress}   style={styles.container}>
       <View style={styles.row}>
         <Text style={styles.title}>{product.name}</Text>
         {quantity > 0 && (

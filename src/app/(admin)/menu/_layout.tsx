@@ -52,7 +52,7 @@ export default function MenuStack() {
             )
           ),
           headerLeft: () => (
-            <Link href={`${change}`} asChild>
+            <Link href={`${change} `} asChild>
               <Pressable style={styles.backButton}>
                 {({ pressed }) => (
                   <>

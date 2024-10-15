@@ -13,7 +13,7 @@ function ProductDetailScreen() {
   const id_products = parseFloat(typeof idString === 'string' ? idString : idString[0]);
   const MemoizedQuantityListItemByBatch = memo(QuantityListItem);
 
-  const { data: batch } = useBatchList(id_products);
+  const { data: batch } = useBatchList(id_products.toString());
   const { data: product, error, isLoading } = useProduct(id_products);
   const { data: priceHistory } = usePriceHistory(id_products);
 
