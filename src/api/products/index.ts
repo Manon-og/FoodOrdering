@@ -240,26 +240,6 @@ export const useUpdateProduct = () => {
   });
 };
 
-export const useArchiveProduct = (id: number) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn(id: number) {
-      const { error } = await supabase
-        .from("products")
-        .update({ id_archive: 1 })
-        .eq("id_products", id);
-
-      console.log("id", id);
-      if (error) {
-        throw new Error(error.message);
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["products"] });
-    },
-  });
-};
 
 export const useInsertBatch = () => {
   const queryClient = useQueryClient();
@@ -402,22 +382,66 @@ export const usePriceHistory = (id: number) => {
   });
 };
 
-export const useSignIn = () => {
-  return useMutation({
-    mutationFn: async ({
-      email,
-      password,
-    }: {
-      email: string;
-      password: string;
-    }) => {
-      const { error } = await supabase.auth.signInWithPassword({
+  export const useUnarchiveProduct = (id: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      async mutationFn(id: number) {
+        const { error } = await supabase
+          .from('products')
+          .update({ id_archive: 2 })
+          .eq('id_products', id);
+
+        console.log('id', id);
+        if (error) {
+          throw new Error(error.message);
+        }
+      },
+      async onSuccess() {
+        await queryClient.invalidateQueries({ queryKey: ['products'] });
+      },
+    });
+  };
+
+  export const useArchiveProduct = (id: number) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+      async mutationFn(id: number) {
+        const { error } = await supabase
+          .from('products')
+          .update({ id_archive: 1 })
+          .eq('id_products', id);
+
+        console.log('id', id);
+        if (error) {
+          throw new Error(error.message);
+        }
+      },
+      async onSuccess() {
+        await queryClient.invalidateQueries({ queryKey: ['products'] });
+      },
+    });
+  };
+
+
+
+  export const useSignIn = () => {
+    return useMutation({
+      mutationFn: async ({
         email,
         password,
-      });
-      if (error) {
-        throw new Error(error.message);
-      }
-    },
-  });
-};
+      }: {
+        email: string;
+        password: string;
+      }) => {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) {
+          throw new Error(error.message);
+        }
+      },
+    });
+  };
