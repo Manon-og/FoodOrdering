@@ -1,6 +1,5 @@
 import { supabase } from "@/src/lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
 import { Alert } from "react-native";
 
 export const useProductList = (id: string) => {
@@ -242,27 +241,6 @@ export const useUpdateProduct = () => {
   });
 };
 
-export const useArchiveProduct = (id: number) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn(id: number) {
-      const { error } = await supabase
-        .from("products")
-        .update({ id_archive: 1 })
-        .eq("id_products", id);
-
-      console.log("id", id);
-      if (error) {
-        throw new Error(error.message);
-      }
-    },
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["products"] });
-    },
-  });
-};
-
 export const useInsertBatch = () => {
   const queryClient = useQueryClient();
 
@@ -400,6 +378,48 @@ export const usePriceHistory = (id: number) => {
         throw new Error(error.message);
       }
       return data;
+    },
+  });
+};
+
+export const useUnarchiveProduct = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn(id: number) {
+      const { error } = await supabase
+        .from("products")
+        .update({ id_archive: 2 })
+        .eq("id_products", id);
+
+      console.log("id", id);
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};
+
+export const useArchiveProduct = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn(id: number) {
+      const { error } = await supabase
+        .from("products")
+        .update({ id_archive: 1 })
+        .eq("id_products", id);
+
+      console.log("id", id);
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 };
