@@ -7,7 +7,7 @@ import { useBranchName } from '@/src/components/branchParams';
 
 const Index = () => {
   const { data: branch } = useBranch();
-  console.log('branch:', branch);
+  console.log('branch???????:', branch);
   const place = branch?.map(item => item.id_branch);
   console.log('place:', place);
 

@@ -21,8 +21,6 @@ export default function MenuScreen() {
   const { id_archive} = useArchivedParams();
   const IDarchive = id_archive ? 1 : 2;
 
-
-
   useEffect(() => {
     setBranchName(branchName);
     setIdBranch(id_branch);
@@ -34,7 +32,7 @@ export default function MenuScreen() {
   const branchId = id_branch || '';
   const { data: productsByBranch } = useBranchProductList(category, branchId);
   const { data: products, error, isLoading } = useProductList(category);
-  console.log('PRODUCTS:', productsByBranch);
+  console.log('IMhere@@:', productsByBranch);
 
   if (isLoading) {
     return <ActivityIndicator />;

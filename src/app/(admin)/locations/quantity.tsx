@@ -1,9 +1,10 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Alert, Modal, TextInput, Button } from 'react-native';
-import React, { memo, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Alert } from 'react-native';
+import React, { useState } from 'react';
 import { Stack } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
-import { useInsertBatch, useProductList } from '@/src/api/products';
+import { useTransferQuantity, useProductList } from '@/src/api/products';
 import QuantityModal from '@/src/modals/quantityModals';
+import { useBranchName } from '@/components/branchParams';
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('1');
@@ -13,9 +14,11 @@ const Index = () => {
   const [inputQuantity, setInputQuantity] = useState<string>('');
 
   const { data: products, error, isLoading } = useProductList(selectedCategory);
-  const { mutate: insertBatch } = useInsertBatch();
-  console.log('asjhdbaksh:', products);
-  console.log('Selected Category:', selectedCategory);
+  const { mutate: transferQuantity } = useTransferQuantity();
+
+  const { id_branch, branchName } = useBranchName();
+  console.log('IDIDID>>>:', id_branch);
+  console.log('IDIDID>>>:', branchName);
 
   const handleOpenModal = (productId: string) => {
     setCurrentProductId(productId);
@@ -56,16 +59,15 @@ const Index = () => {
       Alert.alert('No Changes', 'No products were updated.');
       return;
     }
-  
+
     console.log('Products:', products); // Log the products array
-  
+
     const summary = products?.map(product => {
       const quantity = productQuantities[product.id_products] || 0;
       console.log(`id_products: ${product.id_products}, quantity: ${quantity}`);
       return `${product.name}: ${quantity}`;
     }).join('\n');
-  
-  
+
     Alert.alert(
       'Confirm Changes',
       `You are adding:\n\n${summary}`,
@@ -78,7 +80,7 @@ const Index = () => {
           text: 'Confirm',
           onPress: () => {
             Object.entries(productQuantities).forEach(([id_products, quantity]) => {
-              insertBatch({ id_products: Number(id_products), quantity });
+              transferQuantity({ id_branch: Number(id_branch), id_products: Number(id_products), quantity }); // Assuming id_branch is 1 for this example
             });
             Alert.alert('Changes Confirmed', 'You have successfully added the products');
           },
@@ -86,15 +88,12 @@ const Index = () => {
       ]
     );
   };
-  
+
+
   if (isLoading) {
     return <ActivityIndicator />;
   }
-  
-  if (isLoading) {
-    return <ActivityIndicator />;
-  }
-  
+
   if (error) {
     return (
       <View>
@@ -102,21 +101,19 @@ const Index = () => {
       </View>
     );
   }
-  
+
   const filteredProductList = Array.isArray(products)
     ? products.filter((item) => item.id_archive === 2)
     : [];
 
   const renderItem = ({ item }: { item: any }) => (
     <Pressable onPress={() => handleOpenModal(item.id_products)} style={styles.productItem}>
-    <Text style={styles.productName}>{item.name}</Text>
-    <Text style={styles.quantityText}>
-      Available Quantity: {item.quantity}
-    </Text>
-  </Pressable>
-);
-
- 
+      <Text style={styles.productName}>{item.name}</Text>
+      <Text style={styles.quantityText}>
+        Available Quantity: {item.quantity}
+      </Text>
+    </Pressable>
+  );
 
   return (
     <View style={styles.screenContainer}>
@@ -135,7 +132,7 @@ const Index = () => {
                 />
               )}
             </Pressable>
-         ),
+          ),
         }}
       />
       <View style={styles.categoryContainer}>
@@ -251,5 +248,4 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
-
 });

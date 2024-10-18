@@ -47,7 +47,7 @@ export default function MenuStack() {
     setIdBranch(id_branch);
   }, [branchName, id_branch, setBranchName, setIdBranch]);
 
-  console.log('id_branchs???', id_branch);
+  console.log('id_branchs???!!!', id_branch);
   console.log('branchNames???', branchName);
 
   const [id, setID] = useState(id_branch);
@@ -84,7 +84,7 @@ export default function MenuStack() {
         options={{
           title: fi,
           headerRight: () => (
-            <Link href={`/(admin)/locations/quantity`} asChild>
+            <Link href={`/(admin)/locations/quantity?id_branch=${id_branch}&branchName=${branchName}`} asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome
