@@ -50,12 +50,14 @@ export default function UserProfile() {
             </View>
           </Pressable>
         </Link>
-        <Pressable style={styles.menuButton}>
-          <View style={styles.menuTextContainer}>
-            <Text style={styles.menuText}>Manage Employees</Text>
-            <Text style={styles.arrow}>→</Text>
-          </View>
-        </Pressable>
+        <Link href="/employees" asChild>
+          <Pressable style={styles.menuButton}>
+            <View style={styles.menuTextContainer}>
+              <Text style={styles.menuText}>Manage Employees</Text>
+              <Text style={styles.arrow}>→</Text>
+            </View>
+          </Pressable>
+        </Link>
       </View>
     </View>
   );

@@ -1,4 +1,4 @@
-import { supabase } from "@/src/lib/supabase";
+import { supabase, supabaseAdmin } from "@/src/lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 
@@ -487,4 +487,48 @@ export const getUserFullName = async () => {
   }
 
   return profileData?.full_name || null;
+};
+
+export const fetchEmployees = async () => {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, email, group");
+  if (error) {
+    console.error("Error fetching employees:", error);
+    throw new Error(error.message);
+  }
+  return data;
+};
+
+export const handleCreateEmployee = async (
+  fullName: string,
+  email: string,
+  password: string,
+  refreshEmployees: () => void,
+  router: any
+) => {
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
+
+  if (error) {
+    Alert.alert("Error", error.message);
+  } else {
+    const userId = data.user?.id;
+    if (userId) {
+      const { error: profileError } = await supabaseAdmin
+        .from("profiles")
+        .upsert([{ id: userId, full_name: fullName, email }]);
+
+      if (profileError) {
+        Alert.alert("Error", profileError.message);
+      } else {
+        Alert.alert("Success", "Employee created successfully");
+        refreshEmployees(); // Refresh the employee list
+        router.replace("/employees");
+      }
+    }
+  }
 };
