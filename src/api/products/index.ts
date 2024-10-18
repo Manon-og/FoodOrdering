@@ -248,7 +248,7 @@ export const useInsertBatch = () => {
     mutationFn: async (data: any) => {
       try {
         const { data: newBatch, error } = await supabase.from("batch").insert({
-          batch: data.quantity,
+          quantity: data.quantity,
           id_products: data.id_products,
         });
         return newBatch;

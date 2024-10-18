@@ -22,6 +22,7 @@ const CreateProductScreen = () => {
   const { id: idString } = useLocalSearchParams();
   const { id_archive } = useArchivedParams(); 
   console.log('Archive param:', id_archive); 
+  console.log('ID param:', idString);
 
   const id = parseFloat(typeof idString === 'string' ? idString : idString?.[0]);
 
@@ -172,8 +173,8 @@ const CreateProductScreen = () => {
     });
   };
 
-  const isArchived = id_archive === '2';
-  console.log('THIS IS IT HEREE'+isArchived);
+  const isArchived = id_archive === '1';
+  console.log('THIS IS IT HEREE '+ isArchived);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({

@@ -1,34 +1,96 @@
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Alert } from 'react-native';
-import React, { memo, useState, useEffect } from 'react';
-import { Link, Stack } from 'expo-router';
-import ProductQuantityListItem from '@/src/components/ProductQuantityListItems';
-import { useBatchList, useInsertBatch, useProduct, useProductList } from '@/src/api/products';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Alert, Modal, TextInput, Button } from 'react-native';
+import React, { memo, useState } from 'react';
+import { Stack } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import QuantityListItem from '@/components/QuantityListItem';
-import BatchModal from '@/modals/BatchModals';
+import { useInsertBatch, useProductList } from '@/src/api/products';
+import QuantityModal from '@/src/modals/quantityModals';
 
 const Index = () => {
-  const MemoizedProductListItem = memo(ProductQuantityListItem);
-
-  const [selectedCategory, setSelectedCategory] = useState('1'); 
+  const [selectedCategory, setSelectedCategory] = useState('1');
   const [productQuantities, setProductQuantities] = useState<{ [key: string]: number }>({});
-  const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
-  const [selectedProductId, setSelectedProductId] = useState<string>(''); // State to store selected product ID
-  const [selectedBatch, setSelectedBatch] = useState<any[]>([]); // State to store selected batch data
-  
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentProductId, setCurrentProductId] = useState<string | null>(null);
+  const [inputQuantity, setInputQuantity] = useState<string>('');
+
   const { data: products, error, isLoading } = useProductList(selectedCategory);
   const { mutate: insertBatch } = useInsertBatch();
+  console.log('asjhdbaksh:', products);
+  console.log('Selected Category:', selectedCategory);
 
-  // Fetch batch data based on selectedProductId
-  const { data: batch } = useBatchList(selectedProductId);
-  
-  useEffect(() => {
-    if (batch) {
-      setSelectedBatch(batch);
+  const handleOpenModal = (productId: string) => {
+    setCurrentProductId(productId);
+    setInputQuantity(productQuantities[productId]?.toString() || ''); // Set input to the existing quantity
+    setIsModalVisible(true);
+  };
+
+  const handleConfirmModal = () => {
+    const quantity = parseInt(inputQuantity);
+    if (quantity > 0) {
+      setProductQuantities((prev) => ({
+        ...prev,
+        [currentProductId as string]: quantity,
+      }));
+      setIsModalVisible(false);
+    } else {
+      Alert.alert('Invalid Input', 'Please enter a valid quantity greater than 0.');
     }
-  }, [batch]);
+  };
 
+  const handleCloseModal = () => {
+    if (inputQuantity) {
+      Alert.alert(
+        'Unsaved Changes',
+        'You have unsaved changes. Are you sure you want to close without saving?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Discard', style: 'destructive', onPress: () => setIsModalVisible(false) },
+        ]
+      );
+    } else {
+      setIsModalVisible(false);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (Object.keys(productQuantities).length === 0) {
+      Alert.alert('No Changes', 'No products were updated.');
+      return;
+    }
+  
+    console.log('Products:', products); // Log the products array
+  
+    const summary = products?.map(product => {
+      const quantity = productQuantities[product.id_products] || 0;
+      console.log(`id_products: ${product.id_products}, quantity: ${quantity}`);
+      return `${product.name}: ${quantity}`;
+    }).join('\n');
+  
+  
+    Alert.alert(
+      'Confirm Changes',
+      `You are adding:\n\n${summary}`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => {
+            Object.entries(productQuantities).forEach(([id_products, quantity]) => {
+              insertBatch({ id_products: Number(id_products), quantity });
+            });
+            Alert.alert('Changes Confirmed', 'You have successfully added the products');
+          },
+        },
+      ]
+    );
+  };
+  
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+  
   if (isLoading) {
     return <ActivityIndicator />;
   }
@@ -41,58 +103,28 @@ const Index = () => {
     );
   }
   
-  const filteredProductList = Array.isArray(products) ? products.filter(item => item.id_archive === 2) : [];
-
-  const handleIncrement = (productId: any) => {
-    setProductQuantities(prevQuantities => {
-      const newQuantities = { ...prevQuantities };
-      newQuantities[productId] = (newQuantities[productId] || 1);
-      return newQuantities;
-    });
-  };
-
-  const handleDecrement = (productId: any) => {
-    setProductQuantities(prevQuantities => {
-      const newQuantities = { ...prevQuantities };
-      newQuantities[productId] = Math.max((newQuantities[productId] || 0) - 1, 0);
-      if (newQuantities[productId] === 0) {
-        delete newQuantities[productId];
-      }
-      return newQuantities;
-    });
-  };
+  const filteredProductList = Array.isArray(products)
+    ? products.filter((item) => item.id_archive === 2)
+    : [];
 
   const renderItem = ({ item }: { item: any }) => (
-    <MemoizedProductListItem 
-      product={item} 
-      quantity={productQuantities[item.id_products] || 0}
-      onIncrement={() => handleIncrement(item.id_products)}
-      onDecrement={() => handleDecrement(item.id_products)}
-      onOpenModal={() => {
-        setSelectedProductId(item.id_products.toString()); // Update selectedProductId
-        setModalVisible(true);
-      }}
-    />
-  );
+    <Pressable onPress={() => handleOpenModal(item.id_products)} style={styles.productItem}>
+    <Text style={styles.productName}>{item.name}</Text>
+    <Text style={styles.quantityText}>
+      Available Quantity: {item.quantity}
+    </Text>
+  </Pressable>
+);
 
-  const handleSubmit = () => {
-    Object.entries(productQuantities).forEach(([id_products, quantity]) => {
-      insertBatch({ id_products: Number(id_products), quantity });
-    });
-  };
-
-  const MemoizedQuantityListItemByBatch = memo(QuantityListItem);
-  const renderItemByBatch = ({ item }: { item: any }) => {
-    return <MemoizedQuantityListItemByBatch batch={item} />;
-  };
+ 
 
   return (
     <View style={styles.screenContainer}>
       <Stack.Screen options={{ title: 'Update Quantity' }} />
-      <Stack.Screen 
-        options = {{
-         title : 'Update Quantity',
-         headerRight: () => (
+      <Stack.Screen
+        options={{
+          title: 'Update Quantity',
+          headerRight: () => (
             <Pressable onPress={handleSubmit}>
               {({ pressed }) => (
                 <FontAwesome
@@ -103,7 +135,9 @@ const Index = () => {
                 />
               )}
             </Pressable>
-        ),}} />
+         ),
+        }}
+      />
       <View style={styles.categoryContainer}>
         <Pressable style={styles.pressable} onPress={() => setSelectedCategory('1')}>
           <Text style={styles.pressableText}>COOKIE</Text>
@@ -124,10 +158,12 @@ const Index = () => {
         keyExtractor={(item) => item.id_products.toString()}
         contentContainerStyle={styles.listContainer}
       />
-      <BatchModal
+      <QuantityModal
         visible={isModalVisible}
-        onClose={() => setModalVisible(false)}
-        batch={selectedBatch}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmModal}
+        inputQuantity={inputQuantity}
+        setInputQuantity={setInputQuantity}
       />
     </View>
   );
@@ -167,4 +203,53 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 10,
   },
+  productItem: {
+    padding: 15,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    marginVertical: 5,
+    shadowColor: 'black',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+  },
+  productName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  quantityText: {
+    marginTop: 5,
+    fontSize: 14,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  input: {
+    borderBottomWidth: 1,
+    width: '100%',
+    textAlign: 'center',
+    padding: 10,
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+
 });

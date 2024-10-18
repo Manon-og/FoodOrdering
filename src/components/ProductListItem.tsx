@@ -23,7 +23,8 @@ export const DefaultPhoto = 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com
 const ProductListItem = ({ product }: any) => {
   const segments = useSegments();
   const { id_archive } = useArchivedParams(); 
-  const hrefLink = id_archive ? `/${segments[0]}/menu/create?id=${product.id_products}` : `/${segments[0]}/menu/${product.id_products}`;
+  console.log('ID ARCHIVE??????????:', id_archive);
+  const hrefLink = id_archive ? `/${segments[0]}/menu/create?id=${product.id_products}&id_archive=1` : `/${segments[0]}/menu/${product.id_products}`;
 
   return (
     <Link href={hrefLink} asChild>
