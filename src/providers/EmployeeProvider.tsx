@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/src/lib/supabase"; // Ensure you have the correct import for supabase
+import { fetchEmployees } from "@/api/products"; // Ensure the correct import path
 
 // Define the Employee type
 interface Employee {
@@ -23,24 +24,22 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
 
-  const fetchEmployees = async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, full_name, email, group");
-    if (error) {
-      console.error("Error fetching employees:", error);
-    } else {
-      setEmployees(data as Employee[]); // Type assertion
+  const loadEmployees = async () => {
+    try {
+      const data = await fetchEmployees();
+      setEmployees(data as Employee[]);
+    } catch (error) {
+      console.error("Error loading employees:", error);
     }
   };
 
   useEffect(() => {
-    fetchEmployees();
+    loadEmployees();
   }, []);
 
   return (
     <EmployeeContext.Provider
-      value={{ employees, refreshEmployees: fetchEmployees }}
+      value={{ employees, refreshEmployees: loadEmployees }}
     >
       {children}
     </EmployeeContext.Provider>

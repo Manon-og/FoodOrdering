@@ -8,8 +8,8 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { supabaseAdmin } from "@/src/lib/supabase";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
+import { handleCreateEmployee } from "@/api/products"; // Ensure the correct import path
 
 export default function EmployeeForm() {
   const router = useRouter();
@@ -18,31 +18,8 @@ export default function EmployeeForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleCreateEmployee = async () => {
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-    });
-
-    if (error) {
-      Alert.alert("Error", error.message);
-    } else {
-      const userId = data.user?.id;
-      if (userId) {
-        const { error: profileError } = await supabaseAdmin
-          .from("profiles")
-          .upsert([{ id: userId, full_name: fullName, email }]);
-
-        if (profileError) {
-          Alert.alert("Error", profileError.message);
-        } else {
-          Alert.alert("Success", "Employee created successfully");
-          refreshEmployees(); // Refresh the employee list
-          router.replace("/employees");
-        }
-      }
-    }
+  const onCreateEmployee = () => {
+    handleCreateEmployee(fullName, email, password, refreshEmployees, router);
   };
 
   return (
@@ -69,7 +46,7 @@ export default function EmployeeForm() {
         style={styles.input}
         secureTextEntry
       />
-      <Pressable style={styles.createButton} onPress={handleCreateEmployee}>
+      <Pressable style={styles.createButton} onPress={onCreateEmployee}>
         <Text style={styles.createButtonText}>Create</Text>
       </Pressable>
     </View>
