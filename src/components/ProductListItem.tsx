@@ -1,30 +1,33 @@
-import { StyleSheet, Image, Pressable } from 'react-native';
-import Colors from '../constants/Colors';
-import { Text, View } from '@/src/components/Themed';
-import { Product } from '@/src/types';
-import { Link, useSegments } from 'expo-router';
-import React from 'react';
-import { useArchivedParams } from './archivedParams';
+import { StyleSheet, Image, Pressable } from "react-native";
+import Colors from "../constants/Colors";
+import { Text, View } from "@/src/components/Themed";
+import { Product } from "@/src/types";
+import { Link, useSegments } from "expo-router";
+import React from "react";
+import { useArchivedParams } from "./archivedParams";
 
-type ProductListItemProps = { 
-  product: { 
+type ProductListItemProps = {
+  product: {
     id: string;
     name: string;
     image: string;
-    price: { 
+    price: {
       amount: number;
     };
   };
   amount: number;
 };
 
-export const DefaultPhoto = 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png';
+export const DefaultPhoto =
+  "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
 
 const ProductListItem = ({ product }: any) => {
   const segments = useSegments();
-  const { id_archive } = useArchivedParams(); 
-  console.log('ID ARCHIVE??????????:', id_archive);
-  const hrefLink = id_archive ? `/${segments[0]}/menu/create?id=${product.id_products}&id_archive=1` : `/${segments[0]}/menu/${product.id_products}`;
+  const { id_archive } = useArchivedParams();
+  console.log("ID ARCHIVE??????????:", id_archive);
+  const hrefLink = id_archive
+    ? `/${segments[0]}/menu/create?id=${product.id_products}&id_archive=1`
+    : `/${segments[0]}/menu/${product.id_products}`;
 
   return (
     <Link href={hrefLink} asChild>
@@ -45,24 +48,24 @@ export default ProductListItem;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 10,
     borderRadius: 20,
     flex: 1,
-    maxWidth: '50%',
+    maxWidth: "50%",
   },
   title: {
     fontSize: 17,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.light.tint,
   },
   price: {
     fontSize: 10,
     color: Colors.light.tint,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   image: {
-    width: '100%',
+    width: "100%",
     aspectRatio: 1,
   },
 });

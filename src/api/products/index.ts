@@ -55,7 +55,7 @@ export const useBranchProductList = (id: string, idB: string) => {
     queryKey: ["batch", id, idB],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("batch")
+        .from("localbatch")
         .select(`*, id_products(*)`)
         .eq("id_products.id_category", id)
         .eq("id_branch", idB)
@@ -63,7 +63,20 @@ export const useBranchProductList = (id: string, idB: string) => {
       if (error) {
         throw new Error(error.message);
       }
-      return data;
+
+    // const groupedData = data.reduce((acc, item) => {
+    //     const productId = item.id_products.id_products;
+    //     if (!acc[productId]) {
+    //       acc[productId] = { ...item.id_products, quantity: 0 };
+    //     }
+    //     acc[productId].quantity += item.quantity;
+    //     return acc;
+    //   }, {});
+      
+    //   console.log("groupedData####", groupedData);
+
+    //   return Object.values(groupedData);
+    return data;
     },
   });
 };
@@ -269,10 +282,11 @@ export const useBatchList = (id: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("batch")
-        .select("*, id_products(*), id_branch(*)")
-        .eq("id_products", id);
+        .select("*, id_products(*)")
+        .eq("id_products", id)
+        .gt("quantity", 0);
       if (error) {
-        console.error("Supabase error:", error); // Log the error object
+        console.error("Supabase error:", error); 
         throw new Error(error.message);
       }
       return data;
@@ -531,4 +545,76 @@ export const handleCreateEmployee = async (
       }
     }
   }
+};
+
+export const useTransferQuantity = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { id_branch: number; id_products: number; quantity: number }) => {
+      try {
+        // Fetch batches for the given id_products
+        const { data: batches, error: batchError } = await supabase
+          .from("batch")
+          .select("*")
+          .eq("id_products", data.id_products);
+        console.log("batches", batches);
+
+        if (batchError) {
+          throw new Error("Error fetching batches");
+        }
+
+        let remainingQuantity = data.quantity;
+        console.log("Remaining quantity:", remainingQuantity);
+
+        for (const batch of batches) {
+          if (remainingQuantity <= 0) break;
+          console.log("Batch:", batch);
+          console.log("batch.id_batch", batch.id_batch);
+
+          const transferQuantity = Math.min(batch.quantity, remainingQuantity);
+          console.log("Transfer quantity:", transferQuantity);
+
+          // Insert the transfer into localbatch with id_batch
+          const { data: updatedLocalBatch, error: updateError } = await supabase
+            .from("localbatch")
+            .insert({
+              id_branch: data.id_branch,
+              id_products: data.id_products,
+              id_batch: batch.id_batch,
+              quantity: transferQuantity,
+            })
+            .single();
+          console.log("updatedLocalBatch", updatedLocalBatch);
+
+          if (updateError) {
+            throw new Error(`Error inserting into localbatch table: ${updateError.message}`);
+          }
+
+          // Deduct the transferred quantity from the batch
+          const { data: updatedBatch, error: deductError } = await supabase
+            .from("batch")
+            .update({
+              quantity: batch.quantity - transferQuantity,
+            })
+            .eq("id_batch", batch.id_batch)
+            .single();
+
+          if (deductError) {
+            throw new Error(deductError.message);
+          }
+
+          remainingQuantity -= transferQuantity;
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Error transferring quantity:", error);
+        throw error;
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["localbatch", "batch"] });
+    },
+  });
 };
