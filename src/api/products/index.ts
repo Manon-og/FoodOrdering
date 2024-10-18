@@ -553,7 +553,6 @@ export const useTransferQuantity = () => {
   return useMutation({
     mutationFn: async (data: { id_branch: number; id_products: number; quantity: number }) => {
       try {
-        // Fetch batches for the given id_products
         const { data: batches, error: batchError } = await supabase
           .from("batch")
           .select("*")
@@ -570,12 +569,11 @@ export const useTransferQuantity = () => {
         for (const batch of batches) {
           if (remainingQuantity <= 0) break;
           console.log("Batch:", batch);
-          console.log("batch.id_batch", batch.id_batch);
+          console.log("batch.id_batch??", batch.id_batch);
 
           const transferQuantity = Math.min(batch.quantity, remainingQuantity);
-          console.log("Transfer quantity:", transferQuantity);
+          console.log("TtransferQuantity", transferQuantity);
 
-          // Insert the transfer into localbatch with id_batch
           const { data: updatedLocalBatch, error: updateError } = await supabase
             .from("localbatch")
             .insert({
@@ -591,7 +589,6 @@ export const useTransferQuantity = () => {
             throw new Error(`Error inserting into localbatch table: ${updateError.message}`);
           }
 
-          // Deduct the transferred quantity from the batch
           const { data: updatedBatch, error: deductError } = await supabase
             .from("batch")
             .update({
