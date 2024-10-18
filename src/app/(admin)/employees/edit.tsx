@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { supabase } from "@/lib/supabase";
-import { useEmployeeContext } from "@/providers/EmployeeProvider"; // Ensure you have the correct import for EmployeeContext
+import { useEmployeeContext } from "@/providers/EmployeeProvider";
 
 export default function EditEmployee() {
   const router = useRouter();
