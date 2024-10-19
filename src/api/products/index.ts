@@ -64,19 +64,19 @@ export const useBranchProductList = (id: string, idB: string) => {
         throw new Error(error.message);
       }
 
-    // const groupedData = data.reduce((acc, item) => {
-    //     const productId = item.id_products.id_products;
-    //     if (!acc[productId]) {
-    //       acc[productId] = { ...item.id_products, quantity: 0 };
-    //     }
-    //     acc[productId].quantity += item.quantity;
-    //     return acc;
-    //   }, {});
+    const groupedData = data.reduce((acc, item) => {
+        const productId = item.id_products.id_products;
+        if (!acc[productId]) {
+          acc[productId] = { ...item.id_products, quantity: 0 };
+        }
+        acc[productId].quantity += item.quantity;
+        return acc;
+      }, {});
       
-    //   console.log("groupedData####", groupedData);
+      console.log("groupedData####", groupedData);
 
-    //   return Object.values(groupedData);
-    return data;
+      return Object.values(groupedData);
+    // return data;
     },
   });
 };

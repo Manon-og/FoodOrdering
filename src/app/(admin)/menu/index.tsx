@@ -9,7 +9,7 @@ import { useBranchName } from "@/src/components/branchParams";
 import { useArchivedParams } from "@/components/archivedParams";
 
 const MemoizedProductListItem = memo(ProductListItem);
-const MemoizedProductListItemByBatch = memo(BatchByProductListItem);
+// const MemoizedProductListItemByBatch = memo(BatchByProductListItem);
 
 export default function MenuScreen() {
   const category = useCategory();
@@ -56,11 +56,11 @@ export default function MenuScreen() {
   console.log("USEPRODUCT:", useProduct);
 
   console.log("NEWUSEPRODUCTS:", useProduct);
+  const nn = useProduct?.map((item) => item);
+  console.log("NN:", nn);
 
-  const filteredProducts = useProduct.filter((item) =>
-    id_branch
-      ? item && item.id_products.id_archive === IDarchive
-      : item && item.id_archive === IDarchive
+  const filteredProducts = useProduct.filter(
+    (item) => item && item.id_archive === IDarchive
   );
 
   console.log("FILTERED:", filteredProducts);
@@ -74,20 +74,20 @@ export default function MenuScreen() {
     return <MemoizedProductListItem product={item} />;
   };
 
-  const renderItemByBatch = ({ item }: { item: any }) => {
-    console.log("HERE item:", item);
-    return <MemoizedProductListItemByBatch batch={item} />;
-  };
+  // const renderItemByBatch = ({ item }: { item: any }) => {
+  //   console.log("HERE item:", item);
+  //   return <MemoizedProductListItemByBatch batch={item} />;
+  // };
 
   console.log(
     "PLES?:",
-    productsByBranch?.map((item) => item.quantity)
+    productsByBranch?.map((item) => item)
   );
 
   return (
     <FlatList
       data={filteredProducts}
-      renderItem={id_branch ? renderItemByBatch : renderItem}
+      renderItem={renderItem}
       keyExtractor={(item) =>
         item.id_products
           ? item.id_products.toString()
