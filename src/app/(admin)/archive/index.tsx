@@ -1,11 +1,11 @@
-import React, { memo, useEffect } from 'react';
-import { FlatList, ActivityIndicator } from 'react-native';
-import ProductListItem from '@/src/components/ProductListItem';
-import { useProductList, useProductListArchive } from '@/src/api/products';
-import { useCategory } from '@/src/components/categoryParams';
+import React, { memo, useEffect } from "react";
+import { FlatList, ActivityIndicator } from "react-native";
+import ProductListItem from "@/src/components/ProductListItem";
+import { useProductList, useProductListArchive } from "@/src/api/products";
+import { useCategory } from "@/src/components/categoryParams";
 
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Link,  } from 'expo-router';
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { Link } from "expo-router";
 
 const Index = () => {
   return (
@@ -32,7 +32,7 @@ const Index = () => {
           </Pressable>
         </Link>
       </View>
-      </View>
+    </View>
   );
 };
 
@@ -41,24 +41,24 @@ export default Index;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 10,
-    marginTop: '50%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    marginTop: "50%",
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   pressable: {
-    width: '40%',
+    width: "40%",
     height: 100,
-    backgroundColor: 'lightblue',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "lightblue",
+    justifyContent: "center",
+    alignItems: "center",
     margin: 10,
     borderRadius: 15,
   },
   pressableText: {
-    color: 'black',
-    fontStyle: 'italic',
+    color: "black",
+    fontStyle: "italic",
   },
 });

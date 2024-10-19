@@ -1,6 +1,7 @@
 import { supabase, supabaseAdmin } from "@/src/lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
+import { Branch } from "@/src/types";
 
 export const useProductList = (id: string) => {
   return useQuery({
@@ -615,3 +616,55 @@ export const useTransferQuantity = () => {
     },
   });
 };
+
+export const useBranchDetails = (place: string, street: string, city: string, postalCode: string, country: string) => {
+  return useQuery({
+    queryKey: ["branchDetails", place, street, city, postalCode, country],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("branch")
+        .select("*")
+        .eq("place", place)
+        .eq("street", street)
+        .eq("city", city)
+        .eq("postal_code", postalCode)
+        .eq("country", country);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useBranchData = () => {
+  return useQuery({
+    queryKey: ["branch"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("branch")
+        .select(`*`)
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useLocalBranchData = () => {
+  return useQuery({
+    queryKey: ["localbatch"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("localbatch")
+        .select(`*`)
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+

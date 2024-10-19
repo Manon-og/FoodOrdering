@@ -48,3 +48,14 @@ export type Profile = {
   id: string;
   group: string;
 };
+
+
+export type Branch = {
+  id: number;
+  place: string;
+  street: string;
+  city: string;
+  postal_code: string;
+  country: string;
+  id_archives: number;
+}

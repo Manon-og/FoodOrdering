@@ -58,6 +58,14 @@ export default function UserProfile() {
             </View>
           </Pressable>
         </Link>
+        <Link href="/(admin)/places" asChild>
+          <Pressable style={styles.menuButton}>
+            <View style={styles.menuTextContainer}>
+              <Text style={styles.menuText}>Manage Location</Text>
+              <Text style={styles.arrow}>→</Text>
+            </View>
+          </Pressable>
+        </Link>
       </View>
     </View>
   );

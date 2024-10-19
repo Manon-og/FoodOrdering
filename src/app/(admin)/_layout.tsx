@@ -124,6 +124,33 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+
+      {/* <Tabs.Screen
+        name="places/index"
+        options={{
+          title: "add Location",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="places/addLocation"
+        options={{
+          title: "add Location",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      /> */}
+
+      <Tabs.Screen
+        name="places"
+        options={{
+          title: "add Location",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 }
