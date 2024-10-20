@@ -503,7 +503,7 @@ export const getUserFullName = async () => {
   return profileData?.full_name || null;
 };
 
-export const fetchEmployees = async () => {
+export const fetchEmployees = async (id: string) => {
   const { data, error } = await supabase
     .from("profiles")
     .select("id, full_name, email, group");
@@ -511,6 +511,36 @@ export const fetchEmployees = async () => {
     console.error("Error fetching employees:", error);
     throw new Error(error.message);
   }
+  return data;
+};
+
+export const handleUpdateEmployee = async (
+  id: string,
+  fullName: string,
+  email: string,
+  group: string,
+  refreshEmployees: () => void,
+  router: any
+) => {
+  // Validate the UUID format of the id
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
+    throw new Error("Invalid UUID format for employee ID");
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ full_name: fullName, email, group })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error updating employee:", error);
+    throw new Error(error.message);
+  }
+
+  refreshEmployees();
+  router.push("/employees");
+
   return data;
 };
 
@@ -540,7 +570,7 @@ export const handleCreateEmployee = async (
         Alert.alert("Error", profileError.message);
       } else {
         Alert.alert("Success", "Employee created successfully");
-        refreshEmployees(); // Refresh the employee list
+        refreshEmployees(); 
         router.replace("/employees");
       }
     }

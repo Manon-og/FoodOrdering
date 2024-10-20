@@ -39,22 +39,22 @@ const Index = () => {
         branchName={selectedBranchName}
       />
       <View style={styles.container}>
-        <Link href={`/(admin)/menu?category=1`} asChild>
+        <Link href={`/(user)/menu?category=1`} asChild>
           <Pressable style={styles.pressable}>
             <Text style={styles.pressableText}>COOKIE</Text>
           </Pressable>
         </Link>
-        <Link href={`/(admin)/menu?category=2`} asChild>
+        <Link href={`/(user)/menu?category=2`} asChild>
           <Pressable style={styles.pressable}>
             <Text style={styles.pressableText}>BREADS</Text>
           </Pressable>
         </Link>
-        <Link href={`/(admin)/menu?category=3`} asChild>
+        <Link href={`/(user)/menu?category=3`} asChild>
           <Pressable style={styles.pressable}>
             <Text style={styles.pressableText}>CAKES</Text>
           </Pressable>
         </Link>
-        <Link href={`/(admin)/menu?category=4`} asChild>
+        <Link href={`/(user)/menu?category=4`} asChild>
           <Pressable style={styles.pressable}>
             <Text style={styles.pressableText}>BENTO CAKES</Text>
           </Pressable>

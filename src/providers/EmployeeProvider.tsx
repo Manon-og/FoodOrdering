@@ -1,36 +1,28 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "@/src/lib/supabase"; // Ensure you have the correct import for supabase
-import { fetchEmployees } from "@/api/products"; // Ensure the correct import path
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { fetchEmployees } from '@/api/products'; // Ensure the correct import path
 
-// Define the Employee type
-interface Employee {
-  id: string;
-  full_name: string;
-  group?: string;
-  email?: string; // Optional if not always present
-}
-
-interface EmployeeContextType {
+type EmployeeContextType = {
   employees: Employee[];
-  refreshEmployees: () => void;
-}
+  refreshEmployees: () => Promise<void>;
+};
 
-const EmployeeContext = createContext<EmployeeContextType | undefined>(
-  undefined
-);
+const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined);
 
-export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+import { ReactNode } from 'react';
+
+type Employee = {
+  id: any;
+  full_name: any;
+  email: any;
+  group: any;
+};
+
+export const EmployeeProvider = ({ children }: { children: ReactNode }) => {
   const [employees, setEmployees] = useState<Employee[]>([]);
 
   const loadEmployees = async () => {
-    try {
-      const data = await fetchEmployees();
-      setEmployees(data as Employee[]);
-    } catch (error) {
-      console.error("Error loading employees:", error);
-    }
+    const data = await fetchEmployees();
+    setEmployees(data);
   };
 
   useEffect(() => {
@@ -38,9 +30,7 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <EmployeeContext.Provider
-      value={{ employees, refreshEmployees: loadEmployees }}
-    >
+    <EmployeeContext.Provider value={{ employees, refreshEmployees: loadEmployees }}>
       {children}
     </EmployeeContext.Provider>
   );
@@ -49,9 +39,7 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useEmployeeContext = () => {
   const context = useContext(EmployeeContext);
   if (!context) {
-    throw new Error(
-      "useEmployeeContext must be used within an EmployeeProvider"
-    );
+    throw new Error('useEmployeeContext must be used within an EmployeeProvider');
   }
   return context;
 };
