@@ -578,6 +578,33 @@ export const handleCreateEmployee = async (
   }
 };
 
+export const getEmployeeById = async (id: string) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, group')
+    .eq('id', id)
+    .single(); // Ensures a single result
+  
+  if (error) {
+    console.error('Error fetching employee by ID:', error);
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
+export const deleteEmployee = async (id: string) => {
+  const { error } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting employee:', error);
+    throw new Error(error.message);
+  }
+};
+
 export const useTransferQuantity = () => {
   const queryClient = useQueryClient();
 
