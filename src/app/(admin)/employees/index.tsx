@@ -9,57 +9,34 @@ export default function EmployeeList() {
   const { employees } = useEmployeeContext();
   const router = useRouter();
 
-  const handleEdit = (id: string) => {
-    router.push(`/employees/edit?id=${id}`);
-  };
-
-  const handleDelete = (id: string) => {
-    console.log(`Delete employee with id: ${id}`);
+  const handleViewDetails = (id: string) => {
+    router.push(`/employees/detail?id=${id}`);
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <FontAwesome name="angle-left" size={35} color={Colors.light.tint} />
-          <Text style={styles.backButtonText}>Back</Text>
-        </Pressable>
-        <Text style={styles.title}>Employee List</Text>
-      </View>
       <FlatList
         data={employees}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.employeeItem}>
-            <View style={styles.employeeInfo}>
-              <Text style={styles.employeeName}>{item.full_name}</Text>
-              {item.email && (
-                <Text style={styles.employeeEmail}>{item.email}</Text>
-              )}
-              {item.group && (
-                <Text style={styles.employeeGroup}>{item.group}</Text>
-              )}
+          <Pressable onPress={() => handleViewDetails(item.id)}>
+            <View style={styles.employeeItem}>
+              <View style={styles.employeeInfo}>
+                <Text style={styles.employeeName}>{item.full_name}</Text>
+                {item.email && (
+                  <Text style={styles.employeeEmail}>{item.email}</Text>
+                )}
+                {item.group && (
+                  <Text style={styles.employeeGroup}>{item.group}</Text>
+                )}
+              </View>
             </View>
-            <View style={styles.buttonContainer}>
-              <Pressable
-                style={[styles.button, styles.editButton]}
-                onPress={() => handleEdit(item.id)}
-              >
-                <Text style={styles.buttonText}>Edit</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button, styles.deleteButton]}
-                onPress={() => handleDelete(item.id)}
-              >
-                <Text style={styles.buttonText}>Delete</Text>
-              </Pressable>
-            </View>
-          </View>
+          </Pressable>
         )}
       />
       <Link href="/employees/create" asChild>
         <Pressable style={styles.createButton}>
-          <Text style={styles.createButtonText}>Create Employee</Text>
+          <Text style={styles.createButtonText}>Add new Employee</Text>
         </Pressable>
       </Link>
     </View>
@@ -113,25 +90,6 @@ const styles = StyleSheet.create({
   employeeGroup: {
     fontSize: 16,
     color: 'blue',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-  },
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    marginLeft: 10,
-  },
-  editButton: {
-    backgroundColor: '#007bff',
-  },
-  deleteButton: {
-    backgroundColor: '#dc3545',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   createButton: {
     marginTop: 20,
