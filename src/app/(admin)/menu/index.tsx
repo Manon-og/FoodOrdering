@@ -1,5 +1,5 @@
 import React, { memo, useEffect } from "react";
-import { FlatList, Text, ActivityIndicator, View } from "react-native";
+import { FlatList, Text, ActivityIndicator, View, Alert } from "react-native";
 import ProductListItem from "@/src/components/ProductListItem";
 import BatchByProductListItem from "@/src/components/ProductListItemByBatch";
 import { useBranchProductList, useProductList } from "@/src/api/products";
@@ -32,7 +32,7 @@ export default function MenuScreen() {
   const branchId = id_branch || "";
   const { data: productsByBranch } = useBranchProductList(category, branchId);
   const { data: products, error, isLoading } = useProductList(category);
-  console.log("PRODUCTS:", productsByBranch);
+  console.log("PRODUCT@@@@@@@@#@#@#:", productsByBranch);
 
   if (isLoading) {
     return <ActivityIndicator />;
@@ -57,11 +57,32 @@ export default function MenuScreen() {
 
   console.log("NEWUSEPRODUCTS:", useProduct);
   const nn = useProduct?.map((item) => item);
-  console.log("NN:", nn);
+  console.log("NN%%%:", nn);
 
   const filteredProducts = useProduct.filter(
     (item) => item && item.id_archive === IDarchive
   );
+
+  const filteredProduct = useProduct.filter((item) => item.quantity < 10);
+
+  // if (filteredProduct) {
+  //   const filteredProductName = filteredProduct.map((item) => item.name);
+  //   console.log("////////////:", filteredProductName);
+  //   if (filteredProduct.length > 0) {
+  //     Alert.alert(
+  //       "Stocks Running Low",
+  //       `${filteredProductName} has only ${filteredProduct[0].quantity} left in stock`,
+  //       [
+  //         {
+  //           text: "okay",
+  //           style: "cancel",
+  //         },
+  //       ]
+  //     );
+  //   }
+  // }
+
+  console.log(" ALERTTTT:", filteredProduct);
 
   console.log("FILTERED:", filteredProducts);
   console.log(

@@ -1,16 +1,16 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet, FlatList } from 'react-native';
-import { Link, useRouter } from 'expo-router';
-import { useEmployeeContext } from '@/providers/EmployeeProvider';
-import { FontAwesome } from '@expo/vector-icons';
-import Colors from '../../../constants/Colors';
+import React from "react";
+import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
+import { Link, useRouter } from "expo-router";
+import { useEmployeeContext } from "@/providers/EmployeeProvider";
+import { FontAwesome } from "@expo/vector-icons";
+import Colors from "../../../constants/Colors";
 
 export default function EmployeeList() {
   const { employees } = useEmployeeContext();
   const router = useRouter();
 
   const handleViewDetails = (id: string) => {
-    router.push(`/employees/detail?id=${id}`);
+    router.push(`/(admin)/employees/employeeDetail?id=${id}`);
   };
 
   return (
@@ -47,16 +47,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
   },
   backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   backButtonText: {
     color: Colors.light.tint,
@@ -65,42 +65,42 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginLeft: 20,
   },
   employeeItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: "#ccc",
   },
   employeeInfo: {
     flex: 1,
   },
   employeeName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   employeeEmail: {
     fontSize: 16,
-    color: 'gray',
+    color: "gray",
   },
   employeeGroup: {
     fontSize: 16,
-    color: 'blue',
+    color: "blue",
   },
   createButton: {
     marginTop: 20,
     padding: 15,
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
   },
   createButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

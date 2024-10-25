@@ -5,8 +5,10 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { useBranchData, useLocalBranchData } from "@/src/api/products";
+import { Link } from "expo-router";
 
 const Index = () => {
   const { data: branch } = useBranchData();
@@ -37,16 +39,18 @@ const Index = () => {
           )}
           <Text style={styles.placeText}>{item.place}</Text>
         </View>
-        <TouchableOpacity>
-          <Text
-            style={[
-              styles.detailsText,
-              isLocalBranch ? styles.blueText : styles.grayText,
-            ]}
-          >
-            Details
-          </Text>
-        </TouchableOpacity>
+        <Link href="/places/details" asChild>
+          <TouchableOpacity>
+            <Text
+              style={[
+                styles.detailsText,
+                isLocalBranch ? styles.blueText : styles.grayText,
+              ]}
+            >
+              Details
+            </Text>
+          </TouchableOpacity>
+        </Link>
       </View>
     );
   };

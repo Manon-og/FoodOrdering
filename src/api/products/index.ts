@@ -328,11 +328,15 @@ export const useAvailableBatch = (productId: number) => {
   });
 };
 
+
 export const useBranch = () => {
   return useQuery({
-    queryKey: ["branch"],
+    queryKey: ["branch", "specific"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("branch").select("*");
+      const { data, error } = await supabase
+        .from("branch")
+        .select("*")
+        .eq("id_archives", 2); 
       if (error) {
         throw new Error(error.message);
       }
@@ -697,7 +701,7 @@ export const useBranchDetails = (place: string, street: string, city: string, po
 
 export const useBranchData = () => {
   return useQuery({
-    queryKey: ["branch"],
+    queryKey: ["branch", "all"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("branch")

@@ -91,39 +91,41 @@ export default function TabLayout() {
         }}
       />
 
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="employees/create"
         options={{
           title: "Create Employee",
           headerShown: false,
           tabBarButton: () => null,
         }}
-      />
-      <Tabs.Screen
+      /> */}
+
+      {/* <Tabs.Screen
         name="employees/index"
         options={{
           title: "Create Employee",
           headerShown: false,
           tabBarButton: () => null,
         }}
-      />
-      <Tabs.Screen
+      /> */}
+
+      {/* <Tabs.Screen
         name="employees/EmployeeForm"
         options={{
           title: "Create Employee",
           headerShown: false,
           tabBarButton: () => null,
         }}
-      />
+      /> */}
 
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="employees/edit"
         options={{
           title: "edit Employee",
           headerShown: false,
           tabBarButton: () => null,
         }}
-      />
+      /> */}
 
       {/* <Tabs.Screen
         name="places/index"
@@ -145,6 +147,15 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="places"
+        options={{
+          title: "add Location",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="employees"
         options={{
           title: "add Location",
           headerShown: false,
