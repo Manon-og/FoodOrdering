@@ -1,25 +1,38 @@
-import React, { memo, useEffect, useState } from 'react';
-import { Text, Image, StyleSheet, Pressable, ActivityIndicator, FlatList, TouchableOpacity, Button } from 'react-native';
-import { View } from '@/src/components/Themed';
-import { useLocalSearchParams, Stack, router, Link } from 'expo-router';
-import { FontAwesome } from '@expo/vector-icons';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { useBatchList, usePriceHistory, useProduct } from '@/src/api/products';
-import QuantityListItem from '@/src/components/QuantityListItem';
-import PriceHistoryModal from '@/src/modals/priceModals'; // Import the modal component
+import React, { memo, useEffect, useState } from "react";
+import {
+  Text,
+  Image,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+  Button,
+} from "react-native";
+import { View } from "@/src/components/Themed";
+import { useLocalSearchParams, Stack, router, Link } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
+import { Colors } from "react-native/Libraries/NewAppScreen";
+import { useBatchList, usePriceHistory, useProduct } from "@/src/api/products";
+import QuantityListItem from "@/src/components/QuantityListItem";
+import PriceHistoryModal from "@/src/modals/priceModals"; // Import the modal component
 
 function ProductDetailScreen() {
   const { id: idString } = useLocalSearchParams();
-  const id_products = parseFloat(typeof idString === 'string' ? idString : idString[0]);
+  const id_products = parseFloat(
+    typeof idString === "string" ? idString : idString[0]
+  );
   const MemoizedQuantityListItemByBatch = memo(QuantityListItem);
 
   const { data: batch } = useBatchList(id_products.toString());
+  console.log("SHIBALL", batch);
   const { data: product, error, isLoading } = useProduct(id_products);
   const { data: priceHistory } = usePriceHistory(id_products);
 
   const [modalVisible, setModalVisible] = useState(false);
 
   const renderItemByBatch = ({ item }: { item: any }) => {
+    console.log("LL", item);
     return <MemoizedQuantityListItemByBatch batch={item} />;
   };
 
@@ -37,7 +50,7 @@ function ProductDetailScreen() {
       <Stack.Screen options={{ title: product.name }} />
       <Stack.Screen
         options={{
-          title: 'Menu',
+          title: "Menu",
           headerRight: () => (
             <Link href={`/(admin)/menu/create?id=${id_products}`} asChild>
               <Pressable style={styles.headerRightButton}>
@@ -56,7 +69,10 @@ function ProductDetailScreen() {
       />
 
       <View style={styles.topButtonContainer}>
-        <TouchableOpacity style={styles.priceHistoryButton} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity
+          style={styles.priceHistoryButton}
+          onPress={() => setModalVisible(true)}
+        >
           <Text style={styles.priceHistoryText}>Price History</Text>
         </TouchableOpacity>
       </View>
@@ -67,7 +83,7 @@ function ProductDetailScreen() {
 
       <FlatList
         data={batch}
-        keyExtractor={(item) => item.id_batch.toString()}
+        keyExtractor={(item) => item.id_batch}
         renderItem={renderItemByBatch}
         contentContainerStyle={{ gap: 10, padding: 10 }}
       />
@@ -83,55 +99,55 @@ function ProductDetailScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     flex: 1,
     padding: 10,
   },
   price: {
     paddingTop: 5,
     fontSize: 20,
-    color: 'black',
-    textAlign: 'center',
+    color: "black",
+    textAlign: "center",
   },
   image: {
-    width: '100%',
+    width: "100%",
     aspectRatio: 1,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: 'black',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "black",
+    textAlign: "center",
   },
   description: {
     fontSize: 16,
-    color: 'gray',
+    color: "gray",
     marginTop: 10,
-    fontStyle: 'italic',
-    textAlign: 'center',
+    fontStyle: "italic",
+    textAlign: "center",
   },
   batchItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'gray',
+    borderBottomColor: "gray",
   },
   batchText: {
     fontSize: 16,
-    color: 'black',
+    color: "black",
   },
   topButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexDirection: "row",
+    justifyContent: "flex-end",
     marginRight: 10,
   },
   priceHistoryButton: {
-    backgroundColor: 'lightblue',
+    backgroundColor: "lightblue",
     padding: 10,
     borderRadius: 5,
   },
   priceHistoryText: {
     fontSize: 14,
-    color: 'black',
+    color: "black",
   },
   headerRightButton: {
     padding: 10,

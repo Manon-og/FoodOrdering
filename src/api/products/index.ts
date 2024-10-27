@@ -82,6 +82,36 @@ export const useBranchProductList = (id: string, idB: string) => {
   });
 };
 
+export const useBranchAllProductList = (idB: string) => {
+  return useQuery({
+    queryKey: ["batch", idB],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("localbatch")
+        .select(`*, id_products(*, category(*))`)
+        .eq("id_branch", idB)
+        .not("id_products", "is", null);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+    const groupedData = data.reduce((acc, item) => {
+        const productId = item.id_products.id_products;
+        if (!acc[productId]) {
+          acc[productId] = { ...item.id_products, quantity: 0 };
+        }
+        acc[productId].quantity += item.quantity;
+        return acc;
+      }, {});
+      
+      console.log("groupedData####", groupedData);
+
+      return Object.values(groupedData);
+    // return data;
+    },
+  });
+};
+
 export const useProduct = (id: number) => {
   return useQuery({
     queryKey: ["products", id],
@@ -89,6 +119,24 @@ export const useProduct = (id: number) => {
       const { data, error } = await supabase
         .from("products")
         .select("*, id_price(amount)")
+        .eq("id_products", id)
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useProductQuantity = (id: number) => {
+  return useQuery({
+    queryKey: ["quantity", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("localbatch")
+        .select("*, id_batch(*), id_products(*)")
         .eq("id_products", id)
         .single();
 
@@ -277,23 +325,116 @@ export const useInsertBatch = () => {
   });
 };
 
+
 export const useBatchList = (id: string) => {
   return useQuery({
     queryKey: ["id_products", id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: batchData, error: batchError } = await supabase
         .from("batch")
         .select("*, id_products(*)")
         .eq("id_products", id)
         .gt("quantity", 0);
-      if (error) {
-        console.error("Supabase error:", error); 
-        throw new Error(error.message);
+      if (batchError) {
+        console.error("Supabase batch error:", batchError);
+        throw new Error(batchError.message);
       }
-      return data;
+
+      const { data: localBatchData, error: localBatchError } = await supabase
+        .from("localbatch")
+        .select("*, id_branch(*), id_batch(*), id_products(*, category(*))")
+        .eq("id_products", id)
+        .gt("quantity", 0);
+      if (localBatchError) {
+        console.error("Supabase localbatch error:", localBatchError);
+        throw new Error(localBatchError.message);
+      }
+
+      const groupedData = localBatchData.reduce((acc, item) => {
+        const productId = item.id_products.id_products;
+        const branchId = item.id_branch.id_branch;
+        const batchId = item.id_batch.id_batch;
+        const localBranchId = item.id_localbranch.id_localbranch;
+        const compositeKey = `${branchId}_${batchId}_${localBranchId}_${productId}`;
+
+        if (!acc[compositeKey]) {
+          acc[compositeKey] = { 
+            ...item.id_products, 
+            quantity: 0, 
+            branch: item.id_branch, 
+            batch: item.id_batch, 
+            localbatch: item.id_localbranch 
+          };
+        }
+        acc[compositeKey].quantity += item.quantity;
+        return acc;
+      }, {});
+
+      const groupedDataArray = Object.values(groupedData);
+      const combinedData = [...(batchData || []), ...groupedDataArray];
+
+      return combinedData;
     },
   });
 };
+
+
+export const useBatchListQuantity = (ids: string[]) => {
+  return useQuery({
+    queryKey: ["QUANTITY", ids],
+    queryFn: async () => {
+      const batchDataArray = await Promise.all(
+        ids.map(async (id) => {
+          const { data: batchData, error: batchError } = await supabase
+            .from("batch")
+            .select("*, id_products(*)")
+            .eq("id_products", id)
+            .gt("quantity", 0);
+          if (batchError) {
+            console.error("Supabase batch error:", batchError);
+            throw new Error(batchError.message);
+          }
+
+          const { data: localBatchData, error: localBatchError } = await supabase
+            .from("localbatch")
+            .select("*, id_branch(*), id_batch(*), id_products(*, category(*))")
+            .eq("id_products", id)
+            .gt("quantity", 0);
+          if (localBatchError) {
+            console.error("Supabase localbatch error:", localBatchError);
+            throw new Error(localBatchError.message);
+          }
+
+          const groupedData = localBatchData.reduce((acc, item) => {
+            const productId = item.id_products.id_products;
+            const branchId = item.id_branch.id_branch;
+            const batchId = item.id_batch.id_batch;
+            const localBranchId = item.id_localbranch.id_localbranch;
+            const compositeKey = `${branchId}_${batchId}_${localBranchId}_${productId}`;
+
+            if (!acc[compositeKey]) {
+              acc[compositeKey] = { 
+                ...item.id_products, 
+                quantity: 0, 
+                branch: item.id_branch, 
+                batch: item.id_batch, 
+                localbatch: item.id_localbranch 
+              };
+            }
+            acc[compositeKey].quantity += item.quantity;
+            return acc;
+          }, {});
+
+          const groupedDataArray = Object.values(groupedData);
+          return [...(batchData || []), ...groupedDataArray];
+        })
+      );
+
+      return batchDataArray.flat();
+    },
+  });
+};
+
 
 export const useBatchListByCategory = (id: string) => {
   return useQuery({
@@ -721,6 +862,22 @@ export const useLocalBranchData = () => {
       const { data, error } = await supabase
         .from("localbatch")
         .select(`*`)
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useBranchName = (id: number) => {
+  return useQuery({
+    queryKey: ["branch"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("branch")
+        .select(`place`)
+        .eq("id_branch", id)
       if (error) {
         throw new Error(error.message);
       }

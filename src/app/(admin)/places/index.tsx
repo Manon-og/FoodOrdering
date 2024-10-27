@@ -5,16 +5,18 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Pressable,
 } from "react-native";
 import { useBranchData, useLocalBranchData } from "@/src/api/products";
+import ListItem from "@/src/components/listItem";
 import { Link } from "expo-router";
+import Button from "@/src/components/Button";
 
 const Index = () => {
   const { data: branch } = useBranchData();
   const { data: localBranch } = useLocalBranchData();
-  console.log("lllll", branch);
-  console.log("xxxxxxxx", localBranch);
+
+  console.log("Branch data:", branch);
+  console.log("Local branch data:", localBranch);
 
   const currentDate = new Date().toLocaleDateString();
   const currentDay = new Date().toLocaleDateString("en-US", {
@@ -25,34 +27,8 @@ const Index = () => {
     const isLocalBranch = localBranch?.some(
       (localItem) => localItem.id_branch === item.id_branch
     );
-
-    return (
-      <View style={styles.itemContainer}>
-        <View style={styles.placeContainer}>
-          {item.id_archives !== 1 && (
-            <View
-              style={[
-                styles.statusCircle,
-                isLocalBranch ? styles.greenCircle : styles.grayCircle,
-              ]}
-            />
-          )}
-          <Text style={styles.placeText}>{item.place}</Text>
-        </View>
-        <Link href="/places/details" asChild>
-          <TouchableOpacity>
-            <Text
-              style={[
-                styles.detailsText,
-                isLocalBranch ? styles.blueText : styles.grayText,
-              ]}
-            >
-              Details
-            </Text>
-          </TouchableOpacity>
-        </Link>
-      </View>
-    );
+    console.log("id_branch:", item.id_branch);
+    return <ListItem item={item} isLocalBranch={isLocalBranch} />;
   };
 
   return (
@@ -72,6 +48,11 @@ const Index = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id_branch.toString()}
       />
+      <View>
+        <Link href="/places/overview" asChild>
+          <Button text={"INVENTORY OVERVIEW"} />
+        </Link>
+      </View>
     </View>
   );
 };
@@ -125,51 +106,6 @@ const styles = StyleSheet.create({
   moreInfoHeader: {
     textAlign: "right",
     flex: 1,
-  },
-  itemContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    paddingVertical: 10,
-    borderBottomWidth: 2,
-    paddingBottom: 20,
-    borderBottomColor: "#ccc",
-  },
-  placeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1.5,
-  },
-  statusCircle: {
-    width: 15,
-    height: 15,
-    borderRadius: 7.5,
-    marginRight: 10,
-  },
-  grayCircle: {
-    backgroundColor: "gray",
-  },
-  greenCircle: {
-    backgroundColor: "green",
-  },
-  placeText: {
-    fontSize: 18,
-    color: "#333",
-  },
-  detailsText: {
-    fontSize: 18,
-    flex: 1,
-    textAlign: "right",
-  },
-  grayText: {
-    color: "gray",
-  },
-  blackText: {
-    color: "black",
-  },
-  blueText: {
-    color: "#007AFF",
   },
 });
 

@@ -1,5 +1,13 @@
-import React from 'react';
-import { Modal, View, Text, Pressable, StyleSheet, TouchableWithoutFeedback, FlatList } from 'react-native';
+import React from "react";
+import {
+  Modal,
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  FlatList,
+} from "react-native";
 
 const PriceHistoryModal = ({ visible, onClose, priceHistory = [] }: any) => {
   return (
@@ -17,17 +25,22 @@ const PriceHistoryModal = ({ visible, onClose, priceHistory = [] }: any) => {
               {priceHistory.length > 0 ? (
                 <FlatList
                   data={priceHistory}
-                  keyExtractor={(item) => item.id_pricehistory}
+                  keyExtractor={(item) => item.id_priceHistory}
                   renderItem={({ item }) => (
                     <View style={styles.priceHistoryItem}>
-                      <Text>{item.created_at}: ₱{item.id_price.amount}.00</Text>
+                      <Text>
+                        {item.created_at}: ₱{item.id_price.amount}.00
+                      </Text>
                     </View>
                   )}
                 />
               ) : (
                 <Text>No price history available.</Text>
               )}
-              <Pressable style={[styles.button, styles.buttonClose]} onPress={onClose}>
+              <Pressable
+                style={[styles.button, styles.buttonClose]}
+                onPress={onClose}
+              >
                 <Text style={styles.textStyle}>Close</Text>
               </Pressable>
             </View>
@@ -41,17 +54,17 @@ const PriceHistoryModal = ({ visible, onClose, priceHistory = [] }: any) => {
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalView: {
-    width: '90%',
-    backgroundColor: 'white',
+    width: "90%",
+    backgroundColor: "white",
     borderRadius: 20,
     padding: 20,
-    alignItems: 'center',
-    shadowColor: 'gray',
+    alignItems: "center",
+    shadowColor: "gray",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -66,24 +79,24 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   buttonClose: {
-    backgroundColor: 'lightblue',
+    backgroundColor: "lightblue",
     marginTop: 15,
   },
   priceHistoryItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'gray',
+    borderBottomColor: "gray",
   },
   textStyle: {
     fontSize: 18,
     padding: 5,
-    color: 'black',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "black",
+    fontWeight: "bold",
+    textAlign: "center",
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
 });

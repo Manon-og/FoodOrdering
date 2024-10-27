@@ -22,7 +22,7 @@ type ProductListItemProps = {
 export const DefaultPhoto =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
 
-const ProductListItem = ({ product }: any) => {
+const ProductListItem = ({ product, products }: any) => {
   const segments = useSegments();
   const { id_archive } = useArchivedParams();
   const { id_branch, branchName } = useBranchName();
@@ -33,15 +33,29 @@ const ProductListItem = ({ product }: any) => {
     : `/${segments[0]}/menu/${product.id_products}`;
   const newHrefLink = id_branch ? `/${segments[0]}/menu/` : hrefLink;
 
+  const warning = product.quantity <= 10 ? "Low Stocks!" : "";
+
   const content = (
     <Pressable style={styles.container}>
-      <Image
-        style={styles.image}
-        source={{ uri: product.image || DefaultPhoto }}
-        resizeMode="contain"
-      />
-      <Text style={styles.title}>{product.name}</Text>
-      <Text style={styles.price}>Total Stocks: {product.quantity}</Text>
+      <View style={styles.insideContainer}>
+        <Image
+          style={styles.image}
+          source={{ uri: product.image || DefaultPhoto }}
+          resizeMode="contain"
+        />
+        <View>
+          <Text style={styles.title}>{product.name}</Text>
+          <Text style={styles.price3}>
+            Available Stocks:{" "}
+            <Text style={styles.price1}>{product.quantity}pcs.</Text>{" "}
+          </Text>
+          <Text style={styles.price}>
+            Total Stocks:{" "}
+            <Text style={styles.price2}>{product.quantity}pcs.</Text>{" "}
+          </Text>
+          <Text style={styles.warning}> {warning}</Text>
+        </View>
+      </View>
     </Pressable>
   );
 
@@ -59,10 +73,16 @@ export default ProductListItem;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    height: 100, // Adjust the height as needed
+    width: "100%",
+  },
+  insideContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
-    borderRadius: 20,
-    flex: 1,
-    maxWidth: "50%",
   },
   title: {
     fontSize: 17,
@@ -71,11 +91,32 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 10,
-    color: Colors.light.tint,
+    color: "gray",
+    fontWeight: "bold",
+  },
+  price3: {
+    fontSize: 13,
+    color: "gray",
+    fontWeight: "bold",
+  },
+  price1: {
+    fontSize: 15,
+    color: "darkgreen",
+    fontWeight: "bold",
+  },
+  price2: {
+    fontSize: 10,
+    color: "green",
+    fontWeight: "bold",
+  },
+  warning: {
+    fontSize: 10,
+    color: "darkred",
     fontWeight: "bold",
   },
   image: {
-    width: "100%",
-    aspectRatio: 1,
+    width: 80, // Adjust the width as needed
+    height: 80, // Adjust the height as needed
+    borderRadius: 10,
   },
 });
