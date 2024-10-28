@@ -1,19 +1,38 @@
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
-import React from 'react';
-import Colors from '../constants/Colors';
-import { CartItem } from '../types';
-import { Link } from 'expo-router';
-import { DefaultPhoto } from './ProductListItem';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { UseCart } from '../providers/CartProvider';
-
+import Colors from '../constants/Colors';
+import { DefaultPhoto } from './ProductListItem';
+import CartModal from '../modals/cartModals';
 
 type CartListItemProps = {
-  cartItem: CartItem;
+  cartItem: any;
 };
 
-const CartListItem = ({ cartItem }: any) => {
+const CartListItem = ({ cartItem }: CartListItemProps) => {
   const { updateQuantity } = UseCart();
+  const [quantityModalVisible, setQuantityModalVisible] = useState(false);
+
+  const handleIncrement = () => {
+    updateQuantity(cartItem.id, 1);
+  };
+
+  const handleDecrement = () => {
+    if (cartItem.quantity - 1 <= 0) {
+      Alert.alert(
+        'Remove Item',
+        'Are you sure you want to remove this item from the cart?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Yes', onPress: () => updateQuantity(cartItem.id, -1) },
+        ]
+      );
+    } else {
+      updateQuantity(cartItem.id, -1);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -24,25 +43,25 @@ const CartListItem = ({ cartItem }: any) => {
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{cartItem.product.name}</Text>
         <View style={styles.subtitleContainer}>
-          <Text style={styles.price}>₱{cartItem.product.id_price.amount.toFixed(2)}</Text> 
+          <Text style={styles.price}>₱{cartItem.product.id_price.amount.toFixed(2)}</Text>
         </View>
       </View>
       <View style={styles.quantitySelector}>
-        <FontAwesome
-          onPress={() => updateQuantity(cartItem.id, -1)}
-          name="minus"
-          color="gray"
-          style={{ padding: 5 }}
-        />
+        <FontAwesome onPress={handleDecrement} name="minus" color="gray" style={{ padding: 5 }} />
 
-        <Text style={styles.quantity}>{cartItem.quantity}</Text>
-        <FontAwesome
-          onPress={() => updateQuantity(cartItem.id, 1)}
-          name="plus"
-          color="gray"
-          style={{ padding: 5 }}
-        />
+        <Pressable onPress={() => setQuantityModalVisible(true)}>
+          <Text style={styles.quantity}>{cartItem.quantity}</Text>
+        </Pressable>
+
+        <FontAwesome onPress={handleIncrement} name="plus" color="gray" style={{ padding: 5 }} />
       </View>
+
+      <CartModal
+        visible={quantityModalVisible}
+        onClose={() => setQuantityModalVisible(false)}
+        onConfirm={(newQuantity) => updateQuantity(cartItem.id, newQuantity - cartItem.quantity)}
+        currentQuantity={cartItem.quantity}
+      />
     </View>
   );
 };
