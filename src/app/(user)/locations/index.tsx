@@ -55,22 +55,22 @@ const Index = () => {
   return (
     <View>
       <View style={styles.container}>
-        <Link href={`/(admin)/menu?category=1&id_branch=${id_branch}&branchName=${branchName}`} asChild>
+        <Link href={`/(user)/menu?category=1&id_branch=${id_branch}&branchName=${branchName}`} asChild>
           <Pressable style={styles.pressable}>
             <Text style={styles.pressableText}>COOKIE</Text>
           </Pressable>
         </Link>
-        <Link href={`/(admin)/menu?category=2&id_branch=${id_branch}&branchName=${branchName}`} asChild>
+        <Link href={`/(user)/menu?category=2&id_branch=${id_branch}&branchName=${branchName}`} asChild>
           <Pressable style={styles.pressable}>
             <Text style={styles.pressableText}>BREADS</Text>
           </Pressable>
         </Link>
-        <Link href={`/(admin)/menu?category=3&id_branch=${id_branch}&branchName=${branchName}`} asChild>
+        <Link href={`/(user)/menu?category=3&id_branch=${id_branch}&branchName=${branchName}`} asChild>
           <Pressable style={styles.pressable}>
             <Text style={styles.pressableText}>CAKES</Text>
           </Pressable>
         </Link>
-        <Link href={`/(admin)/menu?category=4&id_branch=${id_branch}&branchName=${branchName}`} asChild>
+        <Link href={`/(user)/menu?category=4&id_branch=${id_branch}&branchName=${branchName}`} asChild>
           <Pressable style={styles.pressable}>
             <Text style={styles.pressableText}>BENTO CAKES</Text>
           </Pressable>

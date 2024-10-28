@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import React from "react";
-import { Pressable } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import { Link } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "../../../constants/Colors";
@@ -25,6 +25,25 @@ export default function MenuStack() {
             </Pressable>
           </Link>
         ),
+        headerLeft: () => (
+          <Link href={'/(user)/category/'} asChild>
+            <Pressable style={styles.backButton}>
+              {({ pressed }) => (
+                <>
+                  <FontAwesome
+                    name="angle-left"
+                    size={35}
+                    color={Colors.light.tint}
+                    style={{ marginRight: 5, opacity: pressed ? 0.5 : 1 }}
+                  />
+                  <Text style={[styles.backButtonText, { opacity: pressed ? 0.5 : 1 }]}>
+                    Back
+                  </Text>
+                </>
+              )}
+            </Pressable>
+          </Link>
+        ),
       }
     }
     > 
@@ -33,3 +52,16 @@ export default function MenuStack() {
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: -8.5,
+    paddingBottom: 4,
+  },
+  backButtonText: {
+    color: Colors.light.tint,
+    fontSize: 18,
+  },
+});

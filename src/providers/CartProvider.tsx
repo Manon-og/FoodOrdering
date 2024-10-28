@@ -36,7 +36,7 @@ const CartProvider = ({children}:  any ) => {
         setItems(prevItems => [...prevItems, newItem]);
     };
 
-    const updateQuantity = (itemId: string, amount: -1 | 1) => {
+    const updateQuantity = (itemId: string, amount: number) => {
         const updatedItems = items.map((item) => 
             item.id !== itemId ? item : {...item, quantity: item.quantity + amount}
         ).filter((item) => item.quantity > 0);

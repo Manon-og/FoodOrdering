@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
-    height: 100, // Adjust the height as needed
+    height: 100, 
     width: "100%",
   },
   insideContainer: {
@@ -115,8 +115,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   image: {
-    width: 80, // Adjust the width as needed
-    height: 80, // Adjust the height as needed
+    width: 80, 
+    height: 80, 
     borderRadius: 10,
   },
 });
