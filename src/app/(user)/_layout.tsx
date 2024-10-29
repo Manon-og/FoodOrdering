@@ -1,14 +1,14 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, Tabs } from "expo-router";
-import { Pressable } from "react-native";
+import { Pressable, TouchableOpacity } from "react-native";
 
 import Colors from "@/src/constants/Colors";
 import { useColorScheme } from "@/src/components/useColorScheme";
 import { useClientOnlyValue } from "@/src/components/useClientOnlyValue";
 import { useAuth } from "@/providers/AuthProvider";
+import { Ionicons } from "@expo/vector-icons";
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
@@ -34,7 +34,15 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ href: null }} />
-      <Tabs.Screen name="category/index" options={{ href: null }} />
+      {/* <Tabs.Screen name="category/index" options={{ href: null }} /> */}
+
+      <Tabs.Screen
+        name="two"
+        options={{
+          title: "Transactions",
+          tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+        }}
+      />
 
       <Tabs.Screen
         name="menu"
@@ -44,13 +52,48 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="cutlery" color={color} />
           ),
+          tabBarButton: (props) => (
+            <Link href="/(user)/category" asChild>
+              <TouchableOpacity {...props} />
+            </Link>
+          ),
         }}
       />
+
       <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="person-circle" color={color} size={24} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="locations"
+        options={{
+          title: "loscs",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
+      {/* <Tabs.Screen
         name="two"
         options={{
-          title: "Orders",
-          tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+          title: "losc",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      /> */}
+
+      <Tabs.Screen
+        name="category"
+        options={{
+          title: "nothing",
+          headerShown: false,
+          tabBarButton: () => null,
         }}
       />
     </Tabs>

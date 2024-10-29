@@ -5,7 +5,6 @@ import { Product } from "@/src/types";
 import { Link, useSegments } from "expo-router";
 import React from "react";
 import { useArchivedParams } from "./archivedParams";
-import { useBranchName } from "./branchParams";
 
 type ProductListItemProps = {
   product: {
@@ -22,48 +21,36 @@ type ProductListItemProps = {
 export const DefaultPhoto =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
 
-const ProductListItem = ({ product, products }: any) => {
+const ProductListItem = ({ product }: any) => {
   const segments = useSegments();
   const { id_archive } = useArchivedParams();
-  const { id_branch, branchName } = useBranchName();
-  console.log("ID BRANCH#######", id_branch);
   console.log("ID ARCHIVE??????????:", id_archive);
   const hrefLink = id_archive
     ? `/${segments[0]}/menu/create?id=${product.id_products}&id_archive=1`
     : `/${segments[0]}/menu/${product.id_products}`;
-  const newHrefLink = id_branch ? `/${segments[0]}/menu/` : hrefLink;
 
   const warning = product.quantity <= 10 ? "Low Stocks!" : "";
 
-  const content = (
-    <Pressable style={styles.container}>
-      <View style={styles.insideContainer}>
-        <Image
-          style={styles.image}
-          source={{ uri: product.image || DefaultPhoto }}
-          resizeMode="contain"
-        />
-        <View>
-          <Text style={styles.title}>{product.name}</Text>
-          <Text style={styles.price3}>
-            Available Stocks:{" "}
-            <Text style={styles.price1}>{product.quantity}pcs.</Text>{" "}
-          </Text>
-          <Text style={styles.price}>
-            Total Stocks:{" "}
-            <Text style={styles.price2}>{product.quantity}pcs.</Text>{" "}
-          </Text>
-          <Text style={styles.warning}> {warning}</Text>
-        </View>
-      </View>
-    </Pressable>
-  );
+  return (
+    <Link href={hrefLink} asChild>
+      <Pressable style={styles.container}>
+        <View style={styles.insideContainer}>
+          <Image
+            style={styles.image}
+            source={{ uri: product.image || DefaultPhoto }}
+            resizeMode="contain"
+          />
+          <View>
+            <Text style={styles.title}>{product.name}</Text>
+            <Text style={styles.price3}>
+              Available Stocks:{" "}
+              <Text style={styles.price1}>{product.quantity}pcs.</Text>{" "}
+            </Text>
 
-  return id_branch ? (
-    content
-  ) : (
-    <Link href={newHrefLink} asChild>
-      {content}
+            <Text style={styles.warning}> {warning}</Text>
+          </View>
+        </View>
+      </Pressable>
     </Link>
   );
 };

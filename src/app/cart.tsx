@@ -1,9 +1,16 @@
-import React from 'react';
-import { View, Text, Platform, FlatList, ScrollView, StyleSheet } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { UseCart } from '@/src/providers/CartProvider';
-import CartListItem from '../components/CartListItem';
-import Button from '../components/Button';
+import React from "react";
+import {
+  View,
+  Text,
+  Platform,
+  FlatList,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { UseCart } from "@/src/providers/CartProvider";
+import CartListItem from "../components/CartListItem";
+import Button from "../components/Button";
 
 const CartScreen = () => {
   const { items, total } = UseCart();
@@ -18,9 +25,9 @@ const CartScreen = () => {
       />
       <View style={styles.footer}>
         <Text style={styles.totalText}>Total: ₱{roundedTotal}</Text>
-        <Button text='Checkout' />
+        <Button text="Checkout" />
       </View>
-      <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
+      <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>
   );
 };
@@ -31,21 +38,21 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   listContent: {
-    paddingBottom: 1, 
+    paddingBottom: 1,
   },
   footer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 10,
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: "#ccc",
   },
   totalText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 

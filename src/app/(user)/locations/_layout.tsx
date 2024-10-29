@@ -10,28 +10,24 @@ import { useByBranch } from "@/src/providers/BranchProvider";
 
 export default function MenuStack() {
   const category = useCategory();
-  console.log('okay', category);
+  console.log("okay", category);
 
   const { branchName, id_branch } = useBranchName();
-  console.log('id_branchASJDASJDAKSDs:', branchName);
-  console.log('id_branchASJDASJDAKSDs:', id_branch);
+  console.log("id_branchASJDASJDAKSDs:", branchName);
+  console.log("id_branchASJDASJDAKSDs:", id_branch);
   // const { branchNames, id_branchs, setBranchName, setIdBranch } = useByBranch();
-
 
   // useEffect(() => {
   //   setBranchName(branchName);
   //   setIdBranch(id_branch);
   // }, [branchName, id_branch, setBranchName, setIdBranch]);
-  
-
 
   // const [id, setid] = useState(id_branch);
   // console.log('asd2:', id_branch);
-  // console.log('eqw2:', id); 
+  // console.log('eqw2:', id);
 
   const { setBranchName, setIdBranch } = useByBranch();
 
- 
   // for (const pla of place ?? []) {
   //   console.log('place:', pla);
   //   console.log('id_branch:', {id_branch});
@@ -41,14 +37,13 @@ export default function MenuStack() {
   //   }
   // }
 
-
   useEffect(() => {
     setBranchName(branchName);
     setIdBranch(id_branch);
   }, [branchName, id_branch, setBranchName, setIdBranch]);
 
-  console.log('id_branchs???', id_branch);
-  console.log('branchNames???', branchName);
+  console.log("id_branchs???", id_branch);
+  console.log("branchNames???", branchName);
 
   const [id, setID] = useState(id_branch);
   const [idName, setIDName] = useState(branchName);
@@ -59,19 +54,17 @@ export default function MenuStack() {
   }, [id_branch, branchName]);
 
   const [title, setTitle] = useState(branchName);
-  console.log('asd:', branchName);
-  console.log('eqw:', title); 
+  console.log("asd:", branchName);
+  console.log("eqw:", title);
 
-  console.log('AAAs:', id_branch);
-  
-  console.log('EEEs:', branchName); 
-  console.log('EEEs:', idName);
+  console.log("AAAs:", id_branch);
+
+  console.log("EEEs:", branchName);
+  console.log("EEEs:", idName);
 
   // console.log('PLEASEEEEEEE:', branchNames, id_branchs);
 
-  
-
-  const fi = branchName || id_branch?  branchName : branchName ;
+  const fi = branchName || id_branch ? branchName : branchName;
 
   // useEffect(() => {
   //   setTitle(branchName ? branchName : 'Back Inventory');
@@ -83,22 +76,9 @@ export default function MenuStack() {
         name="index"
         options={{
           title: fi,
-          headerRight: () => (
-            <Link href={`/(admin)/locations/quantity`} asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="cart-plus"
-                    size={25}
-                    color={Colors.light.tint}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+
           headerLeft: () => (
-            <Link href={`/(admin)/category`} asChild>
+            <Link href={`/(user)/category`} asChild>
               <Pressable style={styles.backButton}>
                 {({ pressed }) => (
                   <>
@@ -108,7 +88,12 @@ export default function MenuStack() {
                       color={Colors.light.tint}
                       style={{ marginRight: 5, opacity: pressed ? 0.5 : 1 }}
                     />
-                    <Text style={[styles.backButtonText, { opacity: pressed ? 0.5 : 1 }]}>
+                    <Text
+                      style={[
+                        styles.backButtonText,
+                        { opacity: pressed ? 0.5 : 1 },
+                      ]}
+                    >
                       Back
                     </Text>
                   </>
@@ -124,8 +109,8 @@ export default function MenuStack() {
 
 const styles = StyleSheet.create({
   backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginLeft: -8.5,
     paddingBottom: 4,
   },

@@ -46,11 +46,24 @@ export default function MenuScreen() {
     products?.map((id_products) => id_products.id_products) ?? [];
   console.log("Product IDs:", productIds);
 
-  const { data: m } = useBatchList("177");
+  // let id = "";
+  // for (let i = 0; i < productIds.length; i++) {
+  //   console.log("Product ID:", productIds[i]);
+  //   id = productIds[i];
+  // }r
+
   // DI KAYA SA LOGIC KO YAWA GANINA RAKO ANI, PISTENG YAWA.
+
+  const { data: m } = useBatchList("180");
+
   console.log("HIRRR", m);
   const totalQuantity = m?.reduce((acc, item) => acc + (item.quantity || 0), 0);
   console.log("fck", totalQuantity);
+
+  // const ll = ({ item }: { item: any }) => {
+  //   console.log("Rendering items:", item);
+  //   return <MemoizedProductListItem product={item} />;
+  // };
 
   if (isLoading) {
     return <ActivityIndicator />;
@@ -127,7 +140,18 @@ export default function MenuScreen() {
     filteredProducts.map((item) => item.id_products)
   );
 
+  // const { data: m } = useBatchList("180");
   const renderItem = ({ item }: { item: any }) => {
+    const id = item.id_products;
+    console.log("ID$:", id);
+    // const { data: m } = useBatchList(id);
+
+    // console.log("HIRRR", m);
+    // const totalQuantity = m?.reduce(
+    //   (acc, item) => acc + (item.quantity || 0),
+    //   0
+    // );
+    // console.log("fck", totalQuantity);
     console.log("Rendering items:", item);
     return <MemoizedProductListItem product={item} />;
   };
