@@ -15,7 +15,7 @@ const EmployeeDetail = () => {
     id: string;
     full_name: string;
     email: string;
-    group: string;
+    id_roles: number;
   }
 
   const [employee, setEmployee] = useState<Employee | null>(null);
@@ -70,6 +70,17 @@ const EmployeeDetail = () => {
     );
   };
 
+  const getRoleName = (id_roles: number) => {
+    switch (id_roles) {
+      case 1:
+        return "Admin";
+      case 2:
+        return "Staff";
+      default:
+        return "Unknown";
+    }
+  };
+
   if (!employee) {
     return (
       <View style={styles.container}>
@@ -86,7 +97,7 @@ const EmployeeDetail = () => {
       <Text style={styles.label}>Email:</Text>
       <Text style={styles.value}>{employee.email}</Text>
       <Text style={styles.label}>Group:</Text>
-      <Text style={styles.value}>{employee.group}</Text>
+      <Text style={styles.role}>{getRoleName(employee.id_roles)}</Text>
       <Pressable style={styles.editButton} onPress={handleEdit}>
         <Text style={styles.buttonText}>Edit</Text>
       </Pressable>
@@ -133,6 +144,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  role: {
+    fontSize: 18,
+    color: "blue",
+    marginBottom: 20,
   },
 });
 
