@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  FlatList,
+} from "react-native";
 import { Link, useRouter } from "expo-router";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
 import { FontAwesome } from "@expo/vector-icons";
@@ -12,6 +19,17 @@ export default function EmployeeList() {
 
   const handleViewDetails = (id: string) => {
     router.push(`/(admin)/employees/employeeDetail?id=${id}`);
+  };
+
+  const getRoleName = (id_roles: number) => {
+    switch (id_roles) {
+      case 1:
+        return "Admin";
+      case 2:
+        return "Staff";
+      default:
+        return "Unknown";
+    }
   };
 
   const filteredEmployees = employees.filter((employee) =>
@@ -37,9 +55,9 @@ export default function EmployeeList() {
                 {item.email && (
                   <Text style={styles.employeeEmail}>{item.email}</Text>
                 )}
-                {item.group && (
-                  <Text style={styles.employeeGroup}>{item.group}</Text>
-                )}
+                <Text style={styles.employeeRole}>
+                  {getRoleName(item.id_roles)}
+                </Text>
               </View>
             </View>
           </Pressable>
@@ -86,7 +104,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "gray",
   },
-  employeeGroup: {
+  employeeRole: {
     fontSize: 16,
     color: "blue",
   },
