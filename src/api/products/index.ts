@@ -871,7 +871,7 @@ export const useUserTransferQuantity = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { id_branch: number; id_products: number; quantity: number, amount: number }) => {
+    mutationFn: async (data: { id_branch: number; id_products: number; quantity: number, amount: number, created_by: string }) => {
       try {
         const { data: batches, error: batchError } = await supabase
           .from("localbatch")
@@ -902,6 +902,7 @@ export const useUserTransferQuantity = () => {
               id_localbranch: batch.id_localbranch,
               amount: data.amount,
               quantity: transferQuantity,
+              created_by: data.created_by
             })
             .single();
           console.log("updatedLocalBatch", updatedLocalBatch);

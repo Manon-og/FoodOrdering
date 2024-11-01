@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,13 +13,29 @@ import CartListItem from "../components/CartListItem";
 import Button from "../components/Button";
 import { useRouter } from "expo-router";
 import { useBranchName } from "@/components/branchParams";
-import { useUserTransferQuantity } from "@/src/api/products";
+import {
+  getUserEmail,
+  getUserFullName,
+  useUserTransferQuantity,
+} from "@/src/api/products";
 
 const CartScreen = () => {
   const { items, total, clearCart, removeItem } = UseCart();
   const { id_branch, branchName } = useBranchName();
   const { mutate: transferQuantity } = useUserTransferQuantity();
   const router = useRouter();
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      const userName = await getUserFullName();
+      setName(userName);
+    };
+
+    fetchUserName();
+  }, []);
+
+  console.log("name?", name);
 
   const roundedTotal = parseFloat(total.toFixed(2));
 
@@ -37,7 +53,8 @@ const CartScreen = () => {
               id_branch: Number(id_branch),
               id_products: item.id_products,
               quantity: item.quantity,
-              amount: item.product.id_price.amount,
+              amount: roundedTotal,
+              created_by: name || "",
             });
           });
           setTimeout(() => {
