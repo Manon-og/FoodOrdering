@@ -886,6 +886,7 @@ export const useUserTransferQuantity = () => {
       id_products: number;
       quantity: number;
       amount: number;
+      created_by: string;
     }) => {
       try {
         const { data: batches, error: batchError } = await supabase
@@ -917,6 +918,7 @@ export const useUserTransferQuantity = () => {
               id_localbranch: batch.id_localbranch,
               amount: data.amount,
               quantity: transferQuantity,
+              created_by: data.created_by,
             })
             .single();
           console.log("updatedLocalBatch", updatedLocalBatch);
