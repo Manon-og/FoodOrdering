@@ -614,6 +614,24 @@ export const useArchiveProduct = (id: number) => {
   });
 };
 
+
+export const useAuthenticationLevel = (id : string) => {
+  return useQuery({
+    queryKey: ["level", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", id); 
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+
 export const useSignIn = () => {
   return useMutation({
     mutationFn: async ({
