@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Platform, FlatList, StyleSheet, Alert } from "react-native";
+import { View, Text, Platform, FlatList, StyleSheet, Alert, Pressable } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { UseCart } from "@/src/providers/CartProvider";
 import CartListItem from "../components/CartListItem";
@@ -7,9 +7,10 @@ import Button from "../components/Button";
 import { useRouter } from "expo-router";
 import { useBranchName } from "@/components/branchParams";
 import { useUserTransferQuantity } from "@/src/api/products";
+import { FontAwesome } from '@expo/vector-icons';
 
 const CartScreen = () => {
-  const { items, total, clearCart, removeItem } = UseCart();
+  const { items, total, clearCart, removeItem, addItem } = UseCart();
   const { id_branch, branchName } = useBranchName();
   const { mutate: transferQuantity } = useUserTransferQuantity();
   const router = useRouter();
@@ -67,13 +68,28 @@ const CartScreen = () => {
     );
   };
 
+  const handleAddMoreProducts = () => {
+    router.push('/(user)/category'); 
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={items}
-        renderItem={({ item }) => (
-          <CartListItem cartItem={item} onRemove={() => handleRemoveItem(item.id)} />
-        )}
+        data={[...items, { id: 'add-more', type: 'placeholder' }]}
+        renderItem={({ item }) => {
+          if (item.type === 'placeholder') {
+            return (
+              <Pressable style={styles.addMoreContainer} onPress={handleAddMoreProducts}>
+                <FontAwesome name="plus" size={24} color="gray" />
+                <Text style={styles.addMoreText}>Add More To Cart</Text>
+              </Pressable>
+            );
+          }
+          return (
+            <CartListItem cartItem={item} onRemove={() => handleRemoveItem(item.id)} />
+          );
+        }}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
       />
       <View style={styles.footer}>
@@ -106,6 +122,21 @@ const styles = StyleSheet.create({
   totalText: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  addMoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 10,
+    marginVertical: 2,
+  },
+  addMoreText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: 'gray',
   },
 });
 
