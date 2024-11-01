@@ -1,46 +1,63 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet, Pressable } from "react-native";
-import { useBranchProductList, useBackInventoryProductList, transferQuantity } from "@/src/api/products";
-import { useBranchName } from "@/src/components/branchParams";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+} from "react-native";
+import { useBranchData, useLocalBranchData } from "@/src/api/products";
+import { Picker } from "@react-native-picker/picker";
+import ListItem from "@/src/components/listItem";
+import { Link } from "expo-router";
+import Button from "@/src/components/Button";
 
-const ListItem = ({ item, isLocalBranch, onRestock }) => {
-  const lowStock = item.quantity < 5; // Define low stock threshold
-  return (
-    <View style={styles.listItem}>
-      <Text>{item.name}</Text>
-      <Text>{item.quantity}</Text>
-      {lowStock && (
-        <Pressable style={styles.restockButton} onPress={() => onRestock(item.id_branch, item.id_products)}>
-          <Text style={styles.restockButtonText}>Restock</Text>
-        </Pressable>
-      )}
-    </View>
-  );
-};
+const Index = () => {
+  const { data: branch } = useBranchData();
+  const { data: localBranch } = useLocalBranchData();
+  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredBranch, setFilteredBranch] = useState<any[]>([]);
 
-export default function Locations() {
-  const { id_branch, branchName } = useBranchName();
-  const { data: branchProducts } = useBranchProductList(id_branch);
-  const { data: backInventoryProducts } = useBackInventoryProductList();
+  useEffect(() => {
+    if (branch) {
+      let filtered = branch;
 
-  const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
-  const currentDate = new Date().toLocaleDateString("en-US");
+      // Apply filter based on selected status
+      if (selectedFilter !== "all") {
+        filtered = filtered.filter((item: any) => item.status?.toLowerCase() === selectedFilter);
+      }
 
-  const handleRestock = (id_branch, id_product) => {
-    console.log(`Restocking product ${id_product} for branch ${id_branch}`);
-    transferQuantity({
-      id_branch,
-      id_products: id_product,
-      quantity: 20,
-    });
-  };
+      // Apply search query filter
+      if (searchQuery !== "") {
+        filtered = filtered.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+      }
 
-  const renderItem = ({ item }) => {
-    const isLocalBranch = branchProducts.some(
+      setFilteredBranch(filtered);
+    }
+  }, [branch, selectedFilter, searchQuery]);
+
+  const currentDate = new Date().toLocaleDateString();
+  const currentDay = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+
+  const renderItem = ({ item }: any) => {
+    const isLocalBranch = localBranch?.some(
       (localItem) => localItem.id_branch === item.id_branch
     );
-    console.log("id_branch:", item.id_branch);
-    return <ListItem item={item} isLocalBranch={isLocalBranch} onRestock={handleRestock} />;
+    const statusColor =
+      item.status === "active"
+        ? styles.greenCircle
+        : item.status === "inactive"
+        ? styles.grayCircle
+        : null;
+    return (
+      <View style={styles.listItem}>
+        {statusColor && <View style={[styles.statusCircle, statusColor]} />}
+        <ListItem item={item} isLocalBranch={isLocalBranch} />
+      </View>
+    );
   };
 
   return (
@@ -49,6 +66,24 @@ export default function Locations() {
         <Text style={styles.dayText}>{currentDay}</Text>
         <Text style={styles.dateText}>{currentDate}</Text>
       </View>
+      <View style={styles.filterContainer}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search locations..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <Picker
+          selectedValue={selectedFilter}
+          style={styles.picker}
+          onValueChange={(itemValue) => setSelectedFilter(itemValue)}
+        >
+          <Picker.Item label="All Locations" value="all" />
+          <Picker.Item label="Active Locations" value="active" />
+          <Picker.Item label="Inactive Locations" value="inactive" />
+          <Picker.Item label="Archived Locations" value="archived" />
+        </Picker>
+      </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Status</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
@@ -56,62 +91,102 @@ export default function Locations() {
         </Text>
       </View>
       <FlatList
-        data={branchProducts}
+        data={filteredBranch}
         renderItem={renderItem}
         keyExtractor={(item) => item.id_branch.toString()}
       />
+      <View>
+        <Link href="/places/overview" asChild>
+          <Button text={"INVENTORY OVERVIEW"} />
+        </Link>
+      </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    paddingTop: "30%",
   },
   dateContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  dayText: {
-    fontSize: 18,
-    fontWeight: "bold",
+    position: "absolute",
+    top: 50,
   },
   dateText: {
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "gray",
+  },
+  dayText: {
+    fontSize: 25,
+    fontWeight: "bold",
+    paddingLeft: 13,
+    color: "green",
+  },
+  filterContainer: {
+    width: "100%",
+    marginBottom: 10,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  picker: {
+    height: 40,
+    width: "100%",
   },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 16,
+    alignItems: "center",
+    width: "100%",
+    paddingVertical: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: "#ccc",
   },
   headerText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
+    flex: 1,
+    textAlign: "center",
   },
   statusHeader: {
-    flex: 1,
+    textAlign: "left",
+    flex: 0.5,
+  },
+  placeHeader: {
+    textAlign: "left",
+    flex: 1.5,
   },
   moreInfoHeader: {
-    flex: 1,
     textAlign: "right",
+    flex: 1,
   },
   listItem: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    alignItems: "center",
+    paddingVertical: 5,
   },
-  restockButton: {
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 5,
+  statusCircle: {
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
+    marginRight: 10,
   },
-  restockButtonText: {
-    color: "white",
-    fontWeight: "bold",
+  grayCircle: {
+    backgroundColor: "gray",
+  },
+  greenCircle: {
+    backgroundColor: "green",
   },
 });
+
+export default Index;
