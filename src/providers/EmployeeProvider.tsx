@@ -1,20 +1,22 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchEmployees } from '@/api/products'; // Ensure the correct import path
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { fetchEmployees } from "@/api/products"; // Ensure the correct import path
 
 type EmployeeContextType = {
   employees: Employee[];
   refreshEmployees: () => Promise<void>;
 };
 
-const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined);
+const EmployeeContext = createContext<EmployeeContextType | undefined>(
+  undefined
+);
 
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 type Employee = {
   id: any;
   full_name: any;
   email: any;
-  group: any;
+  id_roles: number;
 };
 
 export const EmployeeProvider = ({ children }: { children: ReactNode }) => {
@@ -22,7 +24,11 @@ export const EmployeeProvider = ({ children }: { children: ReactNode }) => {
 
   const loadEmployees = async () => {
     const data = await fetchEmployees();
-    setEmployees(data);
+    const formattedData = data.map((employee: any) => ({
+      ...employee,
+      id_roles: employee.id_roles || 0, // Provide a default value if id_roles is missing
+    }));
+    setEmployees(formattedData);
   };
 
   useEffect(() => {
@@ -30,7 +36,9 @@ export const EmployeeProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <EmployeeContext.Provider value={{ employees, refreshEmployees: loadEmployees }}>
+    <EmployeeContext.Provider
+      value={{ employees, refreshEmployees: loadEmployees }}
+    >
       {children}
     </EmployeeContext.Provider>
   );
@@ -39,7 +47,9 @@ export const EmployeeProvider = ({ children }: { children: ReactNode }) => {
 export const useEmployeeContext = () => {
   const context = useContext(EmployeeContext);
   if (!context) {
-    throw new Error('useEmployeeContext must be used within an EmployeeProvider');
+    throw new Error(
+      "useEmployeeContext must be used within an EmployeeProvider"
+    );
   }
   return context;
 };

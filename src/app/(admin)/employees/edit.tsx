@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import EmployeeForm from "./employeeForm";
+import EmployeeForm from "./EmployeeForm";
 
 export default function EditEmployee() {
   return (
