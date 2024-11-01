@@ -29,7 +29,7 @@ const CartScreen = () => {
         id_branch: Number(id_branch),
         id_products: item.id_products,
         quantity: item.quantity,
-        amount: item.product.id_price.amount,
+        amount: roundedTotal,
       });
     });
   };
