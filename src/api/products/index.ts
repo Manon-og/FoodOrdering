@@ -65,19 +65,23 @@ export const useBranchProductList = (id: string, idB: string) => {
         throw new Error(error.message);
       }
 
-    const groupedData = data.reduce((acc, item) => {
+      const groupedData = data.reduce((acc, item) => {
         const productId = item.id_products.id_products;
         if (!acc[productId]) {
-          acc[productId] = { ...item.id_products, quantity: 0, id_branch: item.id_branch  };
+          acc[productId] = {
+            ...item.id_products,
+            quantity: 0,
+            id_branch: item.id_branch,
+          };
         }
         acc[productId].quantity += item.quantity;
         return acc;
       }, {});
-      
+
       console.log("CARTT", groupedData);
 
       return Object.values(groupedData);
-    // return data;
+      // return data;
     },
   });
 };
@@ -95,7 +99,7 @@ export const useBackInventoryProductList = (id: string) => {
         throw new Error(error.message);
       }
 
-    const groupedData = data.reduce((acc, item) => {
+      const groupedData = data.reduce((acc, item) => {
         const productId = item.id_products.id_products;
         if (!acc[productId]) {
           acc[productId] = { ...item.id_products, quantity: 0 };
@@ -103,11 +107,11 @@ export const useBackInventoryProductList = (id: string) => {
         acc[productId].quantity += item.quantity;
         return acc;
       }, {});
-      
+
       console.log("groupedData####", groupedData);
 
       return Object.values(groupedData);
-    // return data;
+      // return data;
     },
   });
 };
@@ -125,7 +129,7 @@ export const useBranchAllProductList = (idB: string) => {
         throw new Error(error.message);
       }
 
-    const groupedData = data.reduce((acc, item) => {
+      const groupedData = data.reduce((acc, item) => {
         const productId = item.id_products.id_products;
         if (!acc[productId]) {
           acc[productId] = { ...item.id_products, quantity: 0 };
@@ -133,11 +137,11 @@ export const useBranchAllProductList = (idB: string) => {
         acc[productId].quantity += item.quantity;
         return acc;
       }, {});
-      
+
       console.log("groupedData####", groupedData);
 
       return Object.values(groupedData);
-    // return data;
+      // return data;
     },
   });
 };
@@ -355,7 +359,6 @@ export const useInsertBatch = () => {
   });
 };
 
-
 export const useBatchList = (id: string) => {
   return useQuery({
     queryKey: ["id_products", id],
@@ -388,12 +391,12 @@ export const useBatchList = (id: string) => {
         const compositeKey = `${branchId}_${batchId}_${localBranchId}_${productId}`;
 
         if (!acc[compositeKey]) {
-          acc[compositeKey] = { 
-            ...item.id_products, 
-            quantity: 0, 
-            branch: item.id_branch, 
-            batch: item.id_batch, 
-            localbatch: item.id_localbranch 
+          acc[compositeKey] = {
+            ...item.id_products,
+            quantity: 0,
+            branch: item.id_branch,
+            batch: item.id_batch,
+            localbatch: item.id_localbranch,
           };
         }
         acc[compositeKey].quantity += item.quantity;
@@ -407,7 +410,6 @@ export const useBatchList = (id: string) => {
     },
   });
 };
-
 
 export const useBatchListQuantity = (ids: string[]) => {
   return useQuery({
@@ -425,11 +427,14 @@ export const useBatchListQuantity = (ids: string[]) => {
             throw new Error(batchError.message);
           }
 
-          const { data: localBatchData, error: localBatchError } = await supabase
-            .from("localbatch")
-            .select("*, id_branch(*), id_batch(*), id_products(*, category(*))")
-            .eq("id_products", id)
-            .gt("quantity", 0);
+          const { data: localBatchData, error: localBatchError } =
+            await supabase
+              .from("localbatch")
+              .select(
+                "*, id_branch(*), id_batch(*), id_products(*, category(*))"
+              )
+              .eq("id_products", id)
+              .gt("quantity", 0);
           if (localBatchError) {
             console.error("Supabase localbatch error:", localBatchError);
             throw new Error(localBatchError.message);
@@ -443,12 +448,12 @@ export const useBatchListQuantity = (ids: string[]) => {
             const compositeKey = `${branchId}_${batchId}_${localBranchId}_${productId}`;
 
             if (!acc[compositeKey]) {
-              acc[compositeKey] = { 
-                ...item.id_products, 
-                quantity: 0, 
-                branch: item.id_branch, 
-                batch: item.id_batch, 
-                localbatch: item.id_localbranch 
+              acc[compositeKey] = {
+                ...item.id_products,
+                quantity: 0,
+                branch: item.id_branch,
+                batch: item.id_batch,
+                localbatch: item.id_localbranch,
               };
             }
             acc[compositeKey].quantity += item.quantity;
@@ -464,7 +469,6 @@ export const useBatchListQuantity = (ids: string[]) => {
     },
   });
 };
-
 
 export const useBatchListByCategory = (id: string) => {
   return useQuery({
@@ -499,7 +503,6 @@ export const useAvailableBatch = (productId: number) => {
   });
 };
 
-
 export const useBranch = () => {
   return useQuery({
     queryKey: ["branch", "specific"],
@@ -507,7 +510,7 @@ export const useBranch = () => {
       const { data, error } = await supabase
         .from("branch")
         .select("*")
-        .eq("id_archives", 2); 
+        .eq("id_archives", 2);
       if (error) {
         throw new Error(error.message);
       }
@@ -614,15 +617,14 @@ export const useArchiveProduct = (id: number) => {
   });
 };
 
-
-export const useAuthenticationLevel = (id : string) => {
+export const useAuthenticationLevel = (id: string) => {
   return useQuery({
     queryKey: ["level", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", id); 
+        .eq("id", id);
       if (error) {
         throw new Error(error.message);
       }
@@ -630,7 +632,6 @@ export const useAuthenticationLevel = (id : string) => {
     },
   });
 };
-
 
 export const useSignIn = () => {
   return useMutation({
@@ -717,7 +718,8 @@ export const handleUpdateEmployee = async (
   router: any
 ) => {
   // Validate the UUID format of the id
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(id)) {
     throw new Error("Invalid UUID format for employee ID");
   }
@@ -764,7 +766,7 @@ export const handleCreateEmployee = async (
         Alert.alert("Error", profileError.message);
       } else {
         Alert.alert("Success", "Employee created successfully");
-        refreshEmployees(); 
+        refreshEmployees();
         router.replace("/employees");
       }
     }
@@ -773,27 +775,24 @@ export const handleCreateEmployee = async (
 
 export const getEmployeeById = async (id: string) => {
   const { data, error } = await supabase
-    .from('profiles')
-    .select('id, full_name, email, group')
-    .eq('id', id)
+    .from("profiles")
+    .select("id, full_name, email, group")
+    .eq("id", id)
     .single(); // Ensures a single result
-  
+
   if (error) {
-    console.error('Error fetching employee by ID:', error);
+    console.error("Error fetching employee by ID:", error);
     throw new Error(error.message);
   }
-  
+
   return data;
 };
 
 export const deleteEmployee = async (id: string) => {
-  const { error } = await supabase
-    .from('profiles')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from("profiles").delete().eq("id", id);
 
   if (error) {
-    console.error('Error deleting employee:', error);
+    console.error("Error deleting employee:", error);
     throw new Error(error.message);
   }
 };
@@ -802,7 +801,11 @@ export const useTransferQuantity = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { id_branch: number; id_products: number; quantity: number }) => {
+    mutationFn: async (data: {
+      id_branch: number;
+      id_products: number;
+      quantity: number;
+    }) => {
       try {
         const { data: batches, error: batchError } = await supabase
           .from("batch")
@@ -837,7 +840,9 @@ export const useTransferQuantity = () => {
           console.log("updatedLocalBatch", updatedLocalBatch);
 
           if (updateError) {
-            throw new Error(`Error inserting into localbatch table: ${updateError.message}`);
+            throw new Error(
+              `Error inserting into localbatch table: ${updateError.message}`
+            );
           }
 
           const { data: updatedBatch, error: deductError } = await supabase
@@ -862,7 +867,9 @@ export const useTransferQuantity = () => {
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["localbatch", "batch"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["localbatch", "batch"],
+      });
     },
   });
 };
@@ -871,7 +878,13 @@ export const useUserTransferQuantity = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { id_branch: number; id_products: number; quantity: number, amount: number, created_by: string }) => {
+    mutationFn: async (data: {
+      id_branch: number;
+      id_products: number;
+      quantity: number;
+      amount: number;
+      created_by: string;
+    }) => {
       try {
         const { data: batches, error: batchError } = await supabase
           .from("localbatch")
@@ -902,13 +915,15 @@ export const useUserTransferQuantity = () => {
               id_localbranch: batch.id_localbranch,
               amount: data.amount,
               quantity: transferQuantity,
-              created_by: data.created_by
+              created_by: data.created_by,
             })
             .single();
           console.log("updatedLocalBatch", updatedLocalBatch);
 
           if (updateError) {
-            throw new Error(`Error inserting into localbatch table: ${updateError.message}`);
+            throw new Error(
+              `Error inserting into localbatch table: ${updateError.message}`
+            );
           }
 
           const { data: updatedBatch, error: deductError } = await supabase
@@ -933,12 +948,20 @@ export const useUserTransferQuantity = () => {
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["localbatch", "batch"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["localbatch", "batch"],
+      });
     },
   });
 };
 
-export const useBranchDetails = (place: string, street: string, city: string, postalCode: string, country: string) => {
+export const useBranchDetails = (
+  place: string,
+  street: string,
+  city: string,
+  postalCode: string,
+  country: string
+) => {
   return useQuery({
     queryKey: ["branchDetails", place, street, city, postalCode, country],
     queryFn: async () => {
@@ -963,9 +986,7 @@ export const useBranchData = () => {
   return useQuery({
     queryKey: ["branch", "all"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("branch")
-        .select(`*`)
+      const { data, error } = await supabase.from("branch").select(`*`);
       if (error) {
         throw new Error(error.message);
       }
@@ -978,9 +999,7 @@ export const useLocalBranchData = () => {
   return useQuery({
     queryKey: ["localbatch"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("localbatch")
-        .select(`*`)
+      const { data, error } = await supabase.from("localbatch").select(`*`);
       if (error) {
         throw new Error(error.message);
       }
@@ -996,7 +1015,7 @@ export const useBranchName = (id: number) => {
       const { data, error } = await supabase
         .from("branch")
         .select(`place`)
-        .eq("id_branch", id)
+        .eq("id_branch", id);
       if (error) {
         throw new Error(error.message);
       }
@@ -1004,4 +1023,3 @@ export const useBranchName = (id: number) => {
     },
   });
 };
-
