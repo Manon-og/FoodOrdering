@@ -64,9 +64,9 @@ export default function EmployeeList() {
           </Pressable>
         )}
       />
-      <Link href="/employees/create" asChild>
+      {/* <Link href="/employees/create" asChild>
         <Button text={"Add New Employee"} />
-      </Link>
+      </Link> */}
     </View>
   );
 }
