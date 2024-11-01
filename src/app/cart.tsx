@@ -1,20 +1,38 @@
 import React from "react";
-import {
-  View,
-  Text,
-  Platform,
-  FlatList,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { View, Text, Platform, FlatList, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { UseCart } from "@/src/providers/CartProvider";
 import CartListItem from "../components/CartListItem";
 import Button from "../components/Button";
+import { useBranchName } from "@/components/branchParams";
+import { useUserTransferQuantity } from "@/src/api/products";
 
 const CartScreen = () => {
   const { items, total } = UseCart();
+  const { id_branch, branchName } = useBranchName();
+  const { mutate: transferQuantity } = useUserTransferQuantity();
+
+  console.log("newPET!:", id_branch);
   const roundedTotal = parseFloat(total.toFixed(2));
+
+  console.log("PET#:", roundedTotal);
+
+  console.log(
+    "PET:",
+    items.map((item) => item.quantity)
+  );
+  console.log("PET@:", items);
+
+  const handleCheckout = () => {
+    items.forEach((item) => {
+      transferQuantity({
+        id_branch: Number(id_branch),
+        id_products: item.id_products,
+        quantity: item.quantity,
+        amount: item.product.id_price.amount,
+      });
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -25,7 +43,7 @@ const CartScreen = () => {
       />
       <View style={styles.footer}>
         <Text style={styles.totalText}>Total: ₱{roundedTotal}</Text>
-        <Button text="Checkout" />
+        <Button text="Checkout" onPress={handleCheckout} />
       </View>
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
     </View>

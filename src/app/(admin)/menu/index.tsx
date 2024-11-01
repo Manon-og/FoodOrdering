@@ -3,6 +3,7 @@ import { FlatList, Text, ActivityIndicator, View, Alert } from "react-native";
 import ProductListItem from "@/src/components/ProductListItem";
 import BatchByProductListItem from "@/src/components/ProductListItemByBatch";
 import {
+  useBackInventoryProductList,
   useBatchList,
   useBranchProductList,
   useProductList,
@@ -17,6 +18,12 @@ const MemoizedProductListItem = memo(ProductListItem);
 // const MemoizedProductListItemByBatch = memo(BatchByProductListItem);
 
 export default function MenuScreen() {
+  // const [totalQuantities, setTotalQuantities] = useState<TotalQuantities>({});
+  // const [batchData, setBatchData] = useState({});
+  // type TotalQuantities = {
+  //   [key: string]: number;
+  // };
+
   const category = useCategory();
   console.log("CATEGORY", category);
   const { id_branch, branchName } = useBranchName();
@@ -36,11 +43,17 @@ export default function MenuScreen() {
 
   const branchId = id_branch || "";
   const { data: productsByBranch } = useBranchProductList(category, branchId);
+  const { data: productsByBackInventory } =
+    useBackInventoryProductList(category);
+
   const { data: products, error, isLoading } = useProductList(category);
   console.log(
     "@@@@@@@@#@#@#",
     products?.map((id_products) => id_products.id_products)
   );
+
+  console.log("IT WORKKKKKKSSSSS:", productsByBranch);
+  console.log("IT%%%%%%?:", productsByBackInventory);
 
   const productIds =
     products?.map((id_products) => id_products.id_products) ?? [];
@@ -52,13 +65,39 @@ export default function MenuScreen() {
   //   id = productIds[i];
   // }r
 
+  // useEffect(() => {
+  //   const fetchBatchData = async () => {
+  //     const allTotalQuantities: { [key: string]: number } = {};
+
+  //     for (let i = 0; i < productIds.length; i++) {
+  //       const id = productIds[i];
+  //       const { data: m } = await useBatchList(id);
+
+  //       if (m && Array.isArray(m)) {
+  //         // Ensure m is an array
+  //         const totalQuantity = m.reduce(
+  //           (acc, item) => acc + (item.quantity || 0),
+  //           0
+  //         );
+  //         allTotalQuantities[id] = totalQuantity;
+  //       } else {
+  //         console.error("Unexpected data format:", m);
+  //       }
+  //     }
+
+  //     setTotalQuantities(allTotalQuantities);
+  //   };
+
+  //   fetchBatchData();
+  // }, [productIds]);
+
   // DI KAYA SA LOGIC KO YAWA GANINA RAKO ANI, PISTENG YAWA.
 
-  const { data: m } = useBatchList("180");
+  // const { data: m } = useBatchList("180");
 
-  console.log("HIRRR", m);
-  const totalQuantity = m?.reduce((acc, item) => acc + (item.quantity || 0), 0);
-  console.log("fck", totalQuantity);
+  // console.log("HIRRR", m);
+  // const totalQuantity = m?.reduce((acc, item) => acc + (item.quantity || 0), 0);
+  // console.log("fck", totalQuantity);
 
   // const ll = ({ item }: { item: any }) => {
   //   console.log("Rendering items:", item);
@@ -81,6 +120,17 @@ export default function MenuScreen() {
   const productByBranchList = Array.isArray(productsByBranch)
     ? productsByBranch
     : [];
+
+  const productByBackInventoryList = Array.isArray(productsByBackInventory)
+    ? productsByBackInventory
+    : [];
+
+  const nn = productList && productByBackInventoryList;
+
+  console.log("NN:", nn);
+
+  console.log("DITO PO:", productByBackInventoryList);
+
   console.log("productByBranchList:", productByBranchList);
 
   const useProduct = id_branch ? productByBranchList : productList;
@@ -143,17 +193,19 @@ export default function MenuScreen() {
   // const { data: m } = useBatchList("180");
   const renderItem = ({ item }: { item: any }) => {
     const id = item.id_products;
+    const quantity = item.quantity;
     console.log("ID$:", id);
-    // const { data: m } = useBatchList(id);
+    console.log("QUANTITY$:", quantity);
 
-    // console.log("HIRRR", m);
-    // const totalQuantity = m?.reduce(
-    //   (acc, item) => acc + (item.quantity || 0),
-    //   0
-    // );
-    // console.log("fck", totalQuantity);
+    // const totalQuantity = totalQuantities[id];
+    // console.log("TOTAL QUANTITY", totalQuantity);
     console.log("Rendering items:", item);
-    return <MemoizedProductListItem product={item} />;
+    return (
+      <MemoizedProductListItem
+        product={item}
+        productsByBackInventory={productsByBackInventory}
+      />
+    );
   };
 
   console.log(
@@ -161,12 +213,17 @@ export default function MenuScreen() {
     productsByBranch?.map((item) => item)
   );
 
+  // console.log(
+  //   "??????????:",
+  //   productsByBackInventory?.map((item) => item.quantity)
+  // );
+
   return (
     <FlatList
       data={filteredProducts}
       renderItem={renderItem}
       keyExtractor={(item) =>
-        item.id_products
+        item.id_products.toString()
           ? item.id_products.toString()
           : item.id_batch.toString()
       }

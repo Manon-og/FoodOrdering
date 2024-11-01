@@ -25,12 +25,12 @@ const ProductListItem = ({ product }: any) => {
   const segments = useSegments();
   const { id_archive } = useArchivedParams();
   console.log("ID ARCHIVE??????????:", id_archive);
-  const hrefLink = id_archive
-    ? `/${segments[0]}/menu/create?id=${product.id_products}&id_archive=1`
-    : `/${segments[0]}/menu/${product.id_products}`;
+  console.log("FAKING SHET:", product.id_branch);
+  const hrefLink = `/${segments[0]}/menu/${product.id_products}?id_archive=1&id_branch=${product.id_branch.id_branch}`;
 
   const warning = product.quantity <= 10 ? "Low Stocks!" : "";
 
+  console.log("PLEASE WORK:", product.id_branch.id_branch);
   return (
     <Link href={hrefLink} asChild>
       <Pressable style={styles.container}>

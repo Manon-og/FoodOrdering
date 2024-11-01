@@ -57,9 +57,39 @@ export const useBranchProductList = (id: string, idB: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("localbatch")
-        .select(`*, id_products(*)`)
+        .select(`*, id_products(*), id_branch(*)`)
         .eq("id_products.id_category", id)
         .eq("id_branch", idB)
+        .not("id_products", "is", null);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+    const groupedData = data.reduce((acc, item) => {
+        const productId = item.id_products.id_products;
+        if (!acc[productId]) {
+          acc[productId] = { ...item.id_products, quantity: 0, id_branch: item.id_branch  };
+        }
+        acc[productId].quantity += item.quantity;
+        return acc;
+      }, {});
+      
+      console.log("CARTT", groupedData);
+
+      return Object.values(groupedData);
+    // return data;
+    },
+  });
+};
+
+export const useBackInventoryProductList = (id: string) => {
+  return useQuery({
+    queryKey: ["back inventory", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("batch")
+        .select(`*, id_products(*)`)
+        .eq("id_products.id_category", id)
         .not("id_products", "is", null);
       if (error) {
         throw new Error(error.message);
@@ -810,6 +840,76 @@ export const useTransferQuantity = () => {
         return true;
       } catch (error) {
         console.error("Error transferring quantity:", error);
+        throw error;
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["localbatch", "batch"] });
+    },
+  });
+};
+
+export const useUserTransferQuantity = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { id_branch: number; id_products: number; quantity: number, amount: number }) => {
+      try {
+        const { data: batches, error: batchError } = await supabase
+          .from("localbatch")
+          .select("*")
+          .eq("id_products", data.id_products);
+        console.log("batches", batches);
+
+        if (batchError) {
+          throw new Error("Error fetching batches");
+        }
+
+        let remainingQuantity = data.quantity;
+        console.log("Remaining quantity:", remainingQuantity);
+
+        for (const batch of batches) {
+          if (remainingQuantity <= 0) break;
+          console.log("Batch:", batch);
+          console.log("batch.id_batch??", batch.id_localbranch);
+
+          const transferQuantity = Math.min(batch.quantity, remainingQuantity);
+          console.log("TtransferQuantity", transferQuantity);
+
+          const { data: updatedLocalBatch, error: updateError } = await supabase
+            .from("salestransaction")
+            .insert({
+              id_branch: data.id_branch,
+              id_products: data.id_products,
+              id_localbranch: batch.id_localbranch,
+              amount: data.amount,
+              quantity: transferQuantity,
+            })
+            .single();
+          console.log("updatedLocalBatch", updatedLocalBatch);
+
+          if (updateError) {
+            throw new Error(`Error inserting into localbatch table: ${updateError.message}`);
+          }
+
+          const { data: updatedBatch, error: deductError } = await supabase
+            .from("localbatch")
+            .update({
+              quantity: batch.quantity - transferQuantity,
+            })
+            .eq("id_localbranch", batch.id_localbranch)
+            .single();
+
+          if (deductError) {
+            throw new Error(deductError.message);
+          }
+
+          remainingQuantity -= transferQuantity;
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Error transferring quantity?:", error);
         throw error;
       }
     },

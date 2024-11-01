@@ -22,12 +22,20 @@ type ProductListItemProps = {
 export const DefaultPhoto =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
 
-const ProductListItem = ({ product, products }: any) => {
+const ProductListItem = ({ product, productsByBackInventory }: any) => {
   const segments = useSegments();
   const { id_archive } = useArchivedParams();
   const { id_branch, branchName } = useBranchName();
   console.log("ID BRANCH#######", id_branch);
   console.log("ID ARCHIVE??????????:", id_archive);
+  console.log("WHY?^^^^", productsByBackInventory);
+  const backInventoryProduct = productsByBackInventory?.find(
+    (item: { id_products: any }) => item.id_products === product.id_products
+  );
+  const backInventoryQuantity = backInventoryProduct
+    ? backInventoryProduct.quantity
+    : 0;
+
   const hrefLink = id_archive
     ? `/${segments[0]}/menu/create?id=${product.id_products}&id_archive=1`
     : `/${segments[0]}/menu/${product.id_products}`;
@@ -47,11 +55,15 @@ const ProductListItem = ({ product, products }: any) => {
           <Text style={styles.title}>{product.name}</Text>
           <Text style={styles.price3}>
             Available Stocks:{" "}
-            <Text style={styles.price1}>{product.quantity}pcs.</Text>{" "}
+            <Text style={styles.price1}>
+              {id_branch ? product.quantity : backInventoryQuantity}pcs.
+            </Text>{" "}
           </Text>
           <Text style={styles.price}>
-            Total Stocks:{" "}
-            <Text style={styles.price2}>{product.quantity}pcs.</Text>{" "}
+            {id_branch ? "Back Inventory" : "Total"} Stocks:{" "}
+            <Text style={styles.price2}>
+              {id_branch ? backInventoryQuantity : product.quantity}pcs.
+            </Text>{" "}
           </Text>
           <Text style={styles.warning}> {warning}</Text>
         </View>

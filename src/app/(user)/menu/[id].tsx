@@ -1,19 +1,29 @@
-import React from 'react';
-import { Text, Image, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
-import { View } from '@/src/components/Themed';
-import { useLocalSearchParams, Stack, router } from 'expo-router';
-import { useState } from 'react';
-import { DefaultPhoto } from '@/src/components/ProductListItem'; // Ensure the correct import path
-import Button from '@/src/components/Button';
-import { UseCart } from '@/src/providers/CartProvider';
-import CartProvider from '@/src/providers/CartProvider'; 
-import { useRoute } from '@react-navigation/native';
-import { useProduct } from '@/src/api/products';
-import { ScrollView } from 'react-native';
+import React from "react";
+import {
+  Text,
+  Image,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+import { View } from "@/src/components/Themed";
+import { useLocalSearchParams, Stack, router } from "expo-router";
+import { useState } from "react";
+import { DefaultPhoto } from "@/src/components/ProductListItem"; // Ensure the correct import path
+import Button from "@/src/components/Button";
+import { UseCart } from "@/src/providers/CartProvider";
+import CartProvider from "@/src/providers/CartProvider";
+import { useRoute } from "@react-navigation/native";
+import { useProduct } from "@/src/api/products";
+import { ScrollView } from "react-native";
+import { useBranchName } from "@/components/branchParams";
 
 function ProductDetailScreen() {
-  const { id: idString } = useLocalSearchParams();
-  const id = parseFloat(typeof idString === 'string' ? idString : idString[0]);
+  const { id: idString, id_branch: idBranchParam } = useLocalSearchParams();
+  const { id_branch, branchName } = useBranchName();
+  console.log("PET!:", idBranchParam);
+  console.log("PETs!:", id_branch);
+  const id = parseFloat(typeof idString === "string" ? idString : idString[0]);
 
   const { data: product, error, isLoading } = useProduct(id);
   const { addItem } = UseCart();
@@ -23,7 +33,7 @@ function ProductDetailScreen() {
       return;
     }
     addItem(product);
-    router.push('/cart');
+    router.push(`/cart?id_branch=${id_branch}`);
   };
 
   if (isLoading) {
@@ -38,7 +48,10 @@ function ProductDetailScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ title: product.name }} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Image source={{ uri: product.image || DefaultPhoto }} style={styles.image} />
+        <Image
+          source={{ uri: product.image || DefaultPhoto }}
+          style={styles.image}
+        />
         <Text style={styles.price}>₱ {product.id_price.amount}</Text>
         <Text style={styles.description}>{product.description}</Text>
       </ScrollView>
@@ -51,7 +64,7 @@ function ProductDetailScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     flex: 1,
     padding: 10,
   },
@@ -59,28 +72,28 @@ const styles = StyleSheet.create({
     paddingBottom: 100, // Ensure there's space for the footer
   },
   footer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 10,
   },
   price: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: 'black',
+    fontWeight: "bold",
+    color: "black",
   },
   image: {
-    width: '100%',
+    width: "100%",
     aspectRatio: 1,
   },
   description: {
     fontSize: 16,
-    color: 'gray',
+    color: "gray",
     marginTop: 10,
-    paddingBottom: '10%',
-    fontStyle: 'italic',
+    paddingBottom: "10%",
+    fontStyle: "italic",
   },
 });
 
