@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 5,
   },
   image: {
     width: 75,
