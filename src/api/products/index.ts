@@ -701,7 +701,7 @@ export const getUserFullName = async () => {
 export const fetchEmployees = async (id: string) => {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, group");
+    .select("id, full_name, email, id_roles");
   if (error) {
     console.error("Error fetching employees:", error);
     throw new Error(error.message);
@@ -713,7 +713,7 @@ export const handleUpdateEmployee = async (
   id: string,
   fullName: string,
   email: string,
-  group: string,
+  idRoles: number,
   refreshEmployees: () => void,
   router: any
 ) => {
@@ -726,7 +726,7 @@ export const handleUpdateEmployee = async (
 
   const { data, error } = await supabase
     .from("profiles")
-    .update({ full_name: fullName, email, group })
+    .update({ full_name: fullName, email, id_roles: idRoles })
     .eq("id", id);
 
   if (error) {
@@ -744,6 +744,7 @@ export const handleCreateEmployee = async (
   fullName: string,
   email: string,
   password: string,
+  idRoles: number,
   refreshEmployees: () => void,
   router: any
 ) => {
@@ -760,7 +761,9 @@ export const handleCreateEmployee = async (
     if (userId) {
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
-        .upsert([{ id: userId, full_name: fullName, email }]);
+        .upsert([
+          { id: userId, full_name: fullName, email, id_roles: idRoles },
+        ]);
 
       if (profileError) {
         Alert.alert("Error", profileError.message);
