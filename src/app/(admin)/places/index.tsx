@@ -1,34 +1,46 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
-import { useBranchData, useLocalBranchData } from "@/src/api/products";
-import ListItem from "@/src/components/listItem";
-import { Link } from "expo-router";
-import Button from "@/src/components/Button";
+import React, { useState, useEffect } from "react";
+import { View, Text, FlatList, StyleSheet, Pressable } from "react-native";
+import { useBranchProductList, useBackInventoryProductList, transferQuantity } from "@/src/api/products";
+import { useBranchName } from "@/src/components/branchParams";
 
-const Index = () => {
-  const { data: branch } = useBranchData();
-  const { data: localBranch } = useLocalBranchData();
+const ListItem = ({ item, isLocalBranch, onRestock }) => {
+  const lowStock = item.quantity < 5; // Define low stock threshold
+  return (
+    <View style={styles.listItem}>
+      <Text>{item.name}</Text>
+      <Text>{item.quantity}</Text>
+      {lowStock && (
+        <Pressable style={styles.restockButton} onPress={() => onRestock(item.id_branch, item.id_products)}>
+          <Text style={styles.restockButtonText}>Restock</Text>
+        </Pressable>
+      )}
+    </View>
+  );
+};
 
-  console.log("Branch data:", branch);
-  console.log("Local branch data:", localBranch);
+export default function Locations() {
+  const { id_branch, branchName } = useBranchName();
+  const { data: branchProducts } = useBranchProductList(id_branch);
+  const { data: backInventoryProducts } = useBackInventoryProductList();
 
-  const currentDate = new Date().toLocaleDateString();
-  const currentDay = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-  });
+  const currentDay = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  const currentDate = new Date().toLocaleDateString("en-US");
 
-  const renderItem = ({ item }: any) => {
-    const isLocalBranch = localBranch?.some(
+  const handleRestock = (id_branch, id_product) => {
+    console.log(`Restocking product ${id_product} for branch ${id_branch}`);
+    transferQuantity({
+      id_branch,
+      id_products: id_product,
+      quantity: 20,
+    });
+  };
+
+  const renderItem = ({ item }) => {
+    const isLocalBranch = branchProducts.some(
       (localItem) => localItem.id_branch === item.id_branch
     );
     console.log("id_branch:", item.id_branch);
-    return <ListItem item={item} isLocalBranch={isLocalBranch} />;
+    return <ListItem item={item} isLocalBranch={isLocalBranch} onRestock={handleRestock} />;
   };
 
   return (
@@ -44,69 +56,62 @@ const Index = () => {
         </Text>
       </View>
       <FlatList
-        data={branch}
+        data={branchProducts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id_branch.toString()}
       />
-      <View>
-        <Link href="/places/overview" asChild>
-          <Button text={"INVENTORY OVERVIEW"} />
-        </Link>
-      </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-    paddingTop: "30%",
+    padding: 16,
+    backgroundColor: "white",
   },
   dateContainer: {
-    position: "absolute",
-    top: 50,
-  },
-  dateText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "gray",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
   dayText: {
-    fontSize: 25,
+    fontSize: 18,
     fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+  },
+  dateText: {
+    fontSize: 18,
   },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    paddingVertical: 10,
-    borderBottomWidth: 2,
-    borderBottomColor: "#ccc",
+    marginBottom: 16,
   },
   headerText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    flex: 1,
-    textAlign: "center",
   },
   statusHeader: {
-    textAlign: "left",
-    flex: 0.5,
-  },
-  placeHeader: {
-    textAlign: "left",
-    flex: 1.5,
-  },
-  moreInfoHeader: {
-    textAlign: "right",
     flex: 1,
   },
+  moreInfoHeader: {
+    flex: 1,
+    textAlign: "right",
+  },
+  listItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  restockButton: {
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 5,
+  },
+  restockButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
 });
-
-export default Index;
