@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, Pressable, StyleSheet, FlatList } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
 import { FontAwesome } from "@expo/vector-icons";
@@ -8,15 +8,26 @@ import Colors from "../../../constants/Colors";
 export default function EmployeeList() {
   const { employees } = useEmployeeContext();
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleViewDetails = (id: string) => {
     router.push(`/(admin)/employees/employeeDetail?id=${id}`);
   };
 
+  const filteredEmployees = employees.filter((employee) =>
+    employee.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search Employees"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       <FlatList
-        data={employees}
+        data={filteredEmployees}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Pressable onPress={() => handleViewDetails(item.id)}>
@@ -49,24 +60,12 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "white",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
+  searchInput: {
+    borderWidth: 1,
+    borderColor: "gray",
+    padding: 10,
     marginBottom: 20,
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  backButtonText: {
-    color: Colors.light.tint,
-    fontSize: 18,
-    marginLeft: 5,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginLeft: 20,
+    borderRadius: 5,
   },
   employeeItem: {
     flexDirection: "row",
