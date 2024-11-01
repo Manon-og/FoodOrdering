@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
+import Button from "@/src/components/Button";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
 import { deleteEmployee } from "@/api/products"; // Ensure the correct import path
@@ -98,12 +99,13 @@ const EmployeeDetail = () => {
       <Text style={styles.value}>{employee.email}</Text>
       <Text style={styles.label}>Group:</Text>
       <Text style={styles.role}>{getRoleName(employee.id_roles)}</Text>
-      <Pressable style={styles.editButton} onPress={handleEdit}>
+      {/* <Pressable style={styles.editButton} onPress={handleEdit}>
         <Text style={styles.buttonText}>Edit</Text>
-      </Pressable>
-      <Pressable style={styles.deleteButton} onPress={handleDelete}>
-        <Text style={styles.buttonText}>Delete</Text>
-      </Pressable>
+      </Pressable> */}
+      <Button onPress={handleEdit} text={"Edit"} />
+      <Text onPress={handleDelete} style={styles.deleteButton}>
+        Archive
+      </Text>
     </View>
   );
 };
@@ -136,10 +138,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   deleteButton: {
-    padding: 15,
-    backgroundColor: "#dc3545",
-    borderRadius: 5,
-    alignItems: "center",
+    color: Colors.light.tint,
+    alignSelf: "center",
+    fontWeight: "bold",
+    marginVertical: 10,
   },
   buttonText: {
     color: "white",

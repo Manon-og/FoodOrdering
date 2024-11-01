@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import Colors from "@/src/constants/Colors";
+import Button from "@/src/components/Button";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
 import {
   handleCreateEmployee,
@@ -160,14 +162,11 @@ const EmployeeForm = () => {
         <Picker.Item label="Admin" value={1} />
         <Picker.Item label="Staff" value={2} />
       </Picker>
-      <Pressable style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>
-          {isUpdating ? "Update" : "Create"}
-        </Text>
-      </Pressable>
-      <Pressable style={styles.cancelButton} onPress={handleCancel}>
-        <Text style={styles.cancelButtonText}>Cancel</Text>
-      </Pressable>
+      <Button onPress={handleSubmit} text={isUpdating ? "Update" : "Create"} />
+
+      <Text onPress={handleCancel} style={styles.cancelButtonText}>
+        Cancel
+      </Text>
 
       <Modal
         animationType="slide"
@@ -189,20 +188,17 @@ const EmployeeForm = () => {
               <Text style={styles.modalText}>Password: {password}</Text>
             )}
             <View style={styles.modalButtons}>
-              <Pressable
-                style={[styles.button, styles.buttonCancel]}
+              <Text
                 onPress={() => setModalVisible(false)}
+                style={styles.cancelButtonText}
               >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button, styles.buttonConfirm]}
+                Cancel
+              </Text>
+
+              <Button
                 onPress={handleConfirm}
-              >
-                <Text style={styles.buttonText}>
-                  {isUpdating ? "Update" : "Create"}
-                </Text>
-              </Pressable>
+                text={isUpdating ? "Update" : "Create"}
+              />
             </View>
           </View>
         </View>
@@ -249,8 +245,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButtonText: {
-    color: "white",
+    color: Colors.light.tint,
+    alignSelf: "center",
     fontWeight: "bold",
+    marginVertical: 10,
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    flex: 1,
+    marginHorizontal: 5,
   },
   modalContainer: {
     flex: 1,

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, Pressable, StyleSheet, Alert } from "react-native";
 import { Link, useRouter } from "expo-router"; // Import Link and useRouter components
 import { handleLogout, getUserEmail, getUserFullName } from "@/api/products"; // Import handleLogout and getUserEmail functions
+import Colors from "@/src/constants/Colors";
 
 export default function UserProfile() {
   const router = useRouter();
@@ -22,12 +23,15 @@ export default function UserProfile() {
   return (
     <View style={styles.container}>
       <View style={styles.topButton}>
-        <Pressable
+        {/* <Pressable
           style={styles.logoutButton}
           onPress={() => handleLogout(router)}
         >
           <Text style={styles.logoutText}>Log out</Text>
-        </Pressable>
+        </Pressable> */}
+        <Text onPress={() => handleLogout(router)} style={styles.logoutText}>
+          Log out
+        </Text>
       </View>
 
       <View style={styles.profileHeader}>
@@ -120,14 +124,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 20,
     right: 20,
+    fontWeight: "bold",
   },
   logoutButton: {
-    backgroundColor: "green",
     padding: 10,
     borderRadius: 5,
   },
   logoutText: {
-    color: "white",
+    color: Colors.light.tint,
     fontWeight: "bold",
   },
   menuTextContainer: {
