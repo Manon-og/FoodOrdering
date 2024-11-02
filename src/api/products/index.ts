@@ -2,6 +2,7 @@ import { supabase, supabaseAdmin } from "@/src/lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 import { Branch } from "@/src/types";
+import { v4 as uuidv4 } from "uuid";
 
 export const useProductList = (id: string) => {
   return useQuery({
@@ -900,8 +901,12 @@ export const useUserTransferQuantity = () => {
       quantity: number;
       amount: number;
       created_by: string;
+      id_group: string;
+      amount_by_product: number;
     }) => {
       try {
+        // const transactionId = uuidv4();
+        // console.log("transactionId", transactionId);
         const { data: batches, error: batchError } = await supabase
           .from("localbatch")
           .select("*")
@@ -928,10 +933,12 @@ export const useUserTransferQuantity = () => {
             .insert({
               id_branch: data.id_branch,
               id_products: data.id_products,
-              id_localbranch: batch.id_localbranch,
+              // id_localbranch: batch.id_localbranch,
               amount: data.amount,
               quantity: transferQuantity,
               created_by: data.created_by,
+              id_group: data.id_group,
+              amount_by_product: data.amount_by_product,
             })
             .single();
           console.log("updatedLocalBatch", updatedLocalBatch);
@@ -1066,4 +1073,55 @@ export const getLastSignInTime = async (userId: string) => {
   console.log("User data:", data); // Log the user data for checking
 
   return data?.user?.last_sign_in_at;
+};
+
+export const useGroupedSalesTransaction = () => {
+  return useQuery({
+    queryKey: ["groupedSalesTransaction"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salestransaction")
+        .select("*");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const key = `${item.id_group}_${item.amount}`;
+        if (!acc[key]) {
+          acc[key] = {
+            id_group: item.id_group,
+            amount: item.amount,
+            created_at: item.created_at,
+            transactions: [],
+          };
+        }
+        acc[key].transactions.push(item);
+        return acc;
+      }, {});
+
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useSalesTransactionById = (id: string) => {
+  return useQuery({
+    queryKey: ["sales", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salestransaction")
+        .select(`*, id_products(name), id_branch(place)`)
+        .eq("id_group", id);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
 };
