@@ -1055,7 +1055,6 @@ export const useSalesTransaction = () => {
   });
 };
 
-// Function to fetch last sign-in time for a specific user
 export const getLastSignInTime = async (userId: string) => {
   const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
 
