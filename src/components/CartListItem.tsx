@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, Pressable, Alert } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
-import { UseCart } from '../providers/CartProvider';
-import Colors from '../constants/Colors';
-import { DefaultPhoto } from './ProductListItem';
-import CartModal from '../modals/cartModals';
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Image, Pressable, Alert } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import { UseCart } from "../providers/CartProvider";
+import Colors from "../constants/Colors";
+import { DefaultPhoto } from "./ProductListItem";
+import CartModal from "../modals/cartModals";
 
 type CartListItemProps = {
   cartItem: any;
+  onRemove: any;
 };
 
 const CartListItem = ({ cartItem }: CartListItemProps) => {
@@ -21,11 +22,11 @@ const CartListItem = ({ cartItem }: CartListItemProps) => {
   const handleDecrement = () => {
     if (cartItem.quantity - 1 <= 0) {
       Alert.alert(
-        'Remove Item',
-        'Are you sure you want to remove this item from the cart?',
+        "Remove Item",
+        "Are you sure you want to remove this item from the cart?",
         [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Yes', onPress: () => updateQuantity(cartItem.id, -1) },
+          { text: "Cancel", style: "cancel" },
+          { text: "Yes", onPress: () => updateQuantity(cartItem.id, -1) },
         ]
       );
     } else {
@@ -35,11 +36,15 @@ const CartListItem = ({ cartItem }: CartListItemProps) => {
 
   const handleRemoveItem = () => {
     Alert.alert(
-      'Remove Item',
-      'Are you sure you want to remove this item from the cart?',
+      "Remove Item",
+      "Are you sure you want to remove this item from the cart?",
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Remove', onPress: () => removeItem(cartItem.id), style: 'destructive' },
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          onPress: () => removeItem(cartItem.id),
+          style: "destructive",
+        },
       ]
     );
   };
@@ -57,22 +62,36 @@ const CartListItem = ({ cartItem }: CartListItemProps) => {
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{cartItem.product.name}</Text>
         <View style={styles.subtitleContainer}>
-          <Text style={styles.price}>₱{cartItem.product.id_price.amount.toFixed(2)}</Text>
+          <Text style={styles.price}>
+            ₱{cartItem.product.id_price.amount.toFixed(2)}
+          </Text>
         </View>
       </View>
       <View style={styles.quantitySelector}>
-        <FontAwesome onPress={handleDecrement} name="minus" color="gray" style={{ padding: 5 }} />
+        <FontAwesome
+          onPress={handleDecrement}
+          name="minus"
+          color="gray"
+          style={{ padding: 5 }}
+        />
 
         <Pressable onPress={() => setQuantityModalVisible(true)}>
           <Text style={styles.quantity}>{cartItem.quantity}</Text>
         </Pressable>
 
-        <FontAwesome onPress={handleIncrement} name="plus" color="gray" style={{ padding: 5 }} />
+        <FontAwesome
+          onPress={handleIncrement}
+          name="plus"
+          color="gray"
+          style={{ padding: 5 }}
+        />
       </View>
       <CartModal
         visible={quantityModalVisible}
         onClose={() => setQuantityModalVisible(false)}
-        onConfirm={(newQuantity) => updateQuantity(cartItem.id, newQuantity - cartItem.quantity)}
+        onConfirm={(newQuantity) =>
+          updateQuantity(cartItem.id, newQuantity - cartItem.quantity)
+        }
         currentQuantity={cartItem.quantity}
       />
     </View>
@@ -81,42 +100,42 @@ const CartListItem = ({ cartItem }: CartListItemProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
     padding: 5,
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 5,
   },
   image: {
     width: 75,
     aspectRatio: 1,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginRight: 10,
   },
   title: {
-    fontWeight: '500',
+    fontWeight: "500",
     fontSize: 16,
     marginBottom: 5,
   },
   subtitleContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 5,
   },
   quantitySelector: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 10,
   },
   quantity: {
-    fontWeight: '500',
+    fontWeight: "500",
     fontSize: 18,
   },
   price: {
     color: Colors.light.tint,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   removeButton: {
     padding: 2,

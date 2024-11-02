@@ -99,8 +99,8 @@ const Index = () => {
               transferQuantity({
                 id_branch: Number(id_branch),
                 id_products: Number(id_products),
-                quantity,
-              }); // Assuming id_branch is 1 for this example
+                quantity: quantity,
+              });
             }
           );
           Alert.alert(

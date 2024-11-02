@@ -10,6 +10,7 @@ import { Link, Stack, useRouter } from "expo-router";
 import { Button } from "react-native-elements";
 import { useBranch } from "@/src/api/products";
 import BranchOptionsModal from "@/src/modals/branchModals";
+import { v4 as uuidv4 } from "uuid";
 
 const Index = () => {
   const router = useRouter();
@@ -24,6 +25,9 @@ const Index = () => {
   const [selectedBranchName, setSelectedBranchName] = useState<string | null>(
     null
   );
+
+  const transactionId = uuidv4();
+  // console.log("transactionId", transactionId);
 
   const onSelectBranch = (id_branch: string, branchName: string) => {
     console.log("Selected branch ID:", id_branch, branchName);

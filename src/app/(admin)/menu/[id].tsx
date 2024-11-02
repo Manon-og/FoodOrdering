@@ -22,6 +22,7 @@ function ProductDetailScreen() {
   const id_products = parseFloat(
     typeof idString === "string" ? idString : idString[0]
   );
+  console.log("ID BRO WTF", id_products);
   const MemoizedQuantityListItemByBatch = memo(QuantityListItem);
 
   const { data: batch } = useBatchList(id_products.toString());

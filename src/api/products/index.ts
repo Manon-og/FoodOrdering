@@ -2,6 +2,7 @@ import { supabase, supabaseAdmin } from "@/src/lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 import { Branch } from "@/src/types";
+import { v4 as uuidv4 } from "uuid";
 
 export const useProductList = (id: string) => {
   return useQuery({
@@ -887,8 +888,11 @@ export const useUserTransferQuantity = () => {
       quantity: number;
       amount: number;
       created_by: string;
+      id_group: string;
     }) => {
       try {
+        // const transactionId = uuidv4();
+        // console.log("transactionId", transactionId);
         const { data: batches, error: batchError } = await supabase
           .from("localbatch")
           .select("*")
@@ -915,10 +919,11 @@ export const useUserTransferQuantity = () => {
             .insert({
               id_branch: data.id_branch,
               id_products: data.id_products,
-              id_localbranch: batch.id_localbranch,
+              // id_localbranch: batch.id_localbranch,
               amount: data.amount,
               quantity: transferQuantity,
               created_by: data.created_by,
+              id_group: data.id_group,
             })
             .single();
           console.log("updatedLocalBatch", updatedLocalBatch);
@@ -1019,6 +1024,21 @@ export const useBranchName = (id: number) => {
         .from("branch")
         .select(`place`)
         .eq("id_branch", id);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useSalesTransaction = () => {
+  return useQuery({
+    queryKey: ["sales"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salestransaction")
+        .select(`*`);
       if (error) {
         throw new Error(error.message);
       }
