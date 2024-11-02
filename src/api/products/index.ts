@@ -1040,6 +1040,21 @@ export const useBranchName = (id: number) => {
   });
 };
 
+export const useSalesTransaction = () => {
+  return useQuery({
+    queryKey: ["sales"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salestransaction")
+        .select(`*`);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
 // Function to fetch last sign-in time for a specific user
 export const getLastSignInTime = async (userId: string) => {
   const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
