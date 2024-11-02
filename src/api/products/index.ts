@@ -701,7 +701,7 @@ export const getUserFullName = async () => {
 export const fetchEmployees = async (id: string) => {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, id_roles");
+    .select("id, full_name, email, id_roles, birth_date");
   if (error) {
     console.error("Error fetching employees:", error);
     throw new Error(error.message);
@@ -714,6 +714,7 @@ export const handleUpdateEmployee = async (
   fullName: string,
   email: string,
   idRoles: number,
+  birthDate: string,
   refreshEmployees: () => void,
   router: any
 ) => {
@@ -726,7 +727,12 @@ export const handleUpdateEmployee = async (
 
   const { data, error } = await supabase
     .from("profiles")
-    .update({ full_name: fullName, email, id_roles: idRoles })
+    .update({
+      full_name: fullName,
+      email,
+      id_roles: idRoles,
+      birth_date: birthDate,
+    })
     .eq("id", id);
 
   if (error) {
@@ -745,6 +751,7 @@ export const handleCreateEmployee = async (
   email: string,
   password: string,
   idRoles: number,
+  birthDate: string,
   refreshEmployees: () => void,
   router: any
 ) => {
@@ -762,7 +769,13 @@ export const handleCreateEmployee = async (
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
         .upsert([
-          { id: userId, full_name: fullName, email, id_roles: idRoles },
+          {
+            id: userId,
+            full_name: fullName,
+            email,
+            id_roles: idRoles,
+            birth_date: birthDate,
+          },
         ]);
 
       if (profileError) {
@@ -1025,4 +1038,18 @@ export const useBranchName = (id: number) => {
       return data;
     },
   });
+};
+
+// Function to fetch last sign-in time for a specific user
+export const getLastSignInTime = async (userId: string) => {
+  const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
+
+  if (error) {
+    console.error("Error fetching last sign-in time:", error);
+    throw new Error(error.message);
+  }
+
+  console.log("User data:", data); // Log the user data for checking
+
+  return data?.user?.last_sign_in_at;
 };

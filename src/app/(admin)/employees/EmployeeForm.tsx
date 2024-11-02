@@ -7,12 +7,14 @@ import {
   StyleSheet,
   Alert,
   Modal,
+  Platform,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import Colors from "@/src/constants/Colors";
-import Button from "@/src/components/Button";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
+import Colors from "@/constants/Colors";
+import Button from "@/src/components/Button";
 import {
   handleCreateEmployee,
   handleUpdateEmployee,
@@ -27,9 +29,11 @@ const EmployeeForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [idRoles, setIdRoles] = useState<number>(0); // Add state for id_roles
+  const [birthDate, setBirthDate] = useState<Date | undefined>(undefined); // Add state for birth_date
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -40,6 +44,7 @@ const EmployeeForm = () => {
             setFullName(employee.full_name);
             setEmail(employee.email);
             setIdRoles(employee.id_roles); // Set id_roles
+            setBirthDate(new Date(employee.birth_date)); // Set birth_date
             setPassword("");
             setIsUpdating(true);
           } else {
@@ -54,7 +59,7 @@ const EmployeeForm = () => {
 
   const validate = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!fullName || !email || (!isUpdating && !password)) {
+    if (!fullName || !email || (!isUpdating && !password) || !birthDate) {
       Alert.alert("Error", "Please fill all fields");
       return false;
     }
@@ -78,12 +83,14 @@ const EmployeeForm = () => {
 
   const handleConfirm = () => {
     setModalVisible(false);
+    const formattedBirthDate = birthDate?.toISOString().split("T")[0]; // Format birth date as YYYY-MM-DD
     if (isUpdating) {
       handleUpdateEmployee(
         id,
         fullName,
         email,
         idRoles,
+        formattedBirthDate,
         refreshEmployees,
         router
       );
@@ -93,6 +100,7 @@ const EmployeeForm = () => {
         email,
         password,
         idRoles,
+        formattedBirthDate,
         refreshEmployees,
         router
       );
@@ -100,7 +108,7 @@ const EmployeeForm = () => {
   };
 
   const handleCancel = () => {
-    if (fullName || email || (!isUpdating && password)) {
+    if (fullName || email || (!isUpdating && password) || birthDate) {
       Alert.alert(
         "Discard Changes?",
         "Are you sure you want to discard your changes?",
@@ -122,6 +130,17 @@ const EmployeeForm = () => {
         return "Staff";
       default:
         return "Unknown";
+    }
+  };
+
+  const showDatePickerModal = () => {
+    setShowDatePicker(true);
+  };
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === "ios");
+    if (selectedDate) {
+      setBirthDate(selectedDate);
     }
   };
 
@@ -151,6 +170,19 @@ const EmployeeForm = () => {
           placeholder="Password"
           style={styles.input}
           secureTextEntry
+        />
+      )}
+      <Pressable onPress={showDatePickerModal} style={styles.input}>
+        <Text>
+          {birthDate ? birthDate.toDateString() : "Select Birth Date"}
+        </Text>
+      </Pressable>
+      {showDatePicker && (
+        <DateTimePicker
+          value={birthDate || new Date()}
+          mode="date"
+          display="default"
+          onChange={onDateChange}
         />
       )}
       <Picker
@@ -184,6 +216,9 @@ const EmployeeForm = () => {
             <Text style={styles.modalText}>Full Name: {fullName}</Text>
             <Text style={styles.modalText}>Email: {email}</Text>
             <Text style={styles.modalText}>Role: {getRoleName(idRoles)}</Text>
+            <Text style={styles.modalText}>
+              Birth Date: {birthDate?.toDateString()}
+            </Text>
             {!isUpdating && (
               <Text style={styles.modalText}>Password: {password}</Text>
             )}

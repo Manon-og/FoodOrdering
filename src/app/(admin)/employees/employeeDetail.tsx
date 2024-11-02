@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
 import Button from "@/src/components/Button";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
-import { deleteEmployee } from "@/api/products"; // Ensure the correct import path
+import { deleteEmployee, getLastSignInTime } from "@/api/products"; // Ensure the correct import path
 import { EmployeeProvider } from "@/providers/EmployeeProvider";
 import Colors from "../../../constants/Colors";
 
@@ -17,20 +17,26 @@ const EmployeeDetail = () => {
     full_name: string;
     email: string;
     id_roles: number;
+    birth_date: any;
   }
 
   const [employee, setEmployee] = useState<Employee | null>(null);
+  const [lastSignInTime, setLastSignInTime] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
       const emp = employees.find((emp) => emp.id === id);
       if (emp) {
         setEmployee(emp);
+        fetchLastSignInTime(emp.id);
       } else {
         refreshEmployees()
           .then(() => {
             const emp = employees.find((emp) => emp.id === id);
             setEmployee(emp);
+            if (emp) {
+              fetchLastSignInTime(emp.id);
+            }
           })
           .catch((error) => {
             console.error("Error fetching employee details:", error);
@@ -38,6 +44,16 @@ const EmployeeDetail = () => {
       }
     }
   }, [id, employees, refreshEmployees]);
+
+  const fetchLastSignInTime = async (userId: string) => {
+    try {
+      const lastSignIn = await getLastSignInTime(userId);
+      console.log("Last sign-in time:", lastSignIn); // Log the last sign-in time for checking
+      setLastSignInTime(lastSignIn);
+    } catch (error) {
+      console.error("Error fetching last sign-in time:", error);
+    }
+  };
 
   const handleEdit = () => {
     router.push(`/employees/edit?id=${id}`);
@@ -97,8 +113,15 @@ const EmployeeDetail = () => {
       <Text style={styles.value}>{employee.full_name}</Text>
       <Text style={styles.label}>Email:</Text>
       <Text style={styles.value}>{employee.email}</Text>
+      <Text style={styles.label}>Birth date:</Text>
+      <Text style={styles.value}>{employee.birth_date}</Text>
       <Text style={styles.label}>Group:</Text>
       <Text style={styles.role}>{getRoleName(employee.id_roles)}</Text>
+      {lastSignInTime && (
+        <Text style={styles.lastSignIn}>
+          Last Sign-In: {new Date(lastSignInTime).toLocaleString()}
+        </Text>
+      )}
       {/* <Pressable style={styles.editButton} onPress={handleEdit}>
         <Text style={styles.buttonText}>Edit</Text>
       </Pressable> */}
@@ -125,6 +148,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginTop: 10,
+  },
+  lastSignIn: {
+    fontSize: 16,
+    color: "green",
+    marginBottom: 20,
   },
   value: {
     fontSize: 16,
