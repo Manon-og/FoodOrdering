@@ -7,10 +7,14 @@ import {
   StyleSheet,
   Alert,
   Modal,
+  Platform,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
+import Colors from "@/constants/Colors";
+import Button from "@/src/components/Button";
 import {
   handleCreateEmployee,
   handleUpdateEmployee,
@@ -25,9 +29,11 @@ const EmployeeForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [idRoles, setIdRoles] = useState<number>(0); // Add state for id_roles
+  const [birthDate, setBirthDate] = useState<Date | undefined>(undefined); // Add state for birth_date
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -38,6 +44,7 @@ const EmployeeForm = () => {
             setFullName(employee.full_name);
             setEmail(employee.email);
             setIdRoles(employee.id_roles); // Set id_roles
+            setBirthDate(new Date(employee.birth_date)); // Set birth_date
             setPassword("");
             setIsUpdating(true);
           } else {
@@ -52,7 +59,7 @@ const EmployeeForm = () => {
 
   const validate = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!fullName || !email || (!isUpdating && !password)) {
+    if (!fullName || !email || (!isUpdating && !password) || !birthDate) {
       Alert.alert("Error", "Please fill all fields");
       return false;
     }
@@ -76,12 +83,14 @@ const EmployeeForm = () => {
 
   const handleConfirm = () => {
     setModalVisible(false);
+    const formattedBirthDate = birthDate?.toISOString().split("T")[0]; // Format birth date as YYYY-MM-DD
     if (isUpdating) {
       handleUpdateEmployee(
         id,
         fullName,
         email,
         idRoles,
+        formattedBirthDate,
         refreshEmployees,
         router
       );
@@ -91,6 +100,7 @@ const EmployeeForm = () => {
         email,
         password,
         idRoles,
+        formattedBirthDate,
         refreshEmployees,
         router
       );
@@ -98,7 +108,7 @@ const EmployeeForm = () => {
   };
 
   const handleCancel = () => {
-    if (fullName || email || (!isUpdating && password)) {
+    if (fullName || email || (!isUpdating && password) || birthDate) {
       Alert.alert(
         "Discard Changes?",
         "Are you sure you want to discard your changes?",
@@ -120,6 +130,17 @@ const EmployeeForm = () => {
         return "Staff";
       default:
         return "Unknown";
+    }
+  };
+
+  const showDatePickerModal = () => {
+    setShowDatePicker(true);
+  };
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === "ios");
+    if (selectedDate) {
+      setBirthDate(selectedDate);
     }
   };
 
@@ -151,6 +172,19 @@ const EmployeeForm = () => {
           secureTextEntry
         />
       )}
+      <Pressable onPress={showDatePickerModal} style={styles.input}>
+        <Text>
+          {birthDate ? birthDate.toDateString() : "Select Birth Date"}
+        </Text>
+      </Pressable>
+      {showDatePicker && (
+        <DateTimePicker
+          value={birthDate || new Date()}
+          mode="date"
+          display="default"
+          onChange={onDateChange}
+        />
+      )}
       <Picker
         selectedValue={idRoles}
         onValueChange={(itemValue) => setIdRoles(itemValue)}
@@ -160,14 +194,11 @@ const EmployeeForm = () => {
         <Picker.Item label="Admin" value={1} />
         <Picker.Item label="Staff" value={2} />
       </Picker>
-      <Pressable style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>
-          {isUpdating ? "Update" : "Create"}
-        </Text>
-      </Pressable>
-      <Pressable style={styles.cancelButton} onPress={handleCancel}>
-        <Text style={styles.cancelButtonText}>Cancel</Text>
-      </Pressable>
+      <Button onPress={handleSubmit} text={isUpdating ? "Update" : "Create"} />
+
+      <Text onPress={handleCancel} style={styles.cancelButtonText}>
+        Cancel
+      </Text>
 
       <Modal
         animationType="slide"
@@ -185,24 +216,24 @@ const EmployeeForm = () => {
             <Text style={styles.modalText}>Full Name: {fullName}</Text>
             <Text style={styles.modalText}>Email: {email}</Text>
             <Text style={styles.modalText}>Role: {getRoleName(idRoles)}</Text>
+            <Text style={styles.modalText}>
+              Birth Date: {birthDate?.toDateString()}
+            </Text>
             {!isUpdating && (
               <Text style={styles.modalText}>Password: {password}</Text>
             )}
             <View style={styles.modalButtons}>
-              <Pressable
-                style={[styles.button, styles.buttonCancel]}
+              <Text
                 onPress={() => setModalVisible(false)}
+                style={styles.cancelButtonText}
               >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button, styles.buttonConfirm]}
+                Cancel
+              </Text>
+
+              <Button
                 onPress={handleConfirm}
-              >
-                <Text style={styles.buttonText}>
-                  {isUpdating ? "Update" : "Create"}
-                </Text>
-              </Pressable>
+                text={isUpdating ? "Update" : "Create"}
+              />
             </View>
           </View>
         </View>
@@ -249,8 +280,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButtonText: {
-    color: "white",
+    color: Colors.light.tint,
+    alignSelf: "center",
     fontWeight: "bold",
+    marginVertical: 10,
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    flex: 1,
+    marginHorizontal: 5,
   },
   modalContainer: {
     flex: 1,

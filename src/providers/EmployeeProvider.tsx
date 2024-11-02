@@ -17,6 +17,7 @@ type Employee = {
   full_name: any;
   email: any;
   id_roles: number;
+  birth_date: any;
 };
 
 export const EmployeeProvider = ({ children }: { children: ReactNode }) => {

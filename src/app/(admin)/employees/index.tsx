@@ -11,6 +11,7 @@ import { Link, useRouter } from "expo-router";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "../../../constants/Colors";
+import Button from "@/src/components/Button";
 
 export default function EmployeeList() {
   const { employees } = useEmployeeContext();
@@ -63,11 +64,9 @@ export default function EmployeeList() {
           </Pressable>
         )}
       />
-      <Link href="/employees/create" asChild>
-        <Pressable style={styles.createButton}>
-          <Text style={styles.createButtonText}>Add new Employee</Text>
-        </Pressable>
-      </Link>
+      {/* <Link href="/employees/create" asChild>
+        <Button text={"Add New Employee"} />
+      </Link> */}
     </View>
   );
 }
