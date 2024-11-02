@@ -18,8 +18,9 @@ const Index = () => {
   const amount = salesTransaction?.[0]?.amount;
   const user = salesTransaction?.[0]?.created_by;
   const location = salesTransaction?.[0]?.id_branch.place;
-  const time = salesTransaction?.[0]?.created_at.split("T")[1].split(".")[0];
-  const sunMoon = time.split(":")[0] >= 12 ? "PM" : "AM";
+  const createdAt = salesTransaction?.[0]?.created_at;
+  const time = createdAt ? createdAt.split("T")[1].split(".")[0] : "";
+  const sunMoon = time ? (time.split(":")[0] >= 12 ? "PM" : "AM") : "";
   const currentDate = new Date().toLocaleDateString();
   const currentDay = new Date().toLocaleDateString("en-US", {
     weekday: "long",
