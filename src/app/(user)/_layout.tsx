@@ -96,6 +96,40 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+
+      {/* <Tabs.Screen
+        name="transaction/index"
+        options={{
+          title: "nothing",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      /> */}
+      {/* <Tabs.Screen
+        name="transaction/PREV"
+        options={{
+          title: "nothing",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      /> */}
+
+      <Tabs.Screen
+        name="transaction"
+        options={{
+          title: "nothing",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+      <Tabs.Screen
+        name="twoPREV"
+        options={{
+          title: "nothing",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 }

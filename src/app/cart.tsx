@@ -19,12 +19,22 @@ import { FontAwesome } from "@expo/vector-icons";
 import { v4 as uuidv4 } from "uuid";
 
 const CartScreen = () => {
-  const { items, total, clearCart, removeItem, addItem } = UseCart();
+  const {
+    items,
+    total,
+    clearCart,
+    removeItem,
+    addItem,
+    totalAmountPerProduct,
+  } = UseCart();
+
   const { id_branch, branchName } = useBranchName();
   const { mutate: transferQuantity } = useUserTransferQuantity();
   const router = useRouter();
 
   const roundedTotal = parseFloat(total.toFixed(2));
+  const roundedTotalById = parseFloat(totalAmountPerProduct.toString());
+  console.log("TOTALBYPRODUCT FUCK IT", totalAmountPerProduct);
   const transactionId = uuidv4();
   console.log("transactionId", transactionId);
 
@@ -50,7 +60,8 @@ const CartScreen = () => {
       {
         text: "Confirm",
         onPress: () => {
-          items.forEach((item) => {
+          const totalAmounts = Object.values(totalAmountPerProduct);
+          items.forEach((item, index) => {
             transferQuantity({
               id_branch: Number(id_branch),
               id_products: item.id_products,
@@ -58,6 +69,7 @@ const CartScreen = () => {
               amount: roundedTotal,
               created_by: name || "",
               id_group: transactionId,
+              amount_by_product: totalAmounts[index],
             });
           });
           setTimeout(() => {

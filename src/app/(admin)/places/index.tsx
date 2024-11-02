@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TextInput,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList, TextInput } from "react-native";
 import { useBranchData, useLocalBranchData } from "@/src/api/products";
 import { Picker } from "@react-native-picker/picker";
 import ListItem from "@/src/components/listItem";
@@ -25,12 +19,16 @@ const Index = () => {
 
       // Apply filter based on selected status
       if (selectedFilter !== "all") {
-        filtered = filtered.filter((item: any) => item.status?.toLowerCase() === selectedFilter);
+        filtered = filtered.filter(
+          (item: any) => item.status?.toLowerCase() === selectedFilter
+        );
       }
 
       // Apply search query filter
       if (searchQuery !== "") {
-        filtered = filtered.filter((item: any) => item.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+        filtered = filtered.filter((item: any) =>
+          item.name?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
       }
 
       setFilteredBranch(filtered);
