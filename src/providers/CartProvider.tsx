@@ -44,6 +44,7 @@ const CartProvider = ({ children }: any) => {
       product_id: product,
       quantity: 1,
       id_products: product.id_products,
+      id_localbranch: product.id_localbranch,
     };
 
     setItems((prevItems) => [...prevItems, newItem]);

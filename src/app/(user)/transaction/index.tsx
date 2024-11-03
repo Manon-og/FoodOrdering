@@ -1,16 +1,65 @@
 import React, { memo } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  Alert,
+} from "react-native";
 import {
   useGroupedSalesTransaction,
   useSalesTransactionById,
+  useUserVoid,
 } from "@/src/api/products";
 
 import GroupedSalesTransactionId from "@/components/GroupSalesTransactionId";
-import { useLocalSearchParams } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 
 const Index = () => {
-  const { id_group } = useLocalSearchParams();
+  const { id_group, id_void } = useLocalSearchParams();
+  const voidTransaction = useUserVoid();
+  const router = useRouter();
+
+  const handleVoidTransaction = () => {
+    if (id_group) {
+      voidTransaction.mutate(
+        { id_group: id_group.toString() },
+        {
+          onSuccess: () => {
+            router.push("/(user)/two");
+          },
+        }
+      );
+    }
+  };
+
+  const confirmVoidTransaction = () => {
+    Alert.alert(
+      "Confirm Void",
+      "Are you sure you want to void this transaction?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: handleVoidTransaction,
+        },
+      ]
+    );
+  };
+
+  console.log("id_void UPADTEEE", id_void);
   console.log("id_group UPADTEEE", id_group);
+  if (!id_group) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: id_group is undefined</Text>
+      </View>
+    );
+  }
   const { data: salesTransaction } = useSalesTransactionById(
     id_group.toString()
   );
@@ -27,7 +76,7 @@ const Index = () => {
   });
 
   // const MemoizedProductListItem = memo(GroupedSalesTransactionItem); ayaw niya mag start sa 1, wtf.
-  const { data: groupedSales }: any = useGroupedSalesTransaction();
+  // const { data: groupedSales }: any = useGroupedSalesTransaction();
   let currentIdGroup = 1;
 
   const renderItem = ({ item }: { item: any }) => {
@@ -50,8 +99,17 @@ const Index = () => {
     );
   };
 
-  return (
+  const content = (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable onPress={confirmVoidTransaction}>
+              <Text style={styles.confirmButton}>CONFIRM</Text>
+            </Pressable>
+          ),
+        }}
+      />
       <View style={styles.dateContainer}>
         <Text style={styles.dayText}>{currentDay}</Text>
         <Text style={styles.dateText}>{currentDate}</Text>
@@ -78,6 +136,55 @@ const Index = () => {
       </View>
     </View>
   );
+
+  const content2 = (
+    <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Link
+              href={`/(user)/transaction?id_group=${id_group}&id_void=1`}
+              asChild
+            >
+              <Pressable>
+                {({ pressed }) => (
+                  <>
+                    <Text style={styles.voidButton}>VOID</Text>
+                  </>
+                )}
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
+      <View style={styles.dateContainer}>
+        <Text style={styles.dayText}>{currentDay}</Text>
+        <Text style={styles.dateText}>{currentDate}</Text>
+      </View>
+      <View style={styles.headerContainer}>
+        <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
+        <Text style={[styles.headerText, styles.statusMiddle]}>Quantity</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>
+          Total Amount
+        </Text>
+      </View>
+      <FlatList
+        data={salesTransaction}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id_salestransaction}
+      />
+      <View style={styles.footer}>
+        <Text style={styles.totalText}>Total: ₱{amount}</Text>
+        <Text style={styles.createdBy}>Created by: {user}</Text>
+        <Text style={styles.createdBy}>Location: {location}</Text>
+        <Text style={styles.createdBy}>
+          {time} {sunMoon}
+        </Text>
+      </View>
+    </View>
+  );
+
+  return id_void ? content : content2;
 };
 
 const styles = StyleSheet.create({
@@ -151,6 +258,16 @@ const styles = StyleSheet.create({
   createdBy: {
     fontSize: 15,
     color: "gray",
+  },
+  voidButton: {
+    color: "darkred",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  confirmButton: {
+    color: "darkgreen",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 

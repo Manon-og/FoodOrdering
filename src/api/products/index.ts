@@ -896,6 +896,7 @@ export const useUserTransferQuantity = () => {
 
   return useMutation({
     mutationFn: async (data: {
+      id_localbranch: number;
       id_branch: number;
       id_products: number;
       quantity: number;
@@ -923,7 +924,7 @@ export const useUserTransferQuantity = () => {
         for (const batch of batches) {
           if (remainingQuantity <= 0) break;
           console.log("Batch:", batch);
-          console.log("batch.id_batch??", batch.id_localbranch);
+          console.log("batch.id_batch?? YAWA PISTE YAWA", batch.id_localbranch);
 
           const transferQuantity = Math.min(batch.quantity, remainingQuantity);
           console.log("TtransferQuantity", transferQuantity);
@@ -931,9 +932,10 @@ export const useUserTransferQuantity = () => {
           const { data: updatedLocalBatch, error: updateError } = await supabase
             .from("salestransaction")
             .insert({
+              id_localbranch: batch.id_localbranch,
               id_branch: data.id_branch,
               id_products: data.id_products,
-              // id_localbranch: batch.id_localbranch,
+
               amount: data.amount,
               quantity: transferQuantity,
               created_by: data.created_by,
@@ -1122,6 +1124,79 @@ export const useSalesTransactionById = (id: string) => {
         throw new Error(error.message);
       }
       return data;
+    },
+  });
+};
+
+export const useUserVoid = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { id_group: string }) => {
+      try {
+        const { data: transactions, error: transactionError } = await supabase
+          .from("salestransaction")
+          .select("*")
+          .eq("id_group", data.id_group);
+        console.log("transactions", transactions);
+
+        if (transactionError) {
+          throw new Error("Error fetching transactions");
+        }
+
+        for (const transaction of transactions) {
+          console.log("Transaction:", transaction);
+
+          const { data: localBatch, error: fetchError } = await supabase
+            .from("localbatch")
+            .select("quantity")
+            .eq("id_localbranch", transaction.id_localbranch)
+            .single();
+
+          if (fetchError) {
+            throw new Error(`Error fetching localbatch: ${fetchError.message}`);
+          }
+
+          const newQuantity = localBatch.quantity + transaction.quantity;
+          const { data: updatedBatch, error: updateError } = await supabase
+            .from("localbatch")
+            .update({ quantity: newQuantity })
+            .eq("id_localbranch", transaction.id_localbranch)
+            .single();
+          console.log("updatedBatch", updatedBatch);
+
+          if (updateError) {
+            throw new Error(
+              `Error updating localbatch table: ${updateError.message}`
+            );
+          }
+        }
+
+        const { error: deleteError } = await supabase
+          .from("salestransaction")
+          .delete()
+          .eq("id_group", data.id_group);
+
+        if (deleteError) {
+          throw new Error(
+            `Error deleting transactions: ${deleteError.message}`
+          );
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Error voiding transactions:", error);
+        throw error;
+      }
+    },
+    onSuccess: async () => {
+      console.log("cancellll");
+      await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
+      await queryClient.invalidateQueries({ queryKey: ["salestransaction"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["groupedSalesTransaction"],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["sales"] });
     },
   });
 };

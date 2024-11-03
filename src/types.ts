@@ -6,9 +6,10 @@ export type Product = {
   price: number;
 };
 
-export type PizzaSize = 'S' | 'M' | 'L' | 'XL';
+export type PizzaSize = "S" | "M" | "L" | "XL";
 
 export type CartItem = {
+  id_localbranch: number;
   id_products: any;
   id: string;
   product: Product;
@@ -17,13 +18,13 @@ export type CartItem = {
 };
 
 export const OrderStatusList: OrderStatus[] = [
-  'New',
-  'Cooking',
-  'Delivering',
-  'Delivered',
+  "New",
+  "Cooking",
+  "Delivering",
+  "Delivered",
 ];
 
-export type OrderStatus = 'New' | 'Cooking' | 'Delivering' | 'Delivered';
+export type OrderStatus = "New" | "Cooking" | "Delivering" | "Delivered";
 
 export type Order = {
   id: number;
@@ -49,7 +50,6 @@ export type Profile = {
   group: string;
 };
 
-
 export type Branch = {
   id: number;
   place: string;
@@ -58,4 +58,4 @@ export type Branch = {
   postal_code: string;
   country: string;
   id_archives: number;
-}
+};

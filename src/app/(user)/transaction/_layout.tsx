@@ -4,78 +4,24 @@ import { Pressable, Text, StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "../../../constants/Colors";
-import { useCategory } from "@/src/components/categoryParams";
-import { useBranchName } from "@/src/components/branchParams";
-import { useByBranch } from "@/src/providers/BranchProvider";
+import { useSalesTransactionById } from "@/api/products";
 
 export default function MenuStack() {
-  const category = useCategory();
-  console.log("okay", category);
+  const { id_group } = useLocalSearchParams();
+  const { data: salesTransaction } = useSalesTransactionById(
+    id_group.toString()
+  );
 
-  const { branchName, id_branch } = useBranchName();
-  console.log("id_branchASJDASJDAKSDs:", branchName);
-  console.log("id_branchASJDASJDAKSDs:", id_branch);
-  // const { branchNames, id_branchs, setBranchName, setIdBranch } = useByBranch();
+  const idGroup = salesTransaction?.[0]?.id_group;
+  console.log("id_group dito ", idGroup);
 
-  // useEffect(() => {
-  //   setBranchName(branchName);
-  //   setIdBranch(id_branch);
-  // }, [branchName, id_branch, setBranchName, setIdBranch]);
-
-  // const [id, setid] = useState(id_branch);
-  // console.log('asd2:', id_branch);
-  // console.log('eqw2:', id);
-
-  const { setBranchName, setIdBranch } = useByBranch();
-
-  // for (const pla of place ?? []) {
-  //   console.log('place:', pla);
-  //   console.log('id_branch:', {id_branch});
-  //   if (pla.toString() === id_branch.toString()) {
-  //     console.log('QQ:', id_branch);
-  //     console.log('QQ:', branchName);
-  //   }
-  // }
-
-  useEffect(() => {
-    setBranchName(branchName);
-    setIdBranch(id_branch);
-  }, [branchName, id_branch, setBranchName, setIdBranch]);
-
-  console.log("id_branchs???", id_branch);
-  console.log("branchNames???", branchName);
-
-  const [id, setID] = useState(id_branch);
-  const [idName, setIDName] = useState(branchName);
-
-  useEffect(() => {
-    setID(id_branch);
-    setIDName(branchName);
-  }, [id_branch, branchName]);
-
-  const [title, setTitle] = useState(branchName);
-  console.log("asd:", branchName);
-  console.log("eqw:", title);
-
-  console.log("AAAs:", id_branch);
-
-  console.log("EEEs:", branchName);
-  console.log("EEEs:", idName);
-
-  // console.log('PLEASEEEEEEE:', branchNames, id_branchs);
-
-  const fi = branchName || id_branch ? branchName : branchName;
-
-  // useEffect(() => {
-  //   setTitle(branchName ? branchName : 'Back Inventory');
-  // }, [branchName]);
-
+  console.log("iddd ", id_group);
   return (
     <Stack>
       <Stack.Screen
         name="index"
         options={{
-          title: fi,
+          title: "Transaction",
 
           headerLeft: () => (
             <Link href={`/(user)/two`} asChild>
@@ -102,7 +48,10 @@ export default function MenuStack() {
             </Link>
           ),
           headerRight: () => (
-            <Link href={`/(admin)/places/addLocation`} asChild>
+            <Link
+              href={`/(user)/transaction?id_group=${idGroup}&id_void=1`}
+              asChild
+            >
               <Pressable>
                 {({ pressed }) => (
                   <>

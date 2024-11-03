@@ -62,7 +62,9 @@ const CartScreen = () => {
         onPress: () => {
           const totalAmounts = Object.values(totalAmountPerProduct);
           items.forEach((item, index) => {
+            console.log("??????????????????????", item);
             transferQuantity({
+              id_localbranch: item.id_localbranch,
               id_branch: Number(id_branch),
               id_products: item.id_products,
               quantity: item.quantity,
