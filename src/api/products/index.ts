@@ -1171,7 +1171,6 @@ export const useUserVoid = () => {
             );
           }
 
-          // Insert transaction into voidsalestransaction table
           const { error: voidInsertError } = await supabase
             .from("voidsalestransaction")
             .insert({
