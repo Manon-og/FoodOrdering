@@ -1170,6 +1170,24 @@ export const useUserVoid = () => {
               `Error updating localbatch table: ${updateError.message}`
             );
           }
+
+          // Insert transaction into voidsalestransaction table
+          const { error: voidInsertError } = await supabase
+            .from("voidsalestransaction")
+            .insert({
+              // id_salestransaction: transaction.id_salestransaction,
+              id_products: transaction.id_products,
+              amount: transaction.amount,
+              quantity: transaction.quantity,
+              created_by: transaction.created_by,
+              id_group: transaction.id_group,
+            });
+
+          if (voidInsertError) {
+            throw new Error(
+              `Error inserting into voidsalestransaction table: ${voidInsertError.message}`
+            );
+          }
         }
 
         const { error: deleteError } = await supabase
