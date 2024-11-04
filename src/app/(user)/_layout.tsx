@@ -85,15 +85,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* <Tabs.Screen
-        name="two"
-        options={{
-          title: "losc",
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      /> */}
-
       <Tabs.Screen
         name="category"
         options={{
@@ -103,23 +94,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* <Tabs.Screen
-        name="transaction/index"
-        options={{
-          title: "nothing",
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      /> */}
-      {/* <Tabs.Screen
-        name="transaction/PREV"
-        options={{
-          title: "nothing",
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      /> */}
-
       <Tabs.Screen
         name="transaction"
         options={{
@@ -128,6 +102,7 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+
       <Tabs.Screen
         name="twoPREV"
         options={{
@@ -136,8 +111,18 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+
       <Tabs.Screen
         name="return"
+        options={{
+          title: "nothing",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="cashcount"
         options={{
           title: "nothing",
           headerShown: false,

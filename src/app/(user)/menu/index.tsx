@@ -1,7 +1,18 @@
 import React, { memo, useEffect, useState } from "react";
-import { FlatList, Text, ActivityIndicator, View, TextInput, StyleSheet } from "react-native";
+import {
+  FlatList,
+  Text,
+  ActivityIndicator,
+  View,
+  TextInput,
+  StyleSheet,
+} from "react-native";
 import ProductListItem from "@/src/components/ProductListItem";
-import { useBatchList, useBranchProductList, useProductList } from "@/src/api/products";
+import {
+  useBatchList,
+  useBranchProductList,
+  useProductList,
+} from "@/src/api/products";
 import { useCategory } from "@/src/components/categoryParams";
 import { useByBranch } from "@/src/providers/BranchProvider";
 import { useBranchName } from "@/src/components/branchParams";
@@ -27,14 +38,20 @@ export default function MenuScreen() {
 
   const branchId = id_branch || "";
   const { data: productsByBranch } = useBranchProductList(category, branchId);
+  console.log("MENUU:", productsByBranch);
   const { data: products, error, isLoading } = useProductList(category);
 
   useEffect(() => {
     const productList = Array.isArray(products) ? products : [];
-    const productByBranchList = Array.isArray(productsByBranch) ? productsByBranch : [];
+    const productByBranchList = Array.isArray(productsByBranch)
+      ? productsByBranch
+      : [];
     const useProduct = id_branch ? productByBranchList : productList;
     const filtered = useProduct.filter(
-      (item) => item && item.id_archive === IDarchive && item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      (item) =>
+        item &&
+        item.id_archive === IDarchive &&
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredProducts(filtered);
   }, [products, productsByBranch, id_branch, IDarchive, searchQuery]);
@@ -86,11 +103,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   searchBar: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,

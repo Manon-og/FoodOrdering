@@ -1,38 +1,20 @@
-import React, { memo } from "react";
+import React from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
-import { useGroupedSalesTransaction } from "@/src/api/products";
-
-import GroupedSalesTransactionItem from "@/components/GroupedSalesTransactionItem";
-import { useBranchName } from "@/components/branchParams";
+import { useAllLocalBranchData } from "@/src/api/products";
+import { useBranchStore } from "@/src/store/branch";
+import ReturnProducts from "@/components/ReturnProducts";
+import Button from "@/src/components/Button";
 
 const Index = () => {
-  //   const { id_branch, branchName } = useBranchName();
-  //   console.log("IDIDID^:", id_branch);
-  //   console.log("IDIDID^:", branchName);
+  const { id_branch, branchName } = useBranchStore();
+  console.log("RETURN:", id_branch);
+  console.log("RETURN:", branchName);
 
-  //   const currentDate = new Date().toLocaleDateString();
-  //   const currentDay = new Date().toLocaleDateString("en-US", {
-  //     weekday: "long",
-  //   });
-
-  // const MemoizedProductListItem = memo(GroupedSalesTransactionItem); ayaw niya mag start sa 1, wtf.
-  const { data: groupedSales }: any = useGroupedSalesTransaction();
-  let currentIdGroup = 1;
+  const { data: returnProducts } = useAllLocalBranchData(id_branch ?? "");
+  console.log("RETURN PRODUCTS", returnProducts);
 
   const renderItem = ({ item }: { item: any }) => {
-    const displayIdGroup = currentIdGroup;
-    currentIdGroup++;
-    const createdAtDate = item.created_at.split("T")[0];
-
-    return (
-      <GroupedSalesTransactionItem
-        id_group={item.id_group}
-        id_number={displayIdGroup.toString()}
-        amount={item.amount}
-        created_at={createdAtDate}
-        transactions={item.transactions}
-      />
-    );
+    return <ReturnProducts name={item.name} quantity={item.quantity} />;
   };
 
   return (
@@ -47,10 +29,13 @@ const Index = () => {
         </Text>
       </View>
       <FlatList
-        data={groupedSales}
-        keyExtractor={(item) => item.id_group}
+        data={returnProducts}
+        keyExtractor={(item: any) => item.id_products.toString()}
         renderItem={renderItem}
       />
+
+      {/* <Button text={"RETURN"} /> */}
+      <Button text={"RETURN"} />
     </View>
   );
 };
@@ -97,6 +82,7 @@ const styles = StyleSheet.create({
   statusHeader: {
     fontSize: 15,
     textAlign: "left",
+    paddingLeft: 20,
     flex: 1,
   },
   statusMiddle: {
@@ -109,6 +95,7 @@ const styles = StyleSheet.create({
   },
   moreInfoHeader: {
     fontSize: 15,
+    paddingRight: 20,
     textAlign: "right",
     flex: 1,
   },

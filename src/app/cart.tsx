@@ -84,7 +84,9 @@ const CartScreen = () => {
               "Order Successful",
               "Your order has been placed successfully."
             );
-            router.push(`/(user)/locations?id_branch=${id_branch}`);
+            router.push(
+              `/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`
+            );
           }, 1000);
         },
       },

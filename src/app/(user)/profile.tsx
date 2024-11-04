@@ -1,17 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, Pressable, StyleSheet, Alert } from "react-native";
 import { Link, useRouter } from "expo-router"; // Import Link and useRouter components
-import { handleLogout, getUserEmail, getUserFullName } from "@/api/products"; // Import handleLogout and getUserEmail functions
+import {
+  handleLogout,
+  getUserEmail,
+  getUserFullName,
+  getEmployeeUUID,
+} from "@/api/products"; // Import handleLogout and getUserEmail functions
 import { useBranchName } from "@/components/branchParams";
+import { useBranchStore } from "@/store/branch";
+import { useUUIDStore } from "@/store/user";
 
 export default function UserProfile() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
 
-  const { id_branch, branchName } = useBranchName();
-  console.log("IDIDID^s:", id_branch);
-  console.log("IDIDID^:", branchName);
+  const { id_branch, branchName } = useBranchStore();
+  console.log("PROFILEE:", id_branch);
+  console.log("PROFILEE:", branchName);
+
+  const { data: UUID } = getEmployeeUUID(email ?? "");
+  console.log("PROFILEE UUDI:", UUID);
+
+  const id = UUID?.[0]?.id;
+  console.log("PROFILEE UUDI:", id);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -23,6 +36,12 @@ export default function UserProfile() {
     };
     fetchUserData();
   }, []);
+
+  const setId = useUUIDStore((state) => state.setId);
+
+  useEffect(() => {
+    setId(id);
+  }, [id, setId]);
 
   return (
     <View style={styles.container}>
@@ -47,7 +66,7 @@ export default function UserProfile() {
       </View>
 
       <View style={styles.menuItems}>
-        <Link href="/(admin)/archive" asChild>
+        {/* <Link href="/(admin)/archive" asChild>
           <Pressable style={styles.menuButton}>
             <View style={styles.menuTextContainer}>
               <Text style={styles.menuText}>Archive Products</Text>
@@ -75,6 +94,14 @@ export default function UserProfile() {
           <Pressable style={styles.menuButton}>
             <View style={styles.menuTextContainer}>
               <Text style={styles.menuText}>Employee View</Text>
+              <Text style={styles.arrow}>→</Text>
+            </View>
+          </Pressable>
+        </Link> */}
+        <Link href="/(user)/cashcount" asChild>
+          <Pressable style={styles.menuButton}>
+            <View style={styles.menuTextContainer}>
+              <Text style={styles.menuText}>Cash Count</Text>
               <Text style={styles.arrow}>→</Text>
             </View>
           </Pressable>

@@ -1219,14 +1219,118 @@ export const useUserVoid = () => {
   });
 };
 
+// export const useAllLocalBranchData = (id: string) => {
+//   return useQuery({
+//     queryKey: ["alllocalbatchdata", id],
+//     queryFn: async () => {
+//       const { data, error } = await supabase
+//         .from("localbatch")
+//         .select(`*, id_products(*, category(*))`)
+//         .eq("id_branch", id);
+//       if (error) {
+//         throw new Error(error.message);
+//       }
+//       return data;
+//     },
+//   });
+// };
+
 export const useAllLocalBranchData = (id: string) => {
   return useQuery({
     queryKey: ["alllocalbatchdata", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("localbatch")
+        .select(`*, id_products(*)`)
+        .eq("id_branch", id)
+        .not("id_products", "is", null);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const productId = item.id_products.id_products;
+        if (!acc[productId]) {
+          acc[productId] = {
+            ...item.id_products,
+            quantity: 0,
+            id_branch: item.id_branch,
+          };
+        }
+        acc[productId].quantity += item.quantity;
+        return acc;
+      }, {});
+
+      console.log("RETURNNN", groupedData);
+
+      return Object.values(groupedData);
+      // return data;
+    },
+  });
+};
+
+export const useInsertCashCount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: any) => {
+      try {
+        const { data: cashCount, error } = await supabase
+          .from("cashcount")
+          .insert({
+            id_branch: data.id_branch,
+            id_user: data.id_user,
+            total: data.total,
+            one: data.one,
+            five: data.five,
+            ten: data.ten,
+            twenty: data.twenty,
+            fifty: data.fifty,
+            hundred: data.hundred,
+            two_hundred: data.two_hundred,
+            five_hundred: data.five_hundred,
+            thousand: data.thousand,
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        return cashCount;
+      } catch (error) {
+        console.error("Error inserting cashcount:", error);
+        throw error;
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["cashcount"] });
+    },
+  });
+};
+
+// export const getEmployeeUUID =  (email: string) => {
+//   const { data, error } = await supabase
+//     .from("profiles")
+//     .select("*")
+//     .eq("email", email)
+//     .single();
+
+//   if (error) {
+//     console.error("Error fetching employee by ID:", error);
+//     throw new Error(error.message);
+//   }
+
+//   return data;
+// };
+
+export const getEmployeeUUID = (email: string) => {
+  return useQuery({
+    queryKey: ["UUID", email],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
         .select(`*`)
-        .eq("id_branch", id);
+        .eq("email", email);
       if (error) {
         throw new Error(error.message);
       }
