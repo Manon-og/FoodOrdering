@@ -1077,13 +1077,14 @@ export const getLastSignInTime = async (userId: string) => {
   return data?.user?.last_sign_in_at;
 };
 
-export const useGroupedSalesTransaction = () => {
+export const useGroupedSalesTransaction = (id: string) => {
   return useQuery({
-    queryKey: ["groupedSalesTransaction"],
+    queryKey: ["groupedSalesTransaction", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("salestransaction")
-        .select("*");
+        .select("*")
+        .eq("id_branch", id);
 
       if (error) {
         throw new Error(error.message);
@@ -1214,6 +1215,22 @@ export const useUserVoid = () => {
         queryKey: ["groupedSalesTransaction"],
       });
       await queryClient.invalidateQueries({ queryKey: ["sales"] });
+    },
+  });
+};
+
+export const useAllLocalBranchData = (id: string) => {
+  return useQuery({
+    queryKey: ["alllocalbatchdata", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("localbatch")
+        .select(`*`)
+        .eq("id_branch", id);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
   });
 };

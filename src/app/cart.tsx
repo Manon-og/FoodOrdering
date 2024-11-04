@@ -17,6 +17,7 @@ import { useBranchName } from "@/components/branchParams";
 import { getUserFullName, useUserTransferQuantity } from "@/src/api/products";
 import { FontAwesome } from "@expo/vector-icons";
 import { v4 as uuidv4 } from "uuid";
+import { useBranchStore } from "@/src/store/branch";
 
 const CartScreen = () => {
   const {
@@ -28,9 +29,12 @@ const CartScreen = () => {
     totalAmountPerProduct,
   } = UseCart();
 
-  const { id_branch, branchName } = useBranchName();
+  // const { id_branches, branchName } = useBranchName();
   const { mutate: transferQuantity } = useUserTransferQuantity();
   const router = useRouter();
+  const { id_branch, branchName } = useBranchStore();
+  // console.log("CART BUTTON:", id_branches);
+  console.log("CART BUTTON:", id_branch);
 
   const roundedTotal = parseFloat(total.toFixed(2));
   const roundedTotalById = parseFloat(totalAmountPerProduct.toString());
@@ -80,7 +84,7 @@ const CartScreen = () => {
               "Order Successful",
               "Your order has been placed successfully."
             );
-            router.push("/(user)/category/");
+            router.push(`/(user)/locations?id_branch=${id_branch}`);
           }, 1000);
         },
       },
@@ -108,7 +112,9 @@ const CartScreen = () => {
   };
 
   const handleAddMoreProducts = () => {
-    router.push("/(user)/category");
+    router.push(
+      `/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`
+    );
   };
 
   return (

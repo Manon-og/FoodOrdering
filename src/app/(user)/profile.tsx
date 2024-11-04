@@ -2,11 +2,16 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, Pressable, StyleSheet, Alert } from "react-native";
 import { Link, useRouter } from "expo-router"; // Import Link and useRouter components
 import { handleLogout, getUserEmail, getUserFullName } from "@/api/products"; // Import handleLogout and getUserEmail functions
+import { useBranchName } from "@/components/branchParams";
 
 export default function UserProfile() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
+
+  const { id_branch, branchName } = useBranchName();
+  console.log("IDIDID^s:", id_branch);
+  console.log("IDIDID^:", branchName);
 
   useEffect(() => {
     const fetchUserData = async () => {

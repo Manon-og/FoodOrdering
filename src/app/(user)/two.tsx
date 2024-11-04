@@ -3,15 +3,25 @@ import { View, Text, StyleSheet, FlatList } from "react-native";
 import { useGroupedSalesTransaction } from "@/src/api/products";
 
 import GroupedSalesTransactionItem from "@/components/GroupedSalesTransactionItem";
+import { useBranchName } from "@/components/branchParams";
+import { useBranchStore } from "@/src/store/branch";
 
 const Index = () => {
+  // const { branchName, id_branch } = useBranchName();
+  // console.log("TRANSACTIONNN:", branchName);
+  // console.log("TRANSACTIONNN:", id_branch);
+  const { id_branch, branchName } = useBranchStore();
+  console.log("ZUSTANDSSS:", id_branch);
+  console.log("ZUSTANDSSS:", branchName);
   const currentDate = new Date().toLocaleDateString();
   const currentDay = new Date().toLocaleDateString("en-US", {
     weekday: "long",
   });
 
   // const MemoizedProductListItem = memo(GroupedSalesTransactionItem); ayaw niya mag start sa 1, wtf.
-  const { data: groupedSales }: any = useGroupedSalesTransaction();
+  const { data: groupedSales }: any = useGroupedSalesTransaction(
+    id_branch ?? ""
+  );
   let currentIdGroup = 1;
 
   const renderItem = ({ item }: { item: any }) => {

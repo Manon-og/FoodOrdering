@@ -1,98 +1,36 @@
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import React, { useState } from "react";
-import { Link, Stack, useRouter } from "expo-router";
-import { Button } from "react-native-elements";
+import { View, StyleSheet, FlatList } from "react-native";
+import React, { memo, useState } from "react";
+
 import { useBranch } from "@/src/api/products";
-import BranchOptionsModal from "@/src/modals/branchModals";
-import { v4 as uuidv4 } from "uuid";
+
+import ChooseLocation from "@/components/ChooseLocation";
 
 const Index = () => {
-  const router = useRouter();
   const { data: branch } = useBranch();
-  const filteredBranch = branch?.filter((item) => item.place !== "inStore");
-  console.log("branchs:", branch);
+
+  console.log("branchsPOTA>:", branch);
   const place = branch
     ?.map((item) => item.place)
     .filter((place) => place !== "inStore");
   console.log("place:", place);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(
-    null
-  );
 
-  const transactionId = uuidv4();
-  // console.log("transactionId", transactionId);
-
-  const onSelectBranch = (id_branch: string, branchName: string) => {
-    console.log("Selected branch ID:", id_branch, branchName);
-    setSelectedBranchName(branchName);
-    router.push({
-      pathname: "/(user)/locations",
-      params: { id_branch, branchName },
-    });
+  const MemoizedChooseLocation = memo(ChooseLocation);
+  const renderItem = ({ item }: { item: any }) => {
+    return (
+      <MemoizedChooseLocation
+        id_branch={item.id_branch}
+        branchName={item.place}
+      />
+    );
   };
 
   return (
     <View>
-      <View style={styles.menuItems}>
-        <TouchableOpacity
-          style={styles.menuButton}
-          onPress={() => setModalVisible(true)}
-        >
-          <View style={styles.menuTextContainer}>
-            <Text style={styles.menuText}>Choose Location</Text>
-            <Text style={styles.arrow}>→</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      <BranchOptionsModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        branches={filteredBranch || []}
-        onSelectBranch={onSelectBranch}
-        branchName={selectedBranchName}
+      <FlatList
+        data={branch}
+        keyExtractor={(item) => item.id_branch.toString()}
+        renderItem={renderItem}
       />
-      <View style={styles.container}>
-        <Link
-          href={`/(user)/menu?category=1&id_branch=1&branchName=inStore`}
-          asChild
-        >
-          <Pressable style={styles.pressable}>
-            <Text style={styles.pressableText}>COOKIE</Text>
-          </Pressable>
-        </Link>
-        <Link
-          href={`/(user)/menu?category=2&id_branch=1&branchName=inStore`}
-          asChild
-        >
-          <Pressable style={styles.pressable}>
-            <Text style={styles.pressableText}>BREADS</Text>
-          </Pressable>
-        </Link>
-        <Link
-          href={`/(user)/menu?category=3&id_branch=1&branchName=inStore`}
-          asChild
-        >
-          <Pressable style={styles.pressable}>
-            <Text style={styles.pressableText}>CAKES</Text>
-          </Pressable>
-        </Link>
-        <Link
-          href={`/(user)/menu?category=4&id_branch=1&branchName=inStore`}
-          asChild
-        >
-          <Pressable style={styles.pressable}>
-            <Text style={styles.pressableText}>BENTO CAKES</Text>
-          </Pressable>
-        </Link>
-      </View>
     </View>
   );
 };

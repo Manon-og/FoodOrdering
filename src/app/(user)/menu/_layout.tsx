@@ -1,16 +1,22 @@
 import { Stack } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import { Link } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import Colors from "../../../constants/Colors";
-
+import { useBranchName } from "@/components/branchParams";
 
 export default function MenuStack() {
+  const { id_branch, branchName } = useBranchName();
+  const [title, setTitle] = useState("In Store");
+
+  useEffect(() => {
+    setTitle(branchName ? branchName : "In Store");
+  }, [branchName]);
+
   return (
     <Stack
-    screenOptions={
-      {
+      screenOptions={{
         headerRight: () => (
           <Link href="/cart" asChild>
             <Pressable>
@@ -26,7 +32,10 @@ export default function MenuStack() {
           </Link>
         ),
         headerLeft: () => (
-          <Link href={'/(user)/category/'} asChild>
+          <Link
+            href={`/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`}
+            asChild
+          >
             <Pressable style={styles.backButton}>
               {({ pressed }) => (
                 <>
@@ -36,7 +45,12 @@ export default function MenuStack() {
                     color={Colors.light.tint}
                     style={{ marginRight: 5, opacity: pressed ? 0.5 : 1 }}
                   />
-                  <Text style={[styles.backButtonText, { opacity: pressed ? 0.5 : 1 }]}>
+                  <Text
+                    style={[
+                      styles.backButtonText,
+                      { opacity: pressed ? 0.5 : 1 },
+                    ]}
+                  >
                     Back
                   </Text>
                 </>
@@ -44,19 +58,17 @@ export default function MenuStack() {
             </Pressable>
           </Link>
         ),
-      }
-    }
-    > 
-        <Stack.Screen name = "index" options = {{title : 'Menu'}} />
-       
+      }}
+    >
+      <Stack.Screen name="index" options={{ title: title }} />
     </Stack>
   );
 }
 
 const styles = StyleSheet.create({
   backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginLeft: -8.5,
     paddingBottom: 4,
   },

@@ -8,6 +8,7 @@ import { useColorScheme } from "@/src/components/useColorScheme";
 import { useClientOnlyValue } from "@/src/components/useClientOnlyValue";
 import { useAuth } from "@/providers/AuthProvider";
 import { Ionicons } from "@expo/vector-icons";
+import { useBranchStore } from "@/src/store/branch";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -19,6 +20,8 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { session } = useAuth();
+  const { id_branch, branchName } = useBranchStore();
+  console.log("MENU BUTTON:", id_branch);
 
   if (!session) {
     return <Link href="/" />;
@@ -53,7 +56,10 @@ export default function TabLayout() {
             <TabBarIcon name="cutlery" color={color} />
           ),
           tabBarButton: (props) => (
-            <Link href="/(user)/category" asChild>
+            <Link
+              href={`/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`}
+              asChild
+            >
               <TouchableOpacity {...props} />
             </Link>
           ),

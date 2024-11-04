@@ -34,7 +34,7 @@ const GroupedSalesTransactionItem: React.FC<
     <View style={styles.itemContainer}>
       <Text style={styles.itemLeft}>{id_products.name}</Text>
       <Text style={styles.itemText}> {quantity}</Text>
-      <Text style={styles.itemRight}> {amount_by_product}</Text>
+      <Text style={styles.itemRight}> ₱{amount_by_product}</Text>
     </View>
   );
 };

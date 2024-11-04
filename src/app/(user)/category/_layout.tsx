@@ -10,13 +10,13 @@ export default function MenuStack() {
   const category = useCategory();
   console.log("okay", category);
 
-  const [title, setTitle] = useState("In Store");
+  const title = "Choose a Location";
 
   console.log("eqws:", title);
 
-  useEffect(() => {
-    setTitle(title);
-  }, [title]);
+  // useEffect(() => {
+  //   setTitle(title);
+  // }, [title]);
 
   return (
     <Stack>

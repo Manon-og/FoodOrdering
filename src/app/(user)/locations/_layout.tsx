@@ -7,64 +7,46 @@ import Colors from "../../../constants/Colors";
 import { useCategory } from "@/src/components/categoryParams";
 import { useBranchName } from "@/src/components/branchParams";
 import { useByBranch } from "@/src/providers/BranchProvider";
+import { useBranchStore } from "@/store/branch";
 
 export default function MenuStack() {
   const category = useCategory();
   console.log("okay", category);
 
-  const { branchName, id_branch } = useBranchName();
-  console.log("id_branchASJDASJDAKSDs:", branchName);
-  console.log("id_branchASJDASJDAKSDs:", id_branch);
-  // const { branchNames, id_branchs, setBranchName, setIdBranch } = useByBranch();
+  const { id_branch, branchName } = useBranchStore();
+  console.log("location_layout:", id_branch);
+  console.log("ZUSTANDSSS:", branchName);
+
+  const { setBranchName, setIdBranch } = useByBranch();
 
   // useEffect(() => {
   //   setBranchName(branchName);
   //   setIdBranch(id_branch);
   // }, [branchName, id_branch, setBranchName, setIdBranch]);
 
-  // const [id, setid] = useState(id_branch);
-  // console.log('asd2:', id_branch);
-  // console.log('eqw2:', id);
+  // console.log("id_branchs???", id_branch);
+  // console.log("branchNames???", branchName);
 
-  const { setBranchName, setIdBranch } = useByBranch();
+  // const [id, setID] = useState(id_branch);
+  // const [idName, setIDName] = useState(branchName);
 
-  // for (const pla of place ?? []) {
-  //   console.log('place:', pla);
-  //   console.log('id_branch:', {id_branch});
-  //   if (pla.toString() === id_branch.toString()) {
-  //     console.log('QQ:', id_branch);
-  //     console.log('QQ:', branchName);
-  //   }
-  // }
+  // useEffect(() => {
+  //   setID(id_branch);
+  //   setIDName(branchName);
+  // }, [id_branch, branchName]);
 
-  useEffect(() => {
-    setBranchName(branchName);
-    setIdBranch(id_branch);
-  }, [branchName, id_branch, setBranchName, setIdBranch]);
+  // const [title, setTitle] = useState(branchName);
+  // console.log("asd:", branchName);
+  // console.log("eqw:", title);
 
-  console.log("id_branchs???", id_branch);
-  console.log("branchNames???", branchName);
+  // console.log("AAAs:", id_branch);
 
-  const [id, setID] = useState(id_branch);
-  const [idName, setIDName] = useState(branchName);
-
-  useEffect(() => {
-    setID(id_branch);
-    setIDName(branchName);
-  }, [id_branch, branchName]);
-
-  const [title, setTitle] = useState(branchName);
-  console.log("asd:", branchName);
-  console.log("eqw:", title);
-
-  console.log("AAAs:", id_branch);
-
-  console.log("EEEs:", branchName);
-  console.log("EEEs:", idName);
+  // console.log("EEEs:", branchName);
+  // console.log("EEEs:", idName);
 
   // console.log('PLEASEEEEEEE:', branchNames, id_branchs);
 
-  const fi = branchName || id_branch ? branchName : branchName;
+  // const fi = branchName || id_branch ? branchName : branchName;
 
   // useEffect(() => {
   //   setTitle(branchName ? branchName : 'Back Inventory');
@@ -75,32 +57,32 @@ export default function MenuStack() {
       <Stack.Screen
         name="index"
         options={{
-          title: fi,
+          title: branchName,
 
-          headerLeft: () => (
-            <Link href={`/(user)/category`} asChild>
-              <Pressable style={styles.backButton}>
-                {({ pressed }) => (
-                  <>
-                    <FontAwesome
-                      name="angle-left"
-                      size={24}
-                      color={Colors.light.tint}
-                      style={{ marginRight: 5, opacity: pressed ? 0.5 : 1 }}
-                    />
-                    <Text
-                      style={[
-                        styles.backButtonText,
-                        { opacity: pressed ? 0.5 : 1 },
-                      ]}
-                    >
-                      Back
-                    </Text>
-                  </>
-                )}
-              </Pressable>
-            </Link>
-          ),
+          // headerLeft: () => (
+          //   <Link href={`/(user)/category`} asChild>
+          //     <Pressable style={styles.backButton}>
+          //       {({ pressed }) => (
+          //         <>
+          //           <FontAwesome
+          //             name="angle-left"
+          //             size={24}
+          //             color={Colors.light.tint}
+          //             style={{ marginRight: 5, opacity: pressed ? 0.5 : 1 }}
+          //           />
+          //           <Text
+          //             style={[
+          //               styles.backButtonText,
+          //               { opacity: pressed ? 0.5 : 1 },
+          //             ]}
+          //           >
+          //             Back
+          //           </Text>
+          //         </>
+          //       )}
+          //     </Pressable>
+          //   </Link>
+          // ),
         }}
       />
     </Stack>
