@@ -62,6 +62,7 @@ export const useBranchProductList = (id: string, idB: string) => {
         .eq("id_products.id_category", id)
         .eq("id_branch", idB)
         .not("id_products", "is", null);
+      // .neq("quantity", 0);
       if (error) {
         throw new Error(error.message);
       }
@@ -1241,7 +1242,7 @@ export const useAllLocalBranchData = (id: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("localbatch")
-        .select(`*, id_products(*)`)
+        .select(`*, id_localbranch, id_products(*)`)
         .eq("id_branch", id)
         .not("id_products", "is", null);
       if (error) {
@@ -1255,6 +1256,8 @@ export const useAllLocalBranchData = (id: string) => {
             ...item.id_products,
             quantity: 0,
             id_branch: item.id_branch,
+            id_batch: item.id_batch,
+            id_localbranch: item.id_localbranch,
           };
         }
         acc[productId].quantity += item.quantity;
@@ -1308,21 +1311,6 @@ export const useInsertCashCount = () => {
   });
 };
 
-// export const getEmployeeUUID =  (email: string) => {
-//   const { data, error } = await supabase
-//     .from("profiles")
-//     .select("*")
-//     .eq("email", email)
-//     .single();
-
-//   if (error) {
-//     console.error("Error fetching employee by ID:", error);
-//     throw new Error(error.message);
-//   }
-
-//   return data;
-// };
-
 export const getEmployeeUUID = (email: string) => {
   return useQuery({
     queryKey: ["UUID", email],
@@ -1335,6 +1323,82 @@ export const getEmployeeUUID = (email: string) => {
         throw new Error(error.message);
       }
       return data;
+    },
+  });
+};
+
+export const useInsertPendingProducts = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      id_branch: number;
+      id_user: string;
+      id_group: string;
+    }) => {
+      try {
+        const { data: pendingproducts, error: pendingproductsError } =
+          await supabase
+            .from("localbatch")
+            .select("*")
+            .eq("id_branch", data.id_branch)
+            .not("id_products", "is", null)
+            .neq("quantity", 0);
+
+        if (pendingproductsError) {
+          throw new Error("Error fetching transactions");
+        }
+
+        console.log("Pending products:", pendingproducts);
+
+        const insertedIds = [];
+
+        for (const pendingproduct of pendingproducts) {
+          console.log("Pending product:", pendingproduct);
+          const { data: insertedProduct, error: pendingproductsError } =
+            await supabase
+              .from("pendingproducts")
+              .insert({
+                id_user: data.id_user,
+                id_group: data.id_group,
+                id_branch: pendingproduct.id_branch,
+                id_batch: pendingproduct.id_batch,
+                id_products: pendingproduct.id_products,
+                quantity: pendingproduct.quantity,
+              })
+              .select("id_products")
+              .single();
+
+          if (pendingproductsError) {
+            throw new Error(
+              `Error inserting into pendingproducts table: ${pendingproductsError.message}`
+            );
+          }
+
+          insertedIds.push(insertedProduct.id_products);
+
+          const { error: deleteError } = await supabase
+            .from("localbatch")
+            .delete()
+            .eq("id_localbranch", pendingproduct.id_localbranch);
+
+          if (deleteError) {
+            throw new Error(
+              `Error deleting from localbatch table: ${deleteError.message}`
+            );
+          }
+        }
+
+        return insertedIds;
+      } catch (error) {
+        console.error("Error pending products:", error);
+        throw error;
+      }
+    },
+    onSuccess: async (data) => {
+      console.log("Inserted IDs:", data);
+      await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
+      await queryClient.invalidateQueries({ queryKey: ["pendingproducts"] });
     },
   });
 };

@@ -27,18 +27,18 @@ export default function TabLayout() {
     return <Link href="/" />;
   }
 
+  // if (!id_branch) {
+  //   return <Link href="/(user)/category" />;
+  // }
+
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
       }}
     >
       <Tabs.Screen name="index" options={{ href: null }} />
-      {/* <Tabs.Screen name="category/index" options={{ href: null }} /> */}
-
       <Tabs.Screen
         name="two"
         options={{

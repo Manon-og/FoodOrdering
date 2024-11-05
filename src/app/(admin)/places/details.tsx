@@ -1,105 +1,16 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Alert,
-  TextInput,
-  Pressable,
-} from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import {
-  useBranchAllProductList,
-  useBranchName,
-  useTransferQuantity,
-  useBackInventoryProductList,
-} from "@/src/api/products"; // Adjust the import path accordingly
-import Button from "@/src/components/Button"; // Adjust the import path accordingly
-import RestockModal from "@/src/modals/restockModals"; // Adjust the import path accordingly
+import React from "react";
+import { View, Text, StyleSheet, Pressable, FlatList } from "react-native";
+import { useBranchAllProductList, useBranchName } from "@/src/api/products"; // Adjust the import path accordingly
 
 const Details = () => {
   const { id_branch } = useLocalSearchParams();
   const { data: products } = useBranchAllProductList(id_branch.toString());
   const { data: branch } = useBranchName(Number(id_branch));
-  const { data: backInventoryProducts } = useBackInventoryProductList(
-    id_branch.toString()
-  );
-  const { mutate: transferQuantity } = useTransferQuantity();
-  const [lowStockItems, setLowStockItems] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
-  const [restockModalVisible, setRestockModalVisible] = useState(false);
-  const [restockQuantities, setRestockQuantities] = useState<{
-    [key: string]: number;
-  }>({});
-
-  useEffect(() => {
-    if (products && backInventoryProducts) {
-      const lowStock = products.filter((item: any) => item.quantity < 15);
-      setLowStockItems(lowStock);
-      const initialQuantities = products.reduce((acc: any, item: any) => {
-        acc[item.id_products] = lowStock.length > 0 ? 30 : 0; // Set initial quantity to 30 for low stock items, otherwise 0
-        return acc;
-      }, {});
-      setRestockQuantities(initialQuantities as { [key: string]: number });
-    }
-  }, [products, backInventoryProducts]);
-
-  useEffect(() => {
-    if (products) {
-      const filtered = products.filter((item: any) => {
-        const matchesSearch = item.name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory
-          ? item.category.categoryName === selectedCategory
-          : true;
-        return matchesSearch && matchesCategory;
-      });
-      setFilteredProducts(filtered);
-    }
-  }, [products, searchQuery, selectedCategory]);
-
-  const handleRestock = () => {
-    Alert.alert(
-      "Confirm Restock",
-      "Are you sure you want to restock these items?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Confirm",
-          onPress: () => {
-            Object.entries(restockQuantities).forEach(
-              ([id_products, quantity]) => {
-                transferQuantity({
-                  id_branch: Number(id_branch),
-                  id_products: Number(id_products),
-                  quantity,
-                });
-              }
-            );
-            Alert.alert("Restock Successful", "The items have been restocked.");
-            setRestockModalVisible(false);
-          },
-        },
-      ]
-    );
-  };
-
-  const handleQuantityChange = (id_products: string, quantity: string) => {
-    setRestockQuantities((prev) => ({
-      ...prev,
-      [id_products]: parseInt(quantity) || 0,
-    }));
-  };
-
+  console.log("HERE****", id_branch);
+  console.log("HERE****?", products);
+  console.log("WTFDUDE", branch);
   let name = "";
 
   branch?.forEach((b: any) => {
@@ -157,33 +68,6 @@ const Details = () => {
             <Text style={styles.dayText}>{currentDay}</Text>
             <Text style={styles.dateText}>{currentDate}</Text>
           </View>
-          <View style={styles.filterContainer}>
-            <TextInput
-              style={styles.searchBar}
-              placeholder="Search products..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            <Picker
-              selectedValue={selectedCategory}
-              style={styles.picker}
-              onValueChange={(itemValue) => setSelectedCategory(itemValue)}
-            >
-              <Picker.Item label="All Categories" value="" />
-              {products &&
-                [
-                  ...new Set(
-                    products.map((item: any) => item.category.categoryName)
-                  ),
-                ].map((category) => (
-                  <Picker.Item
-                    key={category}
-                    label={category}
-                    value={category}
-                  />
-                ))}
-            </Picker>
-          </View>
           <View style={styles.headerContainer}>
             <Text style={[styles.headerText, styles.statusHeader]}>
               #Product
@@ -192,49 +76,23 @@ const Details = () => {
               Quantity
             </Text>
           </View>
+
           <FlatList
-            data={filteredProducts}
+            data={products}
             renderItem={renderItem}
-            keyExtractor={(item: any) =>
-              item.id_products?.toString() || item.id.toString()
-            }
+            keyExtractor={(item: any) => item.id_products.toString()}
           />
           <View style={styles.totalQuantitiesContainer}>
             <Text style={styles.totalQuantitiesText}>
               Total Quantities: {totalQuantity}
             </Text>
           </View>
-          <Button
-            text="Restock"
-            onPress={() => setRestockModalVisible(true)}
-            style={styles.restockButton}
-          />
         </>
       ) : (
         <View style={styles.offlineContainer}>
           <Text style={styles.offlineText}>OFFLINE</Text>
         </View>
       )}
-
-      <RestockModal
-        visible={restockModalVisible}
-        lowStockItems={lowStockItems}
-        allItems={
-          products?.map((product: any) => ({
-            ...product,
-            backInventoryQuantity:
-              (
-                backInventoryProducts?.find(
-                  (item: any) => item.id_products === product.id_products
-                ) as { quantity: number } | undefined
-              )?.quantity || 0,
-          })) || []
-        }
-        restockQuantities={restockQuantities}
-        onQuantityChange={handleQuantityChange}
-        onCancel={() => setRestockModalVisible(false)}
-        onConfirm={handleRestock}
-      />
     </View>
   );
 };
@@ -323,6 +181,7 @@ const styles = StyleSheet.create({
   lowStock: {
     fontSize: 10,
     flex: 1,
+    //to be fixed
     textAlign: "left",
     color: "darkred",
   },
@@ -356,40 +215,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "gray",
-  },
-  restockButton: {
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-  },
-  restockButtonText: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  filterContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 10,
-  },
-  searchBar: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    flex: 1,
-    marginRight: 10,
-  },
-  picker: {
-    height: 40,
-    flex: 1,
   },
 });
 
