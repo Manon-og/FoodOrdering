@@ -25,6 +25,8 @@ const Index = () => {
   );
   let currentIdGroup = 1;
 
+  console.log("GROUPED SALES ADMINNN:", groupedSales);
+
   const renderItem = ({ item }: { item: any }) => {
     const displayIdGroup = currentIdGroup;
     currentIdGroup++;

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Link } from "expo-router";
+import { useBranchStore } from "@/store/branch";
 
 const ListItem = ({ item, isLocalBranch }: any) => {
   const handlePressDetails = () => {
@@ -20,7 +21,10 @@ const ListItem = ({ item, isLocalBranch }: any) => {
         )}
         <Text style={styles.placeText}>{item.place}</Text>
       </View>
-      <Link href={`/places/details?id_branch=${item.id_branch}`} asChild>
+      <Link
+        href={`/places/details?id_branch=${item.id_branch}&branchName=${item.branchName}`}
+        asChild
+      >
         <TouchableOpacity onPress={handlePressDetails}>
           <Text
             style={[

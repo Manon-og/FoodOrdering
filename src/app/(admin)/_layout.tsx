@@ -91,64 +91,9 @@ export default function TabLayout() {
         }}
       />
 
-      {/* <Tabs.Screen
-        name="employees/create"
-        options={{
-          title: "Create Employee",
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      /> */}
-
-      {/* <Tabs.Screen
-        name="employees/index"
-        options={{
-          title: "Create Employee",
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      /> */}
-
-      {/* <Tabs.Screen
-        name="employees/EmployeeForm"
-        options={{
-          title: "Create Employee",
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      /> */}
-
-      {/* <Tabs.Screen
-        name="employees/edit"
-        options={{
-          title: "edit Employee",
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      /> */}
-
-      {/* <Tabs.Screen
-        name="places/index"
-        options={{
-          title: "add Location",
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="places/addLocation"
-        options={{
-          title: "add Location",
-          headerShown: false,
-          tabBarButton: () => null,
-        }}
-      /> */}
-
       <Tabs.Screen
         name="places"
         options={{
-          title: "add Location",
           headerShown: false,
           tabBarButton: () => null,
         }}
@@ -157,7 +102,30 @@ export default function TabLayout() {
       <Tabs.Screen
         name="employees"
         options={{
-          title: "add Location",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="return"
+        options={{
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="cashcount"
+        options={{
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="transactions"
+        options={{
           headerShown: false,
           tabBarButton: () => null,
         }}

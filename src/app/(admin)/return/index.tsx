@@ -1,47 +1,33 @@
 import { FontAwesome } from "@expo/vector-icons";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { Stack, useRouter } from "expo-router";
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
   Pressable,
   FlatList,
-  Alert,
+  Button,
+  TouchableOpacity,
 } from "react-native";
-import {
-  useBranchAllProductList,
-  useBranchName,
-  useFindPendingProducts,
-} from "@/src/api/products"; // Adjust the import path accordingly
-import ItemDetails from "@/components/ItemsDetails";
-import Button from "@/components/Button";
-import { useBranchStore } from "@/store/branch";
+import { useBranchAllProductList, useBranchName } from "@/src/api/products"; // Adjust the import path accordingly
+
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
+import ItemDetailsReturn from "@/components/ItemsDetailsReturn";
+import Colors from "@/constants/Colors";
 
 const Details = () => {
-  const { id_branch, branchName } = useLocalSearchParams();
-  const { data: products } = useBranchAllProductList(id_branch.toString());
+  const { id_branch, branchName } = useBranchStoreAdmin();
+  console.log("ADMIN RETURN:", id_branch);
+  console.log("ADMIN RETURN:", branchName);
+  const { data: products } = useBranchAllProductList(
+    id_branch?.toString() ?? ""
+  );
   const { data: branch } = useBranchName(Number(id_branch));
   console.log("HERE****", id_branch);
   console.log("HERE****?", products);
   console.log("WTFDUDE", branch);
   let name = "";
-
-  const branchId = Array.isArray(id_branch) ? id_branch[0] : id_branch;
-  const { data: pendingProducts } = useFindPendingProducts(branchId);
-  console.log("PENDING PRODUCTS", pendingProducts);
-
-  const setBranchDataAdmin = useBranchStoreAdmin(
-    (state) => state.setBranchDataAdmin
-  );
-
-  useEffect(() => {
-    if (branch && branch.length > 0) {
-      const branchName = branch[0].place;
-      setBranchDataAdmin(id_branch, branchName);
-    }
-  }, [id_branch, branch, setBranchDataAdmin]);
 
   branch?.forEach((b: any) => {
     name = b.place;
@@ -58,36 +44,21 @@ const Details = () => {
   );
 
   const renderItem = ({ item }: any) => {
-    return <ItemDetails item={item} />;
+    return <ItemDetailsReturn item={item} />;
   };
 
   const router = useRouter();
 
-  const handleAcceptReturn = () => {
-    router.push("/(admin)/return");
+  const handleTransaction = () => {
+    router.push("/(admin)/transactions/mainview");
+  };
+
+  const handleCashCount = () => {
+    router.push("/(admin)/cashcount");
   };
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: "Location" }} />
-      <Stack.Screen
-        options={{
-          title: `${name}`,
-          headerRight: () => (
-            <Pressable>
-              {({ pressed }) => (
-                <FontAwesome
-                  size={16}
-                  color={"darkred"}
-                  style={{ opacity: pressed ? 0.5 : 1 }}
-                >
-                  Archive
-                </FontAwesome>
-              )}
-            </Pressable>
-          ),
-        }}
-      />
       {products && products.length > 0 ? (
         <>
           <View style={styles.dateContainer}>
@@ -96,10 +67,18 @@ const Details = () => {
           </View>
           <View style={styles.headerContainer}>
             <Text style={[styles.headerText, styles.statusHeader]}>
-              #Product
+              Product
             </Text>
+
             <Text style={[styles.headerText, styles.moreInfoHeader]}>
               Quantity
+              <Text style={[styles.headerText, styles.moreInfoHeaderBefore]}>
+                {" "}
+                Before
+              </Text>
+            </Text>
+            <Text style={[styles.headerText, styles.moreInfoHeaderAfter]}>
+              After
             </Text>
           </View>
 
@@ -110,14 +89,24 @@ const Details = () => {
           />
           <View style={styles.footer}>
             <View style={styles.totalQuantitiesContainer}>
+              <Text style={styles.totalQuantitiesText}>Total Quantities</Text>
               <Text style={styles.totalQuantitiesText}>
-                Total Quantities: {totalQuantity}
+                Before: {totalQuantity}
+              </Text>
+              <Text style={styles.totalQuantitiesText}>
+                After: {totalQuantity}
               </Text>
             </View>
-            <View>
-              {pendingProducts && pendingProducts.length > 0 && (
-                <Button text={"Accept Return"} onPress={handleAcceptReturn} />
-              )}
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleTransaction}
+              >
+                <Text style={styles.buttonText}>SALES TRANSACTIONS</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={handleCashCount}>
+                <Text style={styles.buttonText}>CASH COUNT</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </>
@@ -131,6 +120,20 @@ const Details = () => {
 };
 
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: Colors.light.tint,
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 100,
+    marginVertical: 10,
+    marginHorizontal: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -171,7 +174,7 @@ const styles = StyleSheet.create({
   },
   statusHeader: {
     textAlign: "left",
-    flex: 0.5,
+    flex: 2,
   },
   placeHeader: {
     textAlign: "left",
@@ -179,7 +182,18 @@ const styles = StyleSheet.create({
   },
   moreInfoHeader: {
     textAlign: "right",
-    flex: 1,
+    flex: 1.5,
+    color: "gray",
+  },
+  moreInfoHeaderAfter: {
+    textAlign: "right",
+    flex: 0.5,
+    // paddingLeft: 10,
+  },
+  moreInfoHeaderBefore: {
+    textAlign: "right",
+    flex: 0.5,
+    color: "black",
   },
   itemContainer: {
     flexDirection: "row",
@@ -243,11 +257,12 @@ const styles = StyleSheet.create({
     color: "#007AFF",
   },
   totalQuantitiesContainer: {
-    // position: "absolute",
+    flexDirection: "row",
     bottom: 20,
     textAlign: "left",
   },
   totalQuantitiesText: {
+    paddingLeft: 20,
     fontSize: 18,
     fontWeight: "bold",
     color: "black",
@@ -265,6 +280,12 @@ const styles = StyleSheet.create({
   footer: {
     flex: 1,
     justifyContent: "flex-end",
+  },
+  buttonRow: {
+    flexDirection: "row",
+
+    // justifyContent: "flex-start", // Adjust as needed
+    // alignItems: "flex-start", // Adjust as needed
   },
 });
 

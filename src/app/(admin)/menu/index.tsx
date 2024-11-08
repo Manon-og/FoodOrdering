@@ -1,11 +1,19 @@
 import React, { memo, useEffect, useState } from "react";
-import { FlatList, Text, ActivityIndicator, View, TextInput, StyleSheet } from "react-native";
+import {
+  FlatList,
+  Text,
+  ActivityIndicator,
+  View,
+  TextInput,
+  StyleSheet,
+} from "react-native";
 import ProductListItem from "@/src/components/ProductListItem";
 import {
   useBackInventoryProductList,
   useBatchList,
   useBranchProductList,
   useProductList,
+  useSettedBranchProductList,
 } from "@/src/api/products";
 import { useCategory } from "@/src/components/categoryParams";
 import { useByBranch } from "@/src/providers/BranchProvider";
@@ -17,6 +25,7 @@ const MemoizedProductListItem = memo(ProductListItem);
 export default function MenuScreen() {
   const category = useCategory();
   const { id_branch, branchName } = useBranchName();
+  console.log("MERONG POTANGINANG id_branch:", id_branch);
   const { setBranchName, setIdBranch } = useByBranch();
   const { id_archive } = useArchivedParams();
   const IDarchive = id_archive ? 1 : 2;
@@ -29,8 +38,29 @@ export default function MenuScreen() {
     setIdBranch(id_branch);
   }, [branchName, id_branch, setBranchName, setIdBranch]);
 
-  const branchId = id_branch || "";
-  const { data: productsByBranch } = useBranchProductList(category, branchId);
+  const branchId = id_branch || null;
+  const currentDate = new Date().toLocaleDateString();
+  console.log("currentDate", currentDate);
+
+  const { data: settedProductsByBranch } = useSettedBranchProductList(
+    category,
+    branchId,
+    currentDate
+  );
+
+  console.log("MERONG settedProductsByBranch:", settedProductsByBranch);
+  const { data: unsettedProductsByBranch } = useBranchProductList(
+    category,
+    branchId
+  );
+  console.log("MERONG unsettedProductsByBranch:", unsettedProductsByBranch);
+
+  const productsByBranch = id_branch
+    ? settedProductsByBranch
+    : unsettedProductsByBranch;
+
+  console.log("MERONG POTANGINANG:", productsByBranch);
+
   const { data: productsByBackInventory } =
     useBackInventoryProductList(category);
 
@@ -38,10 +68,15 @@ export default function MenuScreen() {
 
   useEffect(() => {
     const productList = Array.isArray(products) ? products : [];
-    const productByBranchList = Array.isArray(productsByBranch) ? productsByBranch : [];
+    const productByBranchList = Array.isArray(productsByBranch)
+      ? productsByBranch
+      : [];
     const useProduct = id_branch ? productByBranchList : productList;
     const filtered = useProduct.filter(
-      (item) => item && item.id_archive === IDarchive && item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      (item) =>
+        item &&
+        item.id_archive === IDarchive &&
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredProducts(filtered);
   }, [products, productsByBranch, id_branch, IDarchive, searchQuery]);
@@ -79,7 +114,9 @@ export default function MenuScreen() {
         data={filteredProducts}
         renderItem={renderItem}
         keyExtractor={(item) =>
-          item.id_products ? item.id_products.toString() : item.id_batch.toString()
+          item.id_products
+            ? item.id_products.toString()
+            : item.id_batch.toString()
         }
       />
     </View>
@@ -90,11 +127,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   searchBar: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,

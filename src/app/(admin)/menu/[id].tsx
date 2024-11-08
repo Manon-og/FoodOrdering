@@ -26,7 +26,7 @@ function ProductDetailScreen() {
   const MemoizedQuantityListItemByBatch = memo(QuantityListItem);
 
   const { data: batch } = useBatchList(id_products.toString());
-  console.log("SHIBALL", batch);
+  console.log("SHIBAAAAAL", batch);
   const { data: product, error, isLoading } = useProduct(id_products);
   const { data: priceHistory } = usePriceHistory(id_products);
 
@@ -84,7 +84,7 @@ function ProductDetailScreen() {
 
       <FlatList
         data={batch}
-        keyExtractor={(item) => item.id_batch}
+        keyExtractor={(item: any) => item.id_batch}
         renderItem={renderItemByBatch}
         contentContainerStyle={{ gap: 10, padding: 10 }}
       />

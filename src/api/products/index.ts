@@ -52,38 +52,149 @@ export const useProductListArchive = () => {
   });
 };
 
-export const useBranchProductList = (id: string, idB: string) => {
+interface LocalBatch {
+  id_batch: string;
+  id_products: {
+    id_products: string;
+    id_category: string;
+    name: string;
+  };
+  id_branch: string;
+  quantity: number;
+}
+
+export const useBranchProductList = (id: string, idB: string | null) => {
   return useQuery({
     queryKey: ["batch", id, idB],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("localbatch")
-        .select(`*, id_products(*), id_branch(*)`)
-        .eq("id_products.id_category", id)
-        .eq("id_branch", idB)
-        .not("id_products", "is", null);
-      // .neq("quantity", 0);
-      if (error) {
-        throw new Error(error.message);
+      if (!idB) {
+        return [];
       }
 
-      const groupedData = data.reduce((acc, item) => {
-        const productId = item.id_products.id_products;
-        if (!acc[productId]) {
-          acc[productId] = {
-            ...item.id_products,
-            quantity: 0,
-            id_branch: item.id_branch,
-          };
+      try {
+        const { data, error } = await supabase
+          .from("localbatch")
+          .select(`*, id_products(*), id_branch(*)`)
+          .eq("id_products.id_category", id)
+          .eq("id_branch", idB)
+          .not("id_products", "is", null);
+
+        if (error) {
+          console.error("select??? localbatch", error);
+          throw new Error(error.message);
         }
-        acc[productId].quantity += item.quantity;
-        return acc;
-      }, {});
 
-      console.log("CARTT", groupedData);
+        const groupedData = data.reduce((acc: any, item: LocalBatch) => {
+          const productId = item.id_products.id_products;
+          if (!acc[productId]) {
+            acc[productId] = {
+              ...item.id_products,
+              quantity: 0,
+              id_branch: item.id_branch,
+            };
+          }
+          acc[productId].quantity += item.quantity;
+          return acc;
+        }, {});
 
-      return Object.values(groupedData);
-      // return data;
+        console.log("CARTT", groupedData);
+
+        return Object.values(groupedData);
+      } catch (error) {
+        console.error("Error fetching branch product list:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const useSettedBranchProductList = (
+  id: string,
+  idB: string | null,
+  date: string
+) => {
+  return useQuery({
+    queryKey: ["batch", id, idB, date],
+    queryFn: async () => {
+      if (!idB) {
+        return [];
+      }
+
+      try {
+        const { data: pendinglocalbatch, error: pendingError } = await supabase
+          .from("pendinglocalbatch")
+          .select("*")
+          .eq("id_branch", idB)
+          .eq("date", date);
+        // .not("id_products", "is", null);
+
+        console.log("PENDING!!!", pendinglocalbatch);
+
+        if (pendingError) {
+          console.error("select pendinglocalbatch", pendingError);
+          throw new Error(pendingError.message);
+        }
+
+        if (pendinglocalbatch && pendinglocalbatch.length > 0) {
+          for (const batch of pendinglocalbatch) {
+            const { error: insertError } = await supabase
+              .from("localbatch")
+              .insert({
+                id_branch: batch.id_branch,
+                id_batch: batch.id_batch,
+                quantity: batch.quantity,
+                id_products: batch.id_products,
+              });
+
+            if (insertError) {
+              console.error("insert localbatch", insertError);
+              throw new Error(insertError.message);
+            }
+          }
+
+          const { error: deleteError } = await supabase
+            .from("pendinglocalbatch")
+            .delete()
+            .eq("date", date);
+
+          if (deleteError) {
+            console.error("delete pendinglocalbatch", deleteError);
+            throw new Error(deleteError.message);
+          }
+        }
+
+        const { data, error } = await supabase
+          .from("localbatch")
+          .select(`*, id_products(*), id_branch(*)`)
+          .eq("id_products.id_category", id)
+          .eq("id_branch", idB)
+          .not("id_products", "is", null);
+
+        if (error) {
+          console.error("select localbatch", error);
+          throw new Error(error.message);
+        }
+
+        const groupedData = data.reduce((acc: any, item: LocalBatch) => {
+          const productId = item.id_products.id_products;
+          if (!acc[productId]) {
+            acc[productId] = {
+              ...item.id_products,
+              quantity: 0,
+              id_branch: item.id_branch,
+            };
+          }
+          acc[productId].quantity += item.quantity;
+          return acc;
+        }, {});
+
+        console.log("CARTT", groupedData);
+
+        return Object.values(groupedData);
+      } catch (error) {
+        console.error("Error fetching branch product list:", error);
+        throw error;
+      }
     },
   });
 };
@@ -385,12 +496,36 @@ export const useBatchList = (id: string) => {
         throw new Error(localBatchError.message);
       }
 
-      const groupedData = localBatchData.reduce((acc, item) => {
+      const { data: pendingLocalBatchData, error: pendingLocalBatchError } =
+        await supabase
+          .from("pendinglocalbatch")
+          .select("*, id_branch(*), id_batch(*), id_products(*, category(*))")
+          .eq("id_products", id)
+          .gt("quantity", 0);
+
+      if (pendingLocalBatchError) {
+        console.error(
+          "Supabase pendinglocalbatch error:",
+          pendingLocalBatchError
+        );
+        throw new Error(pendingLocalBatchError.message);
+      }
+
+      const combinedData = [
+        ...batchData,
+        ...localBatchData,
+        ...pendingLocalBatchData,
+      ];
+
+      const groupedData = combinedData.reduce((acc, item) => {
         const productId = item.id_products.id_products;
-        const branchId = item.id_branch.id_branch;
+        const branchId = item.id_branch?.id_branch || "batch";
         const batchId = item.id_batch.id_batch;
-        const localBranchId = item.id_localbranch.id_localbranch;
-        const compositeKey = `${branchId}_${batchId}_${localBranchId}_${productId}`;
+        const date = item.date || "batch";
+        const localBatchId = item.id_localbatch?.id_localbatch || null;
+        const pendingLocalBatchId =
+          item.id_pendinglocalbatch?.id_pendinglocalbatch || null;
+        const compositeKey = `${branchId}_${batchId}_${productId}_${date}`;
 
         if (!acc[compositeKey]) {
           acc[compositeKey] = {
@@ -398,7 +533,11 @@ export const useBatchList = (id: string) => {
             quantity: 0,
             branch: item.id_branch,
             batch: item.id_batch,
-            localbatch: item.id_localbranch,
+            date: item.date,
+            localBatchId: item.id_localbranch || null,
+            pendingLocalBatchId: item.id_pendinglocalbranch || null,
+            expire_date: item.expire_date,
+            type: item.date ? "pending" : item.id_branch ? "local" : "batch",
           };
         }
         acc[compositeKey].quantity += item.quantity;
@@ -406,9 +545,8 @@ export const useBatchList = (id: string) => {
       }, {});
 
       const groupedDataArray = Object.values(groupedData);
-      const combinedData = [...(batchData || []), ...groupedDataArray];
 
-      return combinedData;
+      return groupedDataArray;
     },
   });
 };
@@ -892,6 +1030,85 @@ export const useTransferQuantity = () => {
   });
 };
 
+export const useSetTransferQuantity = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      id_branch: number;
+      id_products: number;
+      quantity: number;
+      date: string;
+    }) => {
+      try {
+        const { data: batches, error: batchError } = await supabase
+          .from("batch")
+          .select("*")
+          .eq("id_products", data.id_products);
+        console.log("batches", batches);
+
+        if (batchError) {
+          throw new Error("Error fetching batches");
+        }
+
+        let remainingQuantity = data.quantity;
+        console.log("Remaining quantity:", remainingQuantity);
+
+        for (const batch of batches) {
+          if (remainingQuantity <= 0) break;
+          console.log("Batch:", batch);
+          console.log("batch.id_batch??", batch.id_batch);
+
+          const transferQuantity = Math.min(batch.quantity, remainingQuantity);
+          console.log("TtransferQuantity", transferQuantity);
+
+          const { data: updatedLocalBatch, error: updateError } = await supabase
+            .from("pendinglocalbatch")
+            .insert({
+              id_branch: data.id_branch,
+              id_products: data.id_products,
+              id_batch: batch.id_batch,
+              quantity: transferQuantity,
+              date: data.date,
+            })
+            .single();
+          console.log("updatedLocalBatch", updatedLocalBatch);
+
+          if (updateError) {
+            throw new Error(
+              `Error inserting into localbatch table: ${updateError.message}`
+            );
+          }
+
+          const { data: updatedBatch, error: deductError } = await supabase
+            .from("batch")
+            .update({
+              quantity: batch.quantity - transferQuantity,
+            })
+            .eq("id_batch", batch.id_batch)
+            .single();
+
+          if (deductError) {
+            throw new Error(deductError.message);
+          }
+
+          remainingQuantity -= transferQuantity;
+        }
+
+        return true;
+      } catch (error) {
+        console.error("Error transferring quantity:", error);
+        throw error;
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["localbatch", "batch"],
+      });
+    },
+  });
+};
+
 export const useUserTransferQuantity = () => {
   const queryClient = useQueryClient();
 
@@ -1086,6 +1303,7 @@ export const useGroupedSalesTransaction = (id: string) => {
         .from("salestransaction")
         .select("*")
         .eq("id_branch", id);
+      // .eq("created_at", date);
 
       if (error) {
         throw new Error(error.message);
@@ -1377,16 +1595,16 @@ export const useInsertPendingProducts = () => {
 
           insertedIds.push(insertedProduct.id_products);
 
-          const { error: deleteError } = await supabase
-            .from("localbatch")
-            .delete()
-            .eq("id_localbranch", pendingproduct.id_localbranch);
+          // const { error: deleteError } = await supabase
+          //   .from("localbatch")
+          //   .delete()
+          //   .eq("id_localbranch", pendingproduct.id_localbranch);
 
-          if (deleteError) {
-            throw new Error(
-              `Error deleting from localbatch table: ${deleteError.message}`
-            );
-          }
+          // if (deleteError) {
+          //   throw new Error(
+          //     `Error deleting from localbatch table: ${deleteError.message}`
+          //   );
+          // }
         }
 
         return insertedIds;
@@ -1399,6 +1617,38 @@ export const useInsertPendingProducts = () => {
       console.log("Inserted IDs:", data);
       await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
       await queryClient.invalidateQueries({ queryKey: ["pendingproducts"] });
+    },
+  });
+};
+
+export const useFindPendingProducts = (id_branch: string) => {
+  return useQuery({
+    queryKey: ["findPendingProducts", id_branch],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pendingproducts")
+        .select(`*`)
+        .eq("id_branch", id_branch);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useGetCashCount = (id_branch: string) => {
+  return useQuery({
+    queryKey: ["cashcount", id_branch],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("cashcount")
+        .select(`*`)
+        .eq("id_branch", id_branch);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
   });
 };

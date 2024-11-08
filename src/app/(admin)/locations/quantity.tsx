@@ -10,9 +10,14 @@ import {
 import React, { useState } from "react";
 import { Stack } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
-import { useTransferQuantity, useProductList } from "@/src/api/products";
+import {
+  useTransferQuantity,
+  useProductList,
+  useSetTransferQuantity,
+} from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 import { useBranchName } from "@/components/branchParams";
+import QuantityTransfer from "@/components/QuantityTransfer";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("1");
@@ -20,11 +25,13 @@ const Index = () => {
     [key: string]: number;
   }>({});
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [Date, setDate] = useState(false);
   const [currentProductId, setCurrentProductId] = useState<string | null>(null);
   const [inputQuantity, setInputQuantity] = useState<string>("");
 
   const { data: products, error, isLoading } = useProductList(selectedCategory);
-  const { mutate: transferQuantity } = useTransferQuantity();
+  const { mutate: transferQuantity } = useSetTransferQuantity();
+
   const { branchName, id_branch } = useBranchName();
 
   const handleOpenModal = (productId: string) => {
@@ -92,21 +99,9 @@ const Index = () => {
         style: "cancel",
       },
       {
-        text: "Confirm",
+        text: "Set Date",
         onPress: () => {
-          Object.entries(productQuantities).forEach(
-            ([id_products, quantity]) => {
-              transferQuantity({
-                id_branch: Number(id_branch),
-                id_products: Number(id_products),
-                quantity: quantity,
-              });
-            }
-          );
-          Alert.alert(
-            "Changes Confirmed",
-            "You have successfully added the products"
-          );
+          setDate(true);
         },
       },
     ]);
@@ -199,10 +194,16 @@ const Index = () => {
         inputQuantity={inputQuantity}
         setInputQuantity={setInputQuantity}
       />
+      {Date && (
+        <QuantityTransfer
+          id_branch={Number(id_branch)}
+          productQuantities={productQuantities}
+          transferQuantity={transferQuantity}
+        />
+      )}
     </View>
   );
 };
-
 export default Index;
 
 const styles = StyleSheet.create({

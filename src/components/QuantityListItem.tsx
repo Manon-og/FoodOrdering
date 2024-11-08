@@ -22,21 +22,40 @@ export const DefaultPhoto =
 const QuantityListItem = ({ batch }: any) => {
   const segments = useSegments();
 
+  // console.log("BATCH???????", batch);
+
   return (
     <View>
       <View style={styles.contentContainer}>
         <View style={styles.itemContainer}>
           <Text style={styles.title}>Quantity: {batch.quantity}</Text>
           <Text style={styles.quantity}>
-            {batch.branch ? batch.branch.place : "Back Inventory"}
+            {batch.type === "pending"
+              ? "Pending"
+              : batch.branch
+              ? batch.branch.place
+              : "Back Inventory"}
           </Text>
-          <Text style={styles.price}>
-            {batch.branch ? `Local Batch ID: ` : `Batch ID: `}
-            {batch.branch ? batch.localbatch : batch.id_batch}
-          </Text>
+          {/* <Text style={styles.price}>
+            {batch.type === "pending"
+              ? `Pending Batch ID: ${batch.pendingLocalBatchId}`
+              : batch.type === "local"
+              ? `Local Batch ID: ${batch.localBatchId}`
+              : `Batch ID: ${batch.batch}`}
+          </Text>  NEED NI IPAKITA?? */}
+          {batch.type === "pending" && (
+            <Text style={styles.date}>Until: {batch.date}</Text>
+          )}
           <Text style={styles.red}>
             Expiry Date:{" "}
-            {batch.branch ? batch.batch.expire_date : batch.expire_date}
+            {batch.type === "pending"
+              ? batch.batch.expire_date
+              : batch.branch
+              ? batch.batch.expire_date
+              : batch.expire_date}
+            {/* {batch.type === "local"
+              ? batch.batch.expire_date
+              : batch.batch.expire_date} */}
           </Text>
         </View>
       </View>
@@ -79,6 +98,11 @@ const styles = StyleSheet.create({
   red: {
     fontSize: 10,
     color: "maroon",
+    fontWeight: "bold",
+  },
+  date: {
+    fontSize: 10,
+    color: "#666",
     fontWeight: "bold",
   },
 });

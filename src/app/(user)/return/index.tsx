@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import {
   useAllLocalBranchData,
   useInsertPendingProducts,
@@ -9,6 +9,7 @@ import ReturnProducts from "@/components/ReturnProducts";
 import Button from "@/src/components/Button";
 import { useUUIDStore } from "@/store/user";
 import { v4 as uuidv4 } from "uuid";
+import { useRouter } from "expo-router";
 
 const Index = () => {
   const { id_branch, branchName } = useBranchStore();
@@ -23,6 +24,8 @@ const Index = () => {
 
   const { data: returnProducts } = useAllLocalBranchData(id_branch ?? "");
   console.log("RETURN PRODUCTS", returnProducts);
+
+  const router = useRouter();
 
   const renderItem = ({ item }: { item: any }) => {
     console.log("RETURN PRODUCTS ITEM", item);
@@ -45,6 +48,8 @@ const Index = () => {
       {
         onSuccess: (data) => {
           console.log("Inserted IDs:", data);
+          Alert.alert("Success", "Request for return products sent");
+          router.push("/(user)/profile");
         },
         onError: (error) => {
           console.error("Error inserting pending products:", error);

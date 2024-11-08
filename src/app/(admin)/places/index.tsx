@@ -27,7 +27,7 @@ const Index = () => {
     const isLocalBranch = localBranch?.some(
       (localItem) => localItem.id_branch === item.id_branch
     );
-    console.log("id_branch:", item.id_branch);
+    console.log("id_branch HERE:", item.id_branch);
     return <ListItem item={item} isLocalBranch={isLocalBranch} />;
   };
 
