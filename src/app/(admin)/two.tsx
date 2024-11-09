@@ -1,16 +1,10 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { useGroupedSalesTransaction } from "@/src/api/products";
-
-import GroupedSalesTransactionItem from "@/components/GroupedSalesTransactionItem";
-import { useBranchName } from "@/components/branchParams";
-import { useBranchStore } from "@/src/store/branch";
+import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 
 const Index = () => {
-  // const { branchName, id_branch } = useBranchName();
-  // console.log("TRANSACTIONNN:", branchName);
-  // console.log("TRANSACTIONNN:", id_branch);
   const { id_branch, branchName } = useBranchStoreAdmin();
   console.log("ADMIN TRANSACTION:", id_branch);
   console.log("ADMIN TRANSACTION:", branchName);
@@ -19,26 +13,24 @@ const Index = () => {
     weekday: "long",
   });
 
-  // const MemoizedProductListItem = memo(GroupedSalesTransactionItem); ayaw niya mag start sa 1, wtf.
   const { data: groupedSales }: any = useGroupedSalesTransaction(
     id_branch?.toString() ?? ""
   );
   let currentIdGroup = 1;
 
+  console.log("GROUPED SALES ADMINNN:", groupedSales);
+
   const renderItem = ({ item }: { item: any }) => {
     const displayIdGroup = currentIdGroup;
     currentIdGroup++;
-    const createdAtDate = item.created_at.split("T")[0];
+    const createdAtDate = new Date(item.created_at).toLocaleDateString();
+    console.log("CREATED AT DATE:", createdAtDate);
 
-    return (
-      <GroupedSalesTransactionItem
-        id_group={item.id_group}
-        id_number={displayIdGroup.toString()}
-        amount={item.amount}
-        created_at={createdAtDate}
-        transactions={item.transactions}
-      />
-    );
+    if (createdAtDate !== currentDate) {
+      return null;
+    }
+
+    return <GroupedSalesTransactionItem transactions={item.transactions} />;
   };
 
   return (

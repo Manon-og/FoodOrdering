@@ -8,6 +8,7 @@ import {
   Alert,
 } from "react-native";
 import {
+  use,
   useGroupedSalesTransaction,
   useSalesTransactionById,
   useUserVoid,
@@ -63,8 +64,12 @@ const Index = () => {
   const { data: salesTransaction } = useSalesTransactionById(
     id_group.toString()
   );
+
+  const { data: groupedSales } = use(id_group.toString());
+  console.log("GROUPEDd SALES ADMINNN:", groupedSales);
+
   console.log("WHADBJHSBHA UPADTEEE", salesTransaction);
-  const amount = salesTransaction?.[0]?.amount;
+  const amount = salesTransaction?.[0]?.transactions?.[0]?.amount;
   const user = salesTransaction?.[0]?.created_by;
   const location = salesTransaction?.[0]?.id_branch.place;
   const createdAt = salesTransaction?.[0]?.created_at;

@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { useGroupedSalesTransaction } from "@/src/api/products";
 
-import GroupedSalesTransactionItem from "@/components/GroupedSalesTransactionItem";
+import GroupedSalesTransactionItem from "@/components/StaffGroupedSalesTransactionItem";
 import { useBranchName } from "@/components/branchParams";
 import { useBranchStore } from "@/src/store/branch";
 
@@ -18,6 +18,10 @@ const Index = () => {
     weekday: "long",
   });
 
+  const date = new Date();
+  console.log("DATEEEE:", date);
+  console.log("DATEEEE:", currentDate);
+
   // const MemoizedProductListItem = memo(GroupedSalesTransactionItem); ayaw niya mag start sa 1, wtf.
   const { data: groupedSales }: any = useGroupedSalesTransaction(
     id_branch ?? ""
@@ -27,7 +31,14 @@ const Index = () => {
   const renderItem = ({ item }: { item: any }) => {
     const displayIdGroup = currentIdGroup;
     currentIdGroup++;
-    const createdAtDate = item.created_at.split("T")[0];
+    console.log("TIME", item.created_at);
+
+    const createdAtDate = new Date(item.created_at).toLocaleDateString();
+    console.log("CREATED AT DATE:", createdAtDate);
+
+    if (createdAtDate !== currentDate) {
+      return null;
+    }
 
     return (
       <GroupedSalesTransactionItem

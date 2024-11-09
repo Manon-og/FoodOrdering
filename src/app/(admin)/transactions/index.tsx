@@ -1,190 +1,171 @@
-import React, { memo } from "react";
+import React, { memo, useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
+  TouchableOpacity,
+  Modal,
   Pressable,
-  Alert,
 } from "react-native";
 import {
-  useGroupedSalesTransaction,
-  useSalesTransactionById,
-  useUserVoid,
+  useGetVoidedTransaction,
+  useGroupedSalesReport,
 } from "@/src/api/products";
-
-import GroupedSalesTransactionId from "@/components/GroupSalesTransactionId";
-import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
+import GroupedVoidSalesTransactionItem from "@/components/AdminGroupedVoidSalesTransactionItem";
+import { useBranchStoreAdmin } from "@/store/branchAdmin";
+import Colors from "@/constants/Colors";
+import { useDateStore } from "@/store/dateAdmin";
+import VoidedTransactionModal from "@/modals/voidedTransactionModals";
+import { useSalesStore } from "@/store/totalSalesAdmin";
+import { useVoidedSalesStore } from "@/store/totalVoidedSalesAdmin";
 
 const Index = () => {
-  const { id_group, id_void } = useLocalSearchParams();
-  const voidTransaction = useUserVoid();
-  const router = useRouter();
-
-  const handleVoidTransaction = () => {
-    if (id_group) {
-      voidTransaction.mutate(
-        { id_group: id_group.toString() },
-        {
-          onSuccess: () => {
-            router.push("/(user)/two");
-          },
-        }
-      );
-    }
-  };
-
-  const confirmVoidTransaction = () => {
-    Alert.alert(
-      "Confirm Void",
-      "Are you sure you want to void this transaction?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Confirm",
-          onPress: handleVoidTransaction,
-        },
-      ]
-    );
-  };
-
-  console.log("id_void UPADTEEE", id_void);
-  console.log("id_group UPADTEEE", id_group);
-  if (!id_group) {
-    return (
-      <View style={styles.container}>
-        <Text>Error: id_group is undefined</Text>
-      </View>
-    );
-  }
-  const { data: salesTransaction } = useSalesTransactionById(
-    id_group.toString()
-  );
-  console.log("WHADBJHSBHA UPADTEEE", salesTransaction);
-  const amount = salesTransaction?.[0]?.amount;
-  const user = salesTransaction?.[0]?.created_by;
-  const location = salesTransaction?.[0]?.id_branch.place;
-  const createdAt = salesTransaction?.[0]?.created_at;
-  const time = createdAt ? createdAt.split("T")[1].split(".")[0] : "";
-  const sunMoon = time ? (time.split(":")[0] >= 12 ? "PM" : "AM") : "";
+  const { id_branch, branchName } = useBranchStoreAdmin();
+  const [modalVisible, setModalVisible] = useState(false);
+  console.log("ADMIN TRANSACTION:", id_branch);
+  console.log("ADMIN TRANSACTION:", branchName);
   const currentDate = new Date().toLocaleDateString();
   const currentDay = new Date().toLocaleDateString("en-US", {
     weekday: "long",
   });
 
-  // const MemoizedProductListItem = memo(GroupedSalesTransactionItem); ayaw niya mag start sa 1, wtf.
-  // const { data: groupedSales }: any = useGroupedSalesTransaction();
-  let currentIdGroup = 1;
+  const date = new Date();
+  console.log("DATE:", date);
 
-  const renderItem = ({ item }: { item: any }) => {
-    const displayIdGroup = currentIdGroup;
-    currentIdGroup++;
-    console.log("TIME", item.created_at);
-    const createdAtDate = item.created_at.split("T")[0];
+  const { data: salesReport }: any = useGroupedSalesReport(
+    id_branch?.toString(),
+    date
+  );
+
+  const setDate = useDateStore((state) => state.setDate);
+
+  useEffect(() => {
+    setDate(currentDate);
+  }, [setDate]);
+
+  const { Ddate } = useDateStore();
+  console.log("DDATE>:", Ddate);
+
+  console.log("LAST NA TO:", salesReport);
+
+  const { data: voidData }: any = useGetVoidedTransaction(
+    id_branch?.toString(),
+    date
+  );
+  console.log("VOID DATA:", voidData);
+
+  const renderSalesItem = ({ item }: { item: any }) => {
+    const createdAtDate = new Date(item.created_at).toLocaleDateString();
+    console.log("CREATED DATE:", createdAtDate);
+    console.log("CURRENT DATE:", currentDate);
+
+    if (createdAtDate !== currentDate) {
+      return null;
+    }
 
     return (
-      <GroupedSalesTransactionId
-        id_products={item.id_products}
-        id_group={item.id_group}
-        id_number={displayIdGroup.toString()}
-        amount={item.amount}
-        created_at={createdAtDate}
-        transactions={item.transactions}
-        amount_by_product={item.amount_by_product}
+      <GroupedSalesTransactionItem
+        id_products={item.id_products.name}
         quantity={item.quantity}
+        amount_by_product={item.amount_by_product}
+        transactions={item.transactions}
       />
     );
   };
 
-  const content = (
-    <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <Pressable onPress={confirmVoidTransaction}>
-              <Text style={styles.confirmButton}>CONFIRM</Text>
-            </Pressable>
-          ),
-        }}
+  const renderVoidedItem = ({ item }: { item: any }) => {
+    const createdAtDate = new Date(item.created_at).toLocaleDateString();
+    console.log("CREATED DATE:", createdAtDate);
+    console.log("CURRENT DATE:", currentDate);
+
+    if (createdAtDate !== currentDate) {
+      return null;
+    }
+
+    return (
+      <GroupedVoidSalesTransactionItem
+        id_products={item.id_products.name}
+        quantity={item.quantity}
+        amount_by_product={item.amount_by_product}
+        transactions={item.transactions}
       />
-      <View style={styles.dateContainer}>
-        <Text style={styles.dayText}>{currentDay}</Text>
-        <Text style={styles.dateText}>{currentDate}</Text>
-      </View>
+    );
+  };
+
+  const totalSales =
+    salesReport?.reduce(
+      (acc: any, item: { amount_by_product: any }) =>
+        acc + item.amount_by_product,
+      0
+    ) || 0;
+
+  const setSales = useSalesStore((state) => state.setSales);
+
+  useEffect(() => {
+    setSales(totalSales);
+  }, [setSales]);
+
+  const { sales } = useSalesStore();
+  console.log("sales:", sales);
+
+  const totalVoidedSales =
+    voidData?.reduce(
+      (acc: any, item: { amount_by_product: any }) =>
+        acc + item.amount_by_product,
+      0
+    ) || 0;
+
+  const setVoid = useVoidedSalesStore((state) => state.setVoid);
+
+  useEffect(() => {
+    setVoid(totalVoidedSales);
+  }, [setVoid]);
+
+  const { voidSales } = useVoidedSalesStore();
+  console.log("voidSales:", voidSales);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.dayText}>Sales Transaction</Text>
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
-        <Text style={[styles.headerText, styles.statusMiddle]}>Quantity</Text>
+        <Text style={[styles.headerText, styles.statusHeader]}>
+          Product Name
+        </Text>
+        <Text style={[styles.headerText, styles.statusMiddle]}>
+          Total Quantity
+        </Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
           Total Amount
         </Text>
       </View>
       <FlatList
-        data={salesTransaction}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id_salestransaction}
+        data={salesReport}
+        keyExtractor={(item) => item.id_products.id_products.toString()}
+        renderItem={renderSalesItem}
       />
-      <View style={styles.footer}>
-        <Text style={styles.totalText}>Total: ₱{amount}</Text>
-        <Text style={styles.createdBy}>Created by: {user}</Text>
-        <Text style={styles.createdBy}>Location: {location}</Text>
-        <Text style={styles.createdBy}>
-          {time} {sunMoon}
-        </Text>
+
+      <View style={styles.totalSalesContainer}>
+        <Text style={styles.totalSalesText}>Total Sales:</Text>
+        <Text style={styles.totalSalesNumber}>₱{totalSales}</Text>
       </View>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.buttonText}>Voided Transaction</Text>
+      </TouchableOpacity>
+      <VoidedTransactionModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        voidData={voidData}
+        totalVoidedSales={totalVoidedSales}
+        currentDate={currentDate}
+        currentDay={currentDay}
+      />
     </View>
   );
-
-  const content2 = (
-    <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <Link
-              href={`/(user)/transaction?id_group=${id_group}&id_void=1`}
-              asChild
-            >
-              <Pressable>
-                {({ pressed }) => (
-                  <>
-                    <Text style={styles.voidButton}>VOID</Text>
-                  </>
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      />
-      <View style={styles.dateContainer}>
-        <Text style={styles.dayText}>{currentDay}</Text>
-        <Text style={styles.dateText}>{currentDate}</Text>
-      </View>
-      <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
-        <Text style={[styles.headerText, styles.statusMiddle]}>Quantity</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>
-          Total Amount
-        </Text>
-      </View>
-      <FlatList
-        data={salesTransaction}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id_salestransaction}
-      />
-      <View style={styles.footer}>
-        <Text style={styles.totalText}>Total: ₱{amount}</Text>
-        <Text style={styles.createdBy}>Created by: {user}</Text>
-        <Text style={styles.createdBy}>Location: {location}</Text>
-        <Text style={styles.createdBy}>
-          {time} {sunMoon}
-        </Text>
-      </View>
-    </View>
-  );
-
-  return id_void ? content : content2;
 };
 
 const styles = StyleSheet.create({
@@ -193,16 +174,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "30%",
-  },
-  footer: {
-    position: "absolute",
-    bottom: 50,
-    alignItems: "center",
-  },
-  totalText: {
-    fontSize: 20,
-    fontWeight: "bold",
   },
   dateContainer: {
     position: "absolute",
@@ -219,6 +190,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     paddingLeft: 13,
     color: "green",
+    paddingBottom: 10,
   },
   headerContainer: {
     flexDirection: "row",
@@ -238,7 +210,6 @@ const styles = StyleSheet.create({
   statusHeader: {
     fontSize: 15,
     textAlign: "left",
-    paddingLeft: 10,
     flex: 1,
   },
   statusMiddle: {
@@ -253,21 +224,55 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "right",
     flex: 1,
-    paddingRight: 10,
   },
-  createdBy: {
-    fontSize: 15,
-    color: "gray",
+  button: {
+    backgroundColor: Colors.light.tint,
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 100,
+    marginVertical: 10,
+    marginHorizontal: 10,
   },
-  voidButton: {
-    color: "darkred",
-    fontSize: 18,
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",
   },
-  confirmButton: {
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  totalSalesContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 20,
+    marginBottom: 40,
+  },
+  totalSalesText: {
+    fontSize: 20,
+    fontWeight: "bold",
     color: "darkgreen",
-    fontSize: 18,
+  },
+  totalSalesNumber: {
+    fontSize: 20,
     fontWeight: "bold",
+    color: "darkgreen",
   },
 });
 

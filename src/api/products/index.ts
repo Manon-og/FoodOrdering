@@ -1129,7 +1129,8 @@ export const useUserTransferQuantity = () => {
         const { data: batches, error: batchError } = await supabase
           .from("localbatch")
           .select("*")
-          .eq("id_products", data.id_products);
+          .eq("id_products", data.id_products)
+          .neq("quantity", 0);
         console.log("batches", batches);
 
         if (batchError) {
@@ -1153,7 +1154,6 @@ export const useUserTransferQuantity = () => {
               id_localbranch: batch.id_localbranch,
               id_branch: data.id_branch,
               id_products: data.id_products,
-
               amount: data.amount,
               quantity: transferQuantity,
               created_by: data.created_by,
@@ -1273,7 +1273,7 @@ export const useSalesTransaction = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("salestransaction")
-        .select(`*`);
+        .select(`*, id_products(name), id_branch(place)`);
       if (error) {
         throw new Error(error.message);
       }
@@ -1301,9 +1301,8 @@ export const useGroupedSalesTransaction = (id: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("salestransaction")
-        .select("*")
+        .select("*, id_products(name)")
         .eq("id_branch", id);
-      // .eq("created_at", date);
 
       if (error) {
         throw new Error(error.message);
@@ -1314,15 +1313,111 @@ export const useGroupedSalesTransaction = (id: string) => {
       }
 
       const groupedData = data.reduce((acc, item) => {
-        const key = `${item.id_group}_${item.amount}`;
+        const key = `${item.id_group}`;
         if (!acc[key]) {
           acc[key] = {
             id_group: item.id_group,
+            id_products: item.id_products,
+            quantity: 0,
             amount: item.amount,
             created_at: item.created_at,
             transactions: [],
           };
         }
+
+        acc[key].transactions.push(item);
+        return acc;
+      }, {});
+
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useGroupedSalesTransactionReport = (id: string) => {
+  return useQuery({
+    queryKey: ["groupedSalesTransactionReport", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salestransaction")
+        .select("*, id_products(name)")
+        .eq("id_branch", id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const key = `${item.id_products}`;
+        console.log("key", item.id_products);
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
+            quantity: 0,
+            amount_by_product: 0,
+            // created_at: formattedDate,
+            transactions: [],
+          };
+        }
+
+        acc[key].amount_by_product += item.amount_by_product;
+        acc[key].quantity += item.quantity;
+        acc[key].transactions.push(item);
+        return acc;
+      }, {});
+
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useGroupedSalesReport = (id: string, date: Date) => {
+  return useQuery({
+    queryKey: [
+      "groupedSalesTransactionReport",
+      id,
+      date.toISOString().split("T")[0],
+    ], // Ensure queryKey is stable
+    queryFn: async () => {
+      const formattedDate = date.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+      console.log("formattedDate", formattedDate);
+      const { data, error } = await supabase
+        .from("salestransaction")
+        .select("*, id_products(*)")
+        .eq("id_branch", id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      const filteredData = data.filter((item) => {
+        const itemDate = new Date(item.created_at).toISOString().split("T")[0];
+        return itemDate === formattedDate;
+      });
+
+      console.log("filteredData", filteredData);
+
+      const groupedData = filteredData.reduce((acc, item) => {
+        const key = `${item.id_products.id_products}`;
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
+            quantity: 0,
+            amount_by_product: 0,
+            created_at: formattedDate,
+            transactions: [],
+          };
+        }
+        acc[key].amount_by_product += item.amount_by_product;
+        acc[key].quantity += item.quantity;
         acc[key].transactions.push(item);
         return acc;
       }, {});
@@ -1343,7 +1438,29 @@ export const useSalesTransactionById = (id: string) => {
       if (error) {
         throw new Error(error.message);
       }
-      return data;
+
+      const groupedData = data.reduce((acc, item) => {
+        const key = item.id_products.name;
+        if (!acc[key]) {
+          acc[key] = {
+            ...item,
+
+            quantity: 0,
+            transactions: [],
+          };
+        }
+
+        acc[key].quantity += item.quantity;
+        acc[key].transactions.push(item);
+        return acc;
+      }, {});
+
+      const result = Object.values(groupedData).map((item: any) => ({
+        ...item,
+        amount: item.amount_by_product,
+      }));
+
+      return result;
     },
   });
 };
@@ -1400,6 +1517,8 @@ export const useUserVoid = () => {
               quantity: transaction.quantity,
               created_by: transaction.created_by,
               id_group: transaction.id_group,
+              amount_by_product: transaction.amount_by_product,
+              id_branch: transaction.id_branch,
             });
 
           if (voidInsertError) {
@@ -1649,6 +1768,164 @@ export const useGetCashCount = (id_branch: string) => {
         throw new Error(error.message);
       }
       return data;
+    },
+  });
+};
+
+export const use = (idB: string) => {
+  return useQuery({
+    queryKey: ["salesTrans", idB],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salestransaction")
+        .select(`*, id_products(*)`)
+        .eq("id_branch", idB);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const groupId = item.id_group;
+        if (!acc[groupId]) {
+          acc[groupId] = { amount: 0, created_at: item.created_at };
+        }
+        acc[groupId].amount += item.amount;
+        return acc;
+      }, {});
+
+      console.log("DUUNOO", groupedData);
+
+      return Object.values(groupedData);
+    },
+  });
+};
+
+// export const useGetVoidedTransaction = () => {
+//   return useQuery({
+//     queryKey: ["void"],
+//     queryFn: async () => {
+//       const { data, error } = await supabase
+//         .from("voidsalestransaction")
+//         .select(`*`);
+//       if (error) {
+//         throw new Error(error.message);
+//       }
+//       return data;
+//     },
+//   });
+// };
+
+export const useGetVoidedTransaction = (id: string, date: Date) => {
+  return useQuery({
+    queryKey: [
+      "groupedVoidedTransactionReport",
+      id,
+      date.toISOString().split("T")[0],
+    ], // Ensure queryKey is stable
+    queryFn: async () => {
+      const formattedDate = date.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+      console.log("formattedDate", formattedDate);
+      const { data, error } = await supabase
+        .from("voidsalestransaction")
+        .select("*, id_products(*)")
+        .eq("id_branch", id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      const filteredData = data.filter((item) => {
+        const itemDate = new Date(item.created_at).toISOString().split("T")[0];
+        return itemDate === formattedDate;
+      });
+
+      console.log("filteredData", filteredData);
+
+      const groupedData = filteredData.reduce((acc, item) => {
+        const key = `${item.id_products.id_products}`;
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
+            quantity: 0,
+            amount_by_product: 0,
+            created_at: formattedDate,
+            transactions: [],
+          };
+        }
+        acc[key].amount_by_product += item.amount_by_product;
+        acc[key].quantity += item.quantity;
+        acc[key].transactions.push(item);
+        return acc;
+      }, {});
+
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useDeleteLocalBatch = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      id_branch: number;
+      id_user: string;
+      id_group: string;
+    }) => {
+      try {
+        const { data: pendingproducts, error: pendingproductsError } =
+          await supabase
+            .from("pendingproducts")
+            .select("*")
+            .eq("id_branch", data.id_branch)
+            .eq("id_user", data.id_user)
+            .eq("id_group", data.id_group);
+
+        if (pendingproductsError) {
+          throw new Error("Error fetching transactions");
+        }
+
+        console.log("Pending products:", pendingproducts);
+
+        const insertedIds = [];
+
+        for (const pendingproduct of pendingproducts) {
+          console.log("Pending product:", pendingproduct);
+          const { data: insertedProduct, error: pendingproductsError } =
+            await supabase
+              .from("localbatch")
+              .delete()
+              .eq("id_localbranch", pendingproduct.id_localbranch)
+              .eq("id_products", pendingproduct.id_products)
+              .eq("id_batch", pendingproduct.id_batch)
+              .eq("quantity", pendingproduct.quantity)
+              .select("id_products")
+              .single();
+
+          if (pendingproductsError) {
+            throw new Error(
+              `Error inserting into pendingproducts table: ${pendingproductsError.message}`
+            );
+          }
+
+          insertedIds.push(insertedProduct.id_products);
+        }
+
+        return insertedIds;
+      } catch (error) {
+        console.error("Error pending products:", error);
+        throw error;
+      }
+    },
+    onSuccess: async (data) => {
+      console.log("Inserted IDs:", data);
+      await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
+      await queryClient.invalidateQueries({ queryKey: ["pendingproducts"] });
     },
   });
 };

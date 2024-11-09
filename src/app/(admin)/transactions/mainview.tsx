@@ -1,16 +1,10 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
-import { useGroupedSalesTransaction } from "@/src/api/products";
-
-import GroupedSalesTransactionItem from "@/components/GroupedSalesTransactionItem";
-import { useBranchName } from "@/components/branchParams";
-import { useBranchStore } from "@/src/store/branch";
+import { useGroupedSalesReport } from "@/src/api/products";
+import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 
 const Index = () => {
-  // const { branchName, id_branch } = useBranchName();
-  // console.log("TRANSACTIONNN:", branchName);
-  // console.log("TRANSACTIONNN:", id_branch);
   const { id_branch, branchName } = useBranchStoreAdmin();
   console.log("ADMIN TRANSACTION:", id_branch);
   console.log("ADMIN TRANSACTION:", branchName);
@@ -19,25 +13,30 @@ const Index = () => {
     weekday: "long",
   });
 
-  // const MemoizedProductListItem = memo(GroupedSalesTransactionItem); ayaw niya mag start sa 1, wtf.
-  const { data: groupedSales }: any = useGroupedSalesTransaction(
-    id_branch?.toString() ?? ""
-  );
-  let currentIdGroup = 1;
+  const date = new Date();
+  console.log("DATE:", date);
 
-  console.log("GROUPED SALES ADMINNN:", groupedSales);
+  const { data: salesReport }: any = useGroupedSalesReport(
+    id_branch?.toString(),
+    date
+  );
+
+  console.log("LAST NA TO:", salesReport);
 
   const renderItem = ({ item }: { item: any }) => {
-    const displayIdGroup = currentIdGroup;
-    currentIdGroup++;
-    const createdAtDate = item.created_at.split("T")[0];
+    const createdAtDate = new Date(item.created_at).toLocaleDateString();
+    console.log("CREATED DATE:", createdAtDate);
+    console.log("CURRENT DATE:", currentDate);
+
+    if (createdAtDate !== currentDate) {
+      return null;
+    }
 
     return (
       <GroupedSalesTransactionItem
-        id_group={item.id_group}
-        id_number={displayIdGroup.toString()}
-        amount={item.amount}
-        created_at={createdAtDate}
+        id_products={item.id_products.name}
+        quantity={item.quantity}
+        amount_by_product={item.amount_by_product}
         transactions={item.transactions}
       />
     );
@@ -51,18 +50,25 @@ const Index = () => {
       </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>
-          Transaction
+          Product Name
         </Text>
-        <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
+        <Text style={[styles.headerText, styles.statusMiddle]}>
+          Total Quantity
+        </Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
           Total Amount
         </Text>
       </View>
       <FlatList
-        data={groupedSales}
-        keyExtractor={(item) => item.id_group}
+        data={salesReport}
+        keyExtractor={(item) => item.id_products.id_products.toString()}
         renderItem={renderItem}
       />
+      {/* <FlatList
+        data={salesReport}
+        keyExtractor={(item) => item.id_products.id_products.toString()}
+        renderItem={renderItem}
+      /> */}
     </View>
   );
 };

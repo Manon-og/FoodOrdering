@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
-import React from "react";
+import { router, Stack, useRouter } from "expo-router";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -9,14 +9,24 @@ import {
   FlatList,
   Button,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import { useBranchAllProductList, useBranchName } from "@/src/api/products"; // Adjust the import path accordingly
+import {
+  useBranchAllProductList,
+  useBranchName,
+  useDeleteLocalBatch,
+} from "@/src/api/products"; // Adjust the import path accordingly
 
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import ItemDetailsReturn from "@/components/ItemsDetailsReturn";
 import Colors from "@/constants/Colors";
+import { useCashStore } from "@/store/cashcountAdmin";
+import { useSalesStore } from "@/store/totalSalesAdmin";
+import { useVoidedSalesStore } from "@/store/totalVoidedSalesAdmin";
+import { useUUIDStore } from "@/store/user";
+import { useIdGroupStore } from "@/store/idgroup";
 
-const Details = () => {
+const Details = ({ ddd }: any) => {
   const { id_branch, branchName } = useBranchStoreAdmin();
   console.log("ADMIN RETURN:", id_branch);
   console.log("ADMIN RETURN:", branchName);
@@ -50,72 +60,139 @@ const Details = () => {
   const router = useRouter();
 
   const handleTransaction = () => {
-    router.push("/(admin)/transactions/mainview");
+    router.push("/(admin)/transactions");
   };
 
   const handleCashCount = () => {
     router.push("/(admin)/cashcount");
   };
 
+  console.log("RETURN id_group:", ddd);
+
+  const { cash } = useCashStore();
+  console.log("CASH>:", cash);
+
+  const { sales } = useSalesStore();
+  console.log("SALES>:", sales);
+
+  const { voidSales } = useVoidedSalesStore();
+  console.log("VOIDEDSALES>:", voidSales);
+
+  const { id } = useUUIDStore();
+  console.log("RETURN id_user:", id);
+
+  const { idGroup } = useIdGroupStore();
+  console.log("idGroup>:", idGroup);
+
+  const deleteLocalBatch = useDeleteLocalBatch();
+  console.log("RETURN asdas:", {
+    id_branch: Number(id_branch),
+    id_user: id?.toString() ?? "",
+    id_group: idGroup,
+  });
+  const handleInsertPendingProducts = () => {
+    const deleteLocalBatch = useDeleteLocalBatch();
+    deleteLocalBatch.mutate(
+      {
+        id_branch: Number(id_branch),
+        id_user: id?.toString() ?? "",
+        id_group: idGroup ?? "",
+      },
+      {
+        onSuccess: (data) => {
+          console.log("Inserted IDs:", data);
+          Alert.alert("Success", "Request for return products sent");
+          router.push("/(user)/profile");
+        },
+        onError: (error) => {
+          console.error("Error inserting pending products:", error);
+        },
+      }
+    );
+  };
+
   return (
-    <View style={styles.container}>
-      {products && products.length > 0 ? (
-        <>
-          <View style={styles.dateContainer}>
-            <Text style={styles.dayText}>{currentDay}</Text>
-            <Text style={styles.dateText}>{currentDate}</Text>
-          </View>
-          <View style={styles.headerContainer}>
-            <Text style={[styles.headerText, styles.statusHeader]}>
-              Product
-            </Text>
-
-            <Text style={[styles.headerText, styles.moreInfoHeader]}>
-              Quantity
-              <Text style={[styles.headerText, styles.moreInfoHeaderBefore]}>
-                {" "}
-                Before
+    <>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <TouchableOpacity onPress={() => console.log("Confirm pressed")}>
+              <Text style={styles.confirmText}>Accept</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <View style={styles.container}>
+        {products && products.length > 0 ? (
+          <>
+            <View style={styles.headerContainer}>
+              <Text style={[styles.headerText, styles.statusHeader]}>
+                Product
               </Text>
-            </Text>
-            <Text style={[styles.headerText, styles.moreInfoHeaderAfter]}>
-              After
-            </Text>
-          </View>
 
-          <FlatList
-            data={products}
-            renderItem={renderItem}
-            keyExtractor={(item: any) => item.id_products.toString()}
-          />
-          <View style={styles.footer}>
-            <View style={styles.totalQuantitiesContainer}>
-              <Text style={styles.totalQuantitiesText}>Total Quantities</Text>
-              <Text style={styles.totalQuantitiesText}>
-                Before: {totalQuantity}
+              <Text style={[styles.headerText, styles.moreInfoHeader]}>
+                Quantity
+                <Text style={[styles.headerText, styles.moreInfoHeaderBefore]}>
+                  {" "}
+                  Before
+                </Text>
               </Text>
-              <Text style={styles.totalQuantitiesText}>
-                After: {totalQuantity}
+              <Text style={[styles.headerText, styles.moreInfoHeaderAfter]}>
+                After
               </Text>
             </View>
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={handleTransaction}
-              >
-                <Text style={styles.buttonText}>SALES TRANSACTIONS</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress={handleCashCount}>
-                <Text style={styles.buttonText}>CASH COUNT</Text>
-              </TouchableOpacity>
+
+            <FlatList
+              data={products}
+              renderItem={renderItem}
+              keyExtractor={(item: any) => item.id_products.toString()}
+            />
+            <View style={styles.footer}>
+              <View style={styles.border}>
+                <View style={styles.totalQuantitiesContainer}>
+                  <Text style={styles.totalQuantities}>
+                    Total Quantities Return
+                  </Text>
+                  <Text style={styles.totalQuantitiesText}>
+                    {totalQuantity} pcs.
+                  </Text>
+                </View>
+                <View style={styles.totalQuantitiesContainer}>
+                  <Text style={styles.totalQuantities}>Total Cash Return</Text>
+                  <Text style={styles.totalQuantitiesText}>₱ {cash}</Text>
+                </View>
+                <View style={styles.totalQuantitiesContainer}>
+                  <Text style={styles.totalQuantities}>Total Sales</Text>
+                  <Text style={styles.totalQuantitiesText}>₱ {sales}</Text>
+                </View>
+                <View style={styles.totalQuantitiesContainer}>
+                  <Text style={styles.totalQuantities}>Total Voided Sales</Text>
+                  <Text style={styles.totalQuantitiesText}>₱ {voidSales}</Text>
+                </View>
+              </View>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleTransaction}
+                >
+                  <Text style={styles.buttonText}>SALES </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleCashCount}
+                >
+                  <Text style={styles.buttonText}>CASH COUNT</Text>
+                </TouchableOpacity>
+              </View>
             </View>
+          </>
+        ) : (
+          <View style={styles.offlineContainer}>
+            <Text style={styles.offlineText}>OFFLINE</Text>
           </View>
-        </>
-      ) : (
-        <View style={styles.offlineContainer}>
-          <Text style={styles.offlineText}>OFFLINE</Text>
-        </View>
-      )}
-    </View>
+        )}
+      </View>
+    </>
   );
 };
 
@@ -139,7 +216,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "30%",
   },
   dateContainer: {
     position: "absolute",
@@ -258,14 +334,46 @@ const styles = StyleSheet.create({
   },
   totalQuantitiesContainer: {
     flexDirection: "row",
-    bottom: 20,
-    textAlign: "left",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    // borderRadius: 5,
+    // borderStyle: "solid",
+    // borderWidth: 1,
+    // borderColor: "red",
+  },
+  border: {
+    borderStyle: "solid",
+    borderWidth: 2,
+    borderColor: "gray",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5, // For Android shadow
+  },
+  totalQuantities: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "gray",
   },
   totalQuantitiesText: {
-    paddingLeft: 20,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "bold",
     color: "black",
+  },
+  View: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "gray",
   },
   offlineContainer: {
     flex: 1,
@@ -283,9 +391,15 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: "row",
-
-    // justifyContent: "flex-start", // Adjust as needed
-    // alignItems: "flex-start", // Adjust as needed
+    justifyContent: "center",
+    alignItems: "center",
+    aspectRatio: 5.5,
+  },
+  confirmText: {
+    color: Colors.light.tint,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 10,
   },
 });
 

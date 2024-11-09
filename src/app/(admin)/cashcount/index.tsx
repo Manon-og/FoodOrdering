@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
 import {
   useAllLocalBranchData,
@@ -11,6 +11,7 @@ import { useBranchStore } from "@/store/branch";
 import { useUUIDStore } from "@/store/user";
 import { useRouter } from "expo-router";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
+import { useCashStore } from "@/store/cashcountAdmin";
 
 const Index = () => {
   const router = useRouter();
@@ -71,6 +72,17 @@ const Index = () => {
   );
   console.log("ADMIN CASHCOUNT", cashcount);
   const cashCountData = cashcount && cashcount.length > 0 ? cashcount[0] : {};
+
+  const setCash = useCashStore((state) => state.setCash);
+  const cashCount = cashCountData.total;
+  console.log("CASHCOUNT:", cashCount);
+
+  useEffect(() => {
+    setCash(cashCount);
+  }, [setCash]);
+
+  const { cash } = useCashStore();
+  console.log("CASH:", cash);
 
   return (
     <View style={styles.container}>

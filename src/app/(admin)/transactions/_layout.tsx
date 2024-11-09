@@ -21,10 +21,10 @@ export default function MenuStack() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Transaction",
+          title: "Sales History",
 
           headerLeft: () => (
-            <Link href={`/(admin)/profile`} asChild>
+            <Link href={`/(admin)/return`} asChild>
               <Pressable style={styles.backButton}>
                 {({ pressed }) => (
                   <>

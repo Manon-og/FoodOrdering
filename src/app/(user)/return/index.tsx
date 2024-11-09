@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import {
   useAllLocalBranchData,
@@ -10,6 +10,8 @@ import Button from "@/src/components/Button";
 import { useUUIDStore } from "@/store/user";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "expo-router";
+import { useIdGroupStore } from "@/store/idgroup";
+import Details from "@/app/(admin)/return";
 
 const Index = () => {
   const { id_branch, branchName } = useBranchStore();
@@ -21,6 +23,16 @@ const Index = () => {
 
   const transactionId = uuidv4();
   console.log("RETURN id_group:", transactionId);
+
+  <Details ddd={transactionId} />;
+
+  const setIdGroup = useIdGroupStore((state) => state.setIdGroup);
+  useEffect(() => {
+    setIdGroup(transactionId);
+  }, [setIdGroup]);
+
+  const { idGroup } = useIdGroupStore();
+  console.log("idGroup>:", idGroup);
 
   const { data: returnProducts } = useAllLocalBranchData(id_branch ?? "");
   console.log("RETURN PRODUCTS", returnProducts);

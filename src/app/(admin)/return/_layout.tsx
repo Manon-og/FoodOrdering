@@ -13,7 +13,7 @@ export default function MenuStack() {
       <Stack.Screen
         name="index"
         options={{
-          title: ``,
+          title: `Sales Report`,
           headerLeft: () => (
             <Link href={`${change}`} asChild>
               <Pressable style={styles.backButton}>
@@ -43,7 +43,7 @@ export default function MenuStack() {
           //     <Pressable>
           //       {({ pressed }) => (
           //         <FontAwesome
-          //           name="plus-square-o"
+          //           title="Add Location"
           //           size={25}
           //           color={Colors.light.tint}
           //           style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}

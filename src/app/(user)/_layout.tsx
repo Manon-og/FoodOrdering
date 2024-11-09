@@ -103,14 +103,14 @@ export default function TabLayout() {
         }}
       />
 
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="twoPREV"
         options={{
           title: "nothing",
           headerShown: false,
           tabBarButton: () => null,
         }}
-      />
+      /> */}
 
       <Tabs.Screen
         name="return"

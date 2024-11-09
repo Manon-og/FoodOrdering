@@ -20,7 +20,7 @@ interface GroupedSalesTransactionItemProps {
 
 const GroupedSalesTransactionItem: React.FC<
   GroupedSalesTransactionItemProps
-> = ({ id_group, id_number, amount, created_at, transactions }) => {
+> = ({ id_group, id_number, amount, created_at }) => {
   console.log("id_group HEREEE", id_group);
   const link: any = `/(user)/transaction?id_group=${id_group}`;
   return (
@@ -30,27 +30,6 @@ const GroupedSalesTransactionItem: React.FC<
           <Text style={styles.itemLeft}>{id_number}</Text>
           <Text style={styles.itemText}>{created_at}</Text>
           <Text style={styles.itemRight}> {amount}</Text>
-
-          {/* {transactions.map((transaction) => (
-        <View
-          key={transaction.id_salestransaction}
-          style={styles.transactionContainer}
-        >
-          <Text style={styles.itemText}>
-            Transaction ID: {transaction.id_salestransaction}
-          </Text>
-          <Text style={styles.itemText}>
-            Product ID: {transaction.id_products}
-          </Text>
-          <Text style={styles.itemText}>Quantity: {transaction.quantity}</Text>
-          <Text style={styles.itemText}>
-            Created By: {transaction.created_by}
-          </Text>
-          <Text style={styles.itemText}>
-            Branch ID: {transaction.id_branch}
-          </Text>
-        </View>
-      ))} */}
         </View>
       </Pressable>
     </Link>
