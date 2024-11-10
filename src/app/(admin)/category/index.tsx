@@ -31,6 +31,10 @@ const Index = () => {
     });
   };
 
+  const handleNavigate = () => {
+    router.push("/(admin)/returned");
+  };
+
   return (
     <View>
       <View style={styles.menuItems}>
@@ -44,7 +48,7 @@ const Index = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuButton}>
+        <TouchableOpacity style={styles.menuButton} onPress={handleNavigate}>
           <View style={styles.menuTextContainer}>
             <Text style={styles.menuText}>Returned Products</Text>
             <Text style={styles.arrow}>→</Text>

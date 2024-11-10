@@ -9,12 +9,14 @@ import {
 import {
   useBranchData,
   useGetPendingProducts,
+  useGetPendingProductsDetails,
   useLocalBranchData,
 } from "@/src/api/products";
 import ListItem from "@/src/components/listItem";
 import { Link } from "expo-router";
 import Button from "@/src/components/Button";
 import GroupedReturnedItem from "@/components/AdminReturnReturnedProducts";
+import GroupedReturnedItemDetails from "@/components/AdminReturnReturnedProductDetails";
 
 const Index = () => {
   const { data: branch } = useBranchData();
@@ -28,31 +30,27 @@ const Index = () => {
     weekday: "long",
   });
 
-  const { data: pendingProducts } = useGetPendingProducts();
-  console.log("Pending products:", pendingProducts);
+  const { data: pendingProductsDetails } = useGetPendingProductsDetails();
+  console.log("Pending pr:", pendingProductsDetails);
 
   const renderItem = ({ item }: { item: any }) => {
     const createdAtDate = item.created_at.split("T")[0];
     return (
-      <GroupedReturnedItem
-        id_branch={item.id_branch}
-        created_at={createdAtDate}
+      <GroupedReturnedItemDetails
+        id_products={item.id_products.name}
+        quantity={item.quantity}
       />
     );
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.dateContainer}>
-        <Text style={styles.dayText}>{currentDay}</Text>
-        <Text style={styles.dateText}>{currentDate}</Text>
-      </View>
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>From</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>Date</Text>
+        <Text style={[styles.headerText, styles.statusHeader]}>Products</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>Quantity</Text>
       </View>
       <FlatList
-        data={pendingProducts}
+        data={pendingProductsDetails}
         renderItem={renderItem}
         // keyExtractor={(item) => item.created_at} pede bani??
       />
@@ -66,7 +64,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "30%",
   },
   dateContainer: {
     position: "absolute",
@@ -101,7 +98,7 @@ const styles = StyleSheet.create({
   statusHeader: {
     textAlign: "left",
     flex: 0.5,
-    paddingLeft: 25,
+    paddingLeft: 20,
   },
   placeHeader: {
     textAlign: "left",
@@ -110,7 +107,7 @@ const styles = StyleSheet.create({
   moreInfoHeader: {
     textAlign: "right",
     flex: 1,
-    paddingRight: 35,
+    paddingRight: 10,
   },
 });
 

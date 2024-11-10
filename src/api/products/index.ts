@@ -1924,3 +1924,49 @@ export const useDeleteLocalBatch = () => {
     },
   });
 };
+
+export const useGetPendingProducts = () => {
+  return useQuery({
+    queryKey: ["transaferPendingProducts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pendingproducts")
+        .select(`*, id_branch(place)`);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const groupId = `${item.id_group}_${item.id_branch}`;
+        if (!acc[groupId]) {
+          acc[groupId] = {
+            id_branch: item.id_branch.place,
+            created_at: item.created_at,
+          };
+        }
+
+        return acc;
+      }, {});
+
+      console.log("DUUNOO", groupedData);
+
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useGetPendingProductsDetails = () => {
+  return useQuery({
+    queryKey: ["transaferPendingProductss"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pendingproducts")
+        .select(`*, id_branch(place), id_products(name)`);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+  });
+};
