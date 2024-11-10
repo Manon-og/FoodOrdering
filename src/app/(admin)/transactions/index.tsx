@@ -39,6 +39,8 @@ const Index = () => {
     date
   );
 
+  console.log("SALES REPORT++++:", salesReport);
+
   const setDate = useDateStore((state) => state.setDate);
 
   useEffect(() => {
@@ -58,7 +60,7 @@ const Index = () => {
 
   const renderSalesItem = ({ item }: { item: any }) => {
     const createdAtDate = new Date(item.created_at).toLocaleDateString();
-    console.log("CREATED DATE:", createdAtDate);
+    console.log("CREATED DATE ++++:", createdAtDate);
     console.log("CURRENT DATE:", currentDate);
 
     if (createdAtDate !== currentDate) {

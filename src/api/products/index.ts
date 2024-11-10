@@ -1381,9 +1381,9 @@ export const useGroupedSalesReport = (id: string, date: Date) => {
       "groupedSalesTransactionReport",
       id,
       date.toISOString().split("T")[0],
-    ], // Ensure queryKey is stable
+    ],
     queryFn: async () => {
-      const formattedDate = date.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+      const formattedDate = date.toISOString().split("T")[0];
       console.log("formattedDate", formattedDate);
       const { data, error } = await supabase
         .from("salestransaction")
@@ -1872,19 +1872,13 @@ export const useDeleteLocalBatch = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      id_branch: number;
-      id_user: string;
-      id_group: string;
-    }) => {
+    mutationFn: async (data: { id_branch: number }) => {
       try {
         const { data: pendingproducts, error: pendingproductsError } =
           await supabase
             .from("pendingproducts")
             .select("*")
-            .eq("id_branch", data.id_branch)
-            .eq("id_user", data.id_user)
-            .eq("id_group", data.id_group);
+            .eq("id_branch", data.id_branch);
 
         if (pendingproductsError) {
           throw new Error("Error fetching transactions");
@@ -1900,12 +1894,11 @@ export const useDeleteLocalBatch = () => {
             await supabase
               .from("localbatch")
               .delete()
-              .eq("id_localbranch", pendingproduct.id_localbranch)
               .eq("id_products", pendingproduct.id_products)
               .eq("id_batch", pendingproduct.id_batch)
               .eq("quantity", pendingproduct.quantity)
-              .select("id_products")
-              .single();
+              .select("id_products");
+          // .single();
 
           if (pendingproductsError) {
             throw new Error(

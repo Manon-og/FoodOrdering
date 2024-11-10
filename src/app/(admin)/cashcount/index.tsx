@@ -78,8 +78,10 @@ const Index = () => {
   console.log("CASHCOUNT:", cashCount);
 
   useEffect(() => {
-    setCash(cashCount);
-  }, [setCash]);
+    if (cashCount !== undefined) {
+      setCash(cashCount);
+    }
+  }, [cashCount, setCash]);
 
   const { cash } = useCashStore();
   console.log("CASH:", cash);

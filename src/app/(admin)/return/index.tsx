@@ -15,6 +15,9 @@ import {
   useBranchAllProductList,
   useBranchName,
   useDeleteLocalBatch,
+  useGetCashCount,
+  useGetVoidedTransaction,
+  useGroupedSalesReport,
 } from "@/src/api/products"; // Adjust the import path accordingly
 
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
@@ -28,25 +31,50 @@ import { useIdGroupStore } from "@/store/idgroup";
 
 const Details = ({ ddd }: any) => {
   const { id_branch, branchName } = useBranchStoreAdmin();
-  console.log("ADMIN RETURN:", id_branch);
-  console.log("ADMIN RETURN:", branchName);
+
   const { data: products } = useBranchAllProductList(
     id_branch?.toString() ?? ""
   );
   const { data: branch } = useBranchName(Number(id_branch));
-  console.log("HERE****", id_branch);
-  console.log("HERE****?", products);
-  console.log("WTFDUDE", branch);
+
   let name = "";
 
   branch?.forEach((b: any) => {
     name = b.place;
   });
 
-  const currentDate = new Date().toLocaleDateString();
-  const currentDay = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-  });
+  const { data: cashcount } = useGetCashCount(
+    id_branch ? id_branch.toString() : ""
+  );
+
+  const cashCountData = cashcount && cashcount.length > 0 ? cashcount[0] : {};
+  const cashCount = cashCountData.total;
+
+  const date = new Date();
+
+  const { data: salesReport }: any = useGroupedSalesReport(
+    id_branch?.toString(),
+    date
+  );
+
+  const totalSales =
+    salesReport?.reduce(
+      (acc: any, item: { amount_by_product: any }) =>
+        acc + item.amount_by_product,
+      0
+    ) || 0;
+
+  const { data: voidData }: any = useGetVoidedTransaction(
+    id_branch?.toString(),
+    date
+  );
+
+  const totalVoidedSales =
+    voidData?.reduce(
+      (acc: any, item: { amount_by_product: any }) =>
+        acc + item.amount_by_product,
+      0
+    ) || 0;
 
   const totalQuantity = products?.reduce(
     (acc: number, item: any) => acc + item.quantity,
@@ -69,15 +97,6 @@ const Details = ({ ddd }: any) => {
 
   console.log("RETURN id_group:", ddd);
 
-  const { cash } = useCashStore();
-  console.log("CASH>:", cash);
-
-  const { sales } = useSalesStore();
-  console.log("SALES>:", sales);
-
-  const { voidSales } = useVoidedSalesStore();
-  console.log("VOIDEDSALES>:", voidSales);
-
   const { id } = useUUIDStore();
   console.log("RETURN id_user:", id);
 
@@ -87,22 +106,18 @@ const Details = ({ ddd }: any) => {
   const deleteLocalBatch = useDeleteLocalBatch();
   console.log("RETURN asdas:", {
     id_branch: Number(id_branch),
-    id_user: id?.toString() ?? "",
-    id_group: idGroup,
   });
+
   const handleInsertPendingProducts = () => {
-    const deleteLocalBatch = useDeleteLocalBatch();
     deleteLocalBatch.mutate(
       {
         id_branch: Number(id_branch),
-        id_user: id?.toString() ?? "",
-        id_group: idGroup ?? "",
       },
       {
         onSuccess: (data) => {
           console.log("Inserted IDs:", data);
           Alert.alert("Success", "Request for return products sent");
-          router.push("/(user)/profile");
+          router.push("/(admin)/profile");
         },
         onError: (error) => {
           console.error("Error inserting pending products:", error);
@@ -116,7 +131,7 @@ const Details = ({ ddd }: any) => {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <TouchableOpacity onPress={() => console.log("Confirm pressed")}>
+            <TouchableOpacity onPress={handleInsertPendingProducts}>
               <Text style={styles.confirmText}>Accept</Text>
             </TouchableOpacity>
           ),
@@ -147,6 +162,7 @@ const Details = ({ ddd }: any) => {
               renderItem={renderItem}
               keyExtractor={(item: any) => item.id_products.toString()}
             />
+
             <View style={styles.footer}>
               <View style={styles.border}>
                 <View style={styles.totalQuantitiesContainer}>
@@ -159,15 +175,17 @@ const Details = ({ ddd }: any) => {
                 </View>
                 <View style={styles.totalQuantitiesContainer}>
                   <Text style={styles.totalQuantities}>Total Cash Return</Text>
-                  <Text style={styles.totalQuantitiesText}>₱ {cash}</Text>
+                  <Text style={styles.totalQuantitiesText}>₱ {cashCount}</Text>
                 </View>
                 <View style={styles.totalQuantitiesContainer}>
                   <Text style={styles.totalQuantities}>Total Sales</Text>
-                  <Text style={styles.totalQuantitiesText}>₱ {sales}</Text>
+                  <Text style={styles.totalQuantitiesText}>₱ {totalSales}</Text>
                 </View>
                 <View style={styles.totalQuantitiesContainer}>
                   <Text style={styles.totalQuantities}>Total Voided Sales</Text>
-                  <Text style={styles.totalQuantitiesText}>₱ {voidSales}</Text>
+                  <Text style={styles.totalQuantitiesText}>
+                    ₱ {totalVoidedSales}
+                  </Text>
                 </View>
               </View>
               <View style={styles.buttonRow}>
