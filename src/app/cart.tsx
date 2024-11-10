@@ -123,7 +123,7 @@ const CartScreen = () => {
     <View style={styles.container}>
       <FlatList
         data={[...items, { id: "add-more", type: "placeholder" }]}
-        renderItem={({ item }) => {
+        renderItem={({ item }: any) => {
           if (item.type === "placeholder") {
             return (
               <Pressable

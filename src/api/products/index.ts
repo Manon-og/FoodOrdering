@@ -1696,6 +1696,7 @@ export const useInsertPendingProducts = () => {
             await supabase
               .from("pendingproducts")
               .insert({
+                id_localbranch: pendingproduct.id_localbranch,
                 id_user: data.id_user,
                 id_group: data.id_group,
                 id_branch: pendingproduct.id_branch,
@@ -1890,10 +1891,11 @@ export const useDeleteLocalBatch = () => {
 
         for (const pendingproduct of pendingproducts) {
           console.log("Pending product:", pendingproduct);
-          const { data: insertedProduct, error: pendingproductsError } =
+          const { data: insertedProduct, error: pendingproductsError }: any =
             await supabase
               .from("localbatch")
               .delete()
+              .eq("id_localbranch", pendingproduct.id_localbranch)
               .eq("id_products", pendingproduct.id_products)
               .eq("id_batch", pendingproduct.id_batch)
               .eq("quantity", pendingproduct.quantity)
