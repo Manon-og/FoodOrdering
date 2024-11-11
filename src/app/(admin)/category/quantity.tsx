@@ -120,10 +120,10 @@ const Index = () => {
 
   return (
     <View style={styles.screenContainer}>
-      <Stack.Screen options={{ title: 'Update Quantity' }} />
+      <Stack.Screen options={{ title: 'Stock In Products' }} />
       <Stack.Screen
         options={{
-          title: 'Update Quantity',
+          title: 'Stock In Products',
           headerRight: () => (
             <Pressable onPress={handleSubmit}>
               {({ pressed }) => (
@@ -189,14 +189,15 @@ const styles = StyleSheet.create({
   pressable: {
     flex: 1,
     height: 50,
-    backgroundColor: 'white',
+    backgroundColor: "#FDFDFD",
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 5,
     borderRadius: 15,
+    borderColor: 'BLACK',
   },
   pressableText: {
-    color: 'lightblue',
+    color: "#0E1432",
     fontStyle: 'italic',
     fontWeight: 'bold',
   },

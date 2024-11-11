@@ -46,7 +46,7 @@ export default function MenuStack() {
                     <FontAwesome
                       name="plus-square-o"
                       size={25}
-                      color={Colors.light.tint}
+                      color={ "0E1432"}
                       style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                     />
                   )}

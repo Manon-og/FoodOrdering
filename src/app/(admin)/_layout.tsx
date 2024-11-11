@@ -21,10 +21,10 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.light.background,
+        tabBarActiveTintColor: "#FFFFFF",
         headerShown: useClientOnlyValue(false, true),
-        tabBarInactiveTintColor: "gainboro",
-        tabBarStyle: { backgroundColor: Colors.light.tint },
+        tabBarInactiveTintColor: "#D6D5D5",
+        tabBarStyle: { backgroundColor: "#0E1432" },
       }}
     >
       <Tabs.Screen name="index" options={{ href: null }} />
