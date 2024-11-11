@@ -39,7 +39,7 @@ const ProductListItem = ({ product, productsByBackInventory }: any) => {
   const hrefLink = id_archive
     ? `/${segments[0]}/menu/create?id=${product.id_products}&id_archive=1`
     : `/${segments[0]}/menu/${product.id_products}`;
-  const newHrefLink = id_branch ? `/${segments[0]}/menu/` : hrefLink;
+  const newHrefLink: any = id_branch ? `/${segments[0]}/menu/` : hrefLink;
 
   const warning = product.quantity <= 10 ? "Low Stocks!" : "";
 
