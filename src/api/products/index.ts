@@ -1994,3 +1994,76 @@ export const useGetPendingProductsDetails = () => {
     },
   });
 };
+
+export const useTransferReturnedBatch = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { id_branch: number }) => {
+      try {
+        const { data: pendingproducts, error: pendingproductsError } =
+          await supabase
+            .from("confirmedproducts")
+            .select("*")
+            .eq("id_branch", data.id_branch);
+
+        if (pendingproductsError) {
+          throw new Error("Error fetching transactions");
+        }
+
+        console.log("Pending products:", pendingproducts);
+
+        const promises = pendingproducts.map(async (pendingproduct) => {
+          const confirmedProduct = {
+            id_products: pendingproduct.id_products,
+            id_batch: pendingproduct.id_batch,
+            quantity: pendingproduct.quantity,
+            // id_user: pendingproduct.id_user,
+            id_branch: pendingproduct.id_branch,
+            // id_group: pendingproduct.id_group,
+          };
+
+          // Insert into confirmedproducts table
+          const { data: insertedProduct, error: insertConfirmedError } =
+            await supabase
+              .from("localbatch")
+              .insert(confirmedProduct)
+              .select("id_products")
+              .single();
+
+          if (insertConfirmedError) {
+            throw new Error(
+              `Error inserting into confirmedproducts table: ${insertConfirmedError.message}`
+            );
+          }
+
+          // Delete from pendingproducts and localbatch tables in parallel
+          const deletePendingPromise = supabase
+            .from("confirmedproducts")
+            .delete()
+            .eq("id_group", pendingproduct.id_group);
+          // .eq("id_localbranch", pendingproduct.id_localbranch)
+          // .eq("id_products", pendingproduct.id_products)
+          // .eq("id_batch", pendingproduct.id_batch)
+          // .eq("quantity", pendingproduct.quantity);
+
+          await Promise.all([deletePendingPromise]);
+
+          return insertedProduct.id_products;
+        });
+
+        const insertedIds = await Promise.all(promises);
+        return insertedIds;
+      } catch (error) {
+        console.error("Error processing pending products:", error);
+        throw error;
+      }
+    },
+    onSuccess: async (data) => {
+      console.log("Inserted IDs:", data);
+      await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
+      await queryClient.invalidateQueries({ queryKey: ["pendingproducts"] });
+      await queryClient.invalidateQueries({ queryKey: ["confirmedproducts"] });
+    },
+  });
+};

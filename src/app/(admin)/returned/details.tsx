@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,17 +7,18 @@ import {
   TouchableOpacity,
 } from "react-native";
 import {
+  useBranch,
   useBranchData,
-  useGetPendingProducts,
   useGetPendingProductsDetails,
   useLocalBranchData,
+  useTransferReturnedBatch,
 } from "@/src/api/products";
-import ListItem from "@/src/components/listItem";
-import { Link, Stack } from "expo-router";
+import { Link, Stack, useRouter } from "expo-router";
 import Button from "@/src/components/Button";
-import GroupedReturnedItem from "@/components/AdminReturnReturnedProducts";
 import GroupedReturnedItemDetails from "@/components/AdminReturnReturnedProductDetails";
 import Colors from "@/constants/Colors";
+import BranchOptionsModal from "@/modals/branchModals";
+import ReturnBranchOptionsModal from "@/modals/returnProductsModals";
 
 const Index = () => {
   const { data: branch } = useBranchData();
@@ -43,6 +44,27 @@ const Index = () => {
     );
   };
 
+  const router = useRouter();
+  const { data: place } = useBranch();
+
+  console.log("place:", place);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(
+    null
+  );
+
+  const transferReturnedBatch = useTransferReturnedBatch();
+
+  const onSelectBranch = (id_branch: number, branchName: string) => {
+    console.log("Selected branch ID:", id_branch, branchName);
+    setSelectedBranchName(branchName);
+    transferReturnedBatch.mutate({ id_branch });
+    // router.push({
+    //   pathname: "/(admin)/locations",
+    //   params: { id_branch, branchName },
+    // });
+  };
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "" }} />
@@ -53,16 +75,23 @@ const Index = () => {
       <FlatList
         data={pendingProductsDetails}
         renderItem={renderItem}
-        // keyExtractor={(item) => item.created_at} pede bani??
+        // keyExtractor={(item) => item.id_products.id.toString()}
       />
       <View style={styles.buttonRow}>
         <TouchableOpacity
           style={styles.button}
-          // onPress={handleCashCount}
+          onPress={() => setModalVisible(true)}
         >
           <Text style={styles.buttonText}>USE</Text>
         </TouchableOpacity>
       </View>
+      <ReturnBranchOptionsModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        branches={place || []}
+        onSelectBranch={onSelectBranch}
+        branchName={selectedBranchName}
+      />
     </View>
   );
 };
