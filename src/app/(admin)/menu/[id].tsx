@@ -34,7 +34,7 @@ function ProductDetailScreen() {
 
   const renderItemByBatch = ({ item }: { item: any }) => {
     console.log("LL", item);
-    return <MemoizedQuantityListItemByBatch batch={item} style={styles.roundedItem} />;
+    return <MemoizedQuantityListItemByBatch batch={item} />;
   };
 
   if (isLoading) {
@@ -152,19 +152,6 @@ const styles = StyleSheet.create({
   },
   headerRightButton: {
     padding: 10,
-  },
-  picker: {
-    height: 40,
-    width: "100%",
-    marginVertical: 10,
-  },
-  roundedItem: {
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: "gray",
-    padding: 10,
-    marginVertical: 5,
-    backgroundColor: "white",
   },
 });
 

@@ -103,16 +103,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#B9D2F7",
+    backgroundColor: "white",
   },
   searchBar: {
     height: 40,
-    borderColor: "#0E1432",
-    backgroundColor: "#FDFDFD",
+    borderColor: "gray",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginBottom: 5,
-    color: "#0E1432",
+    marginBottom: 10,
   },
 });
