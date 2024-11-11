@@ -25,7 +25,6 @@ export default function MenuStack() {
         name = "index" 
         options = {{
          title : title,
-         headerStyle: { backgroundColor: "white" },
          headerRight: () => (
           <Link href={`/(admin)/category/quantity`} asChild>
             <Pressable>
@@ -33,7 +32,7 @@ export default function MenuStack() {
                 <FontAwesome
                   name="cart-plus"
                   size={25}
-                  color={"0E1432"}
+                  color={Colors.light.tint}
                   style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                 />
               )}
