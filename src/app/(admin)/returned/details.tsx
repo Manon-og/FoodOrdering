@@ -13,10 +13,11 @@ import {
   useLocalBranchData,
 } from "@/src/api/products";
 import ListItem from "@/src/components/listItem";
-import { Link } from "expo-router";
+import { Link, Stack } from "expo-router";
 import Button from "@/src/components/Button";
 import GroupedReturnedItem from "@/components/AdminReturnReturnedProducts";
 import GroupedReturnedItemDetails from "@/components/AdminReturnReturnedProductDetails";
+import Colors from "@/constants/Colors";
 
 const Index = () => {
   const { data: branch } = useBranchData();
@@ -34,7 +35,6 @@ const Index = () => {
   console.log("Pending pr:", pendingProductsDetails);
 
   const renderItem = ({ item }: { item: any }) => {
-    const createdAtDate = item.created_at.split("T")[0];
     return (
       <GroupedReturnedItemDetails
         id_products={item.id_products.name}
@@ -45,6 +45,7 @@ const Index = () => {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: "" }} />
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Products</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>Quantity</Text>
@@ -54,11 +55,39 @@ const Index = () => {
         renderItem={renderItem}
         // keyExtractor={(item) => item.created_at} pede bani??
       />
+      <View style={styles.buttonRow}>
+        <TouchableOpacity
+          style={styles.button}
+          // onPress={handleCashCount}
+        >
+          <Text style={styles.buttonText}>USE</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: Colors.light.tint,
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 100,
+    marginVertical: 10,
+    marginHorizontal: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    aspectRatio: 5.5,
+  },
   container: {
     flex: 1,
     justifyContent: "center",

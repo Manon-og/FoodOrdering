@@ -1887,33 +1887,57 @@ export const useDeleteLocalBatch = () => {
 
         console.log("Pending products:", pendingproducts);
 
-        const insertedIds = [];
+        const promises = pendingproducts.map(async (pendingproduct) => {
+          const confirmedProduct = {
+            id_products: pendingproduct.id_products,
+            id_batch: pendingproduct.id_batch,
+            quantity: pendingproduct.quantity,
+            id_user: pendingproduct.id_user,
+            id_branch: pendingproduct.id_branch,
+            id_group: pendingproduct.id_group,
+          };
 
-        for (const pendingproduct of pendingproducts) {
-          console.log("Pending product:", pendingproduct);
-          const { data: insertedProduct, error: pendingproductsError }: any =
+          // Insert into confirmedproducts table
+          const { data: insertedProduct, error: insertConfirmedError } =
             await supabase
-              .from("localbatch")
-              .delete()
-              .eq("id_localbranch", pendingproduct.id_localbranch)
-              .eq("id_products", pendingproduct.id_products)
-              .eq("id_batch", pendingproduct.id_batch)
-              .eq("quantity", pendingproduct.quantity)
-              .select("id_products");
-          // .single();
+              .from("confirmedproducts")
+              .insert(confirmedProduct)
+              .select("id_products")
+              .single();
 
-          if (pendingproductsError) {
+          if (insertConfirmedError) {
             throw new Error(
-              `Error inserting into pendingproducts table: ${pendingproductsError.message}`
+              `Error inserting into confirmedproducts table: ${insertConfirmedError.message}`
             );
           }
 
-          insertedIds.push(insertedProduct.id_products);
-        }
+          // Delete from pendingproducts and localbatch tables in parallel
+          const deletePendingPromise = supabase
+            .from("pendingproducts")
+            .delete()
+            .eq("id_group", pendingproduct.id_group);
+          // .eq("id_localbranch", pendingproduct.id_localbranch)
+          // .eq("id_products", pendingproduct.id_products)
+          // .eq("id_batch", pendingproduct.id_batch)
+          // .eq("quantity", pendingproduct.quantity);
 
+          const deleteLocalBatchPromise = supabase
+            .from("localbatch")
+            .delete()
+            .eq("id_localbranch", pendingproduct.id_localbranch)
+            .eq("id_products", pendingproduct.id_products)
+            .eq("id_batch", pendingproduct.id_batch)
+            .eq("quantity", pendingproduct.quantity);
+
+          await Promise.all([deletePendingPromise, deleteLocalBatchPromise]);
+
+          return insertedProduct.id_products;
+        });
+
+        const insertedIds = await Promise.all(promises);
         return insertedIds;
       } catch (error) {
-        console.error("Error pending products:", error);
+        console.error("Error processing pending products:", error);
         throw error;
       }
     },
@@ -1930,7 +1954,7 @@ export const useGetPendingProducts = () => {
     queryKey: ["transaferPendingProducts"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("pendingproducts")
+        .from("confirmedproducts")
         .select(`*, id_branch(place)`);
       if (error) {
         throw new Error(error.message);
@@ -1960,7 +1984,7 @@ export const useGetPendingProductsDetails = () => {
     queryKey: ["transaferPendingProductss"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("pendingproducts")
+        .from("confirmedproducts")
         .select(`*, id_branch(place), id_products(name)`);
       if (error) {
         throw new Error(error.message);

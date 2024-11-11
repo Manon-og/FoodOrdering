@@ -104,6 +104,7 @@ const Details = ({ ddd }: any) => {
   console.log("idGroup>:", idGroup);
 
   const deleteLocalBatch = useDeleteLocalBatch();
+  console.log("DELETE:", deleteLocalBatch);
   console.log("RETURN asdas:", {
     id_branch: Number(id_branch),
   });
@@ -364,7 +365,7 @@ const styles = StyleSheet.create({
   border: {
     borderStyle: "solid",
     borderWidth: 2,
-    borderColor: "gray",
+    borderColor: Colors.light.tint,
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
@@ -373,9 +374,9 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5, // For Android shadow
+    // shadowOpacity: 0.25,
+    // shadowRadius: 3.84,
+    // elevation: 5, // For Android shadow
   },
   totalQuantities: {
     fontSize: 17,
