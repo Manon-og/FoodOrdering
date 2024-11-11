@@ -25,7 +25,7 @@ const QuantityModal: React.FC<QuantityModalProps> = ({
             style={styles.input}
             value={inputQuantity}
             onChangeText={(text) => {
-              const numericValue = text.replace(/[^0-9]/g, ''); // Only allow numbers
+              const numericValue = text.replace(/[^0-9]/g, ''); 
               setInputQuantity(numericValue);
             }}
             placeholder="99"

@@ -38,6 +38,11 @@ const Index = () => {
 export default Index;
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: "#B9D2F7",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -47,50 +52,27 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
   },
-  pressable: {
+  categoryCard: {
     width: "40%",
     height: 100,
-    backgroundColor: "lightblue",
+    backgroundColor: "#FDFDFD",
     justifyContent: "center",
     alignItems: "center",
     margin: 10,
     borderRadius: 15,
   },
-  pressableText: {
+  categoryText: {
     color: "black",
     fontStyle: "italic",
-  },
-  location: {
-    margin: 10,
-    marginLeft: "30%",
-    width: "40%",
-  },
-
-  profileHeader: {
-    alignItems: "center",
-    paddingBottom: "40%",
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  name: {
-    fontSize: 24,
     fontWeight: "bold",
-    marginTop: 10,
-  },
-  email: {
-    fontSize: 18,
-    color: "gray",
+    fontSize: 16,
   },
   menuItems: {
-    width: "80%",
-    marginLeft: "10%",
+    width: "90%",
     alignItems: "center",
   },
   menuButton: {
-    backgroundColor: "lightblue",
+    backgroundColor: "#0E1432",
     padding: 15,
     borderRadius: 10,
     width: "90%",
@@ -102,10 +84,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   menuText: {
+    color: "#FFFFFF",
     fontSize: 16,
     flex: 1,
+    fontWeight: "bold",
   },
   arrow: {
+    color: "#FFFFFF",
     paddingLeft: 10,
   },
 });
