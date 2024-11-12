@@ -64,32 +64,32 @@ const Index = () => {
           href={`/(user)/menu?category=1&id_branch=1&branchName=inStore`}
           asChild
         >
-          <Pressable style={styles.categoryCard}>
-            <Text style={styles.categoryText}>COOKIE</Text>
+          <Pressable style={styles.pressable}>
+            <Text style={styles.pressableText}>COOKIE</Text>
           </Pressable>
         </Link>
         <Link
           href={`/(user)/menu?category=2&id_branch=1&branchName=inStore`}
           asChild
         >
-          <Pressable style={styles.categoryCard}>
-            <Text style={styles.categoryText}>BREADS</Text>
+          <Pressable style={styles.pressable}>
+            <Text style={styles.pressableText}>BREADS</Text>
           </Pressable>
         </Link>
         <Link
           href={`/(user)/menu?category=3&id_branch=1&branchName=inStore`}
           asChild
         >
-          <Pressable style={styles.categoryCard}>
-            <Text style={styles.categoryText}>CAKES</Text>
+          <Pressable style={styles.pressable}>
+            <Text style={styles.pressableText}>CAKES</Text>
           </Pressable>
         </Link>
         <Link
           href={`/(user)/menu?category=4&id_branch=1&branchName=inStore`}
           asChild
         >
-          <Pressable style={styles.categoryCard}>
-            <Text style={styles.categoryText}>BENTO CAKES</Text>
+          <Pressable style={styles.pressable}>
+            <Text style={styles.pressableText}>BENTO CAKES</Text>
           </Pressable>
         </Link>
       </View>
@@ -100,11 +100,6 @@ const Index = () => {
 export default Index;
 
 const styles = StyleSheet.create({
-    background: {
-    flex: 1,
-    backgroundColor: "#B9D2F7",
-    alignItems: "center",
-  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -114,27 +109,50 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
   },
-  categoryCard: {
+  pressable: {
     width: "40%",
     height: 100,
-    backgroundColor: "#FDFDFD",
+    backgroundColor: "lightblue",
     justifyContent: "center",
     alignItems: "center",
     margin: 10,
     borderRadius: 15,
   },
-  categoryText: {
+  pressableText: {
     color: "black",
     fontStyle: "italic",
+  },
+  location: {
+    margin: 10,
+    marginLeft: "30%",
+    width: "40%",
+  },
+
+  profileHeader: {
+    alignItems: "center",
+    paddingBottom: "40%",
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  name: {
+    fontSize: 24,
     fontWeight: "bold",
-    fontSize: 16,
+    marginTop: 10,
+  },
+  email: {
+    fontSize: 18,
+    color: "gray",
   },
   menuItems: {
-    width: "90%",
+    width: "80%",
+    marginLeft: "10%",
     alignItems: "center",
   },
   menuButton: {
-    backgroundColor: "#0E1432",
+    backgroundColor: "lightblue",
     padding: 15,
     borderRadius: 10,
     width: "90%",
@@ -146,13 +164,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   menuText: {
-    color: "#FFFFFF",
     fontSize: 16,
     flex: 1,
-    fontWeight: "bold",
   },
   arrow: {
-    color: "#FFFFFF",
     paddingLeft: 10,
   },
 });

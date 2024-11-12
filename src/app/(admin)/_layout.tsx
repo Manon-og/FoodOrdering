@@ -21,10 +21,10 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#FFFFFF",
+        tabBarActiveTintColor: Colors.light.background,
         headerShown: useClientOnlyValue(false, true),
-        tabBarInactiveTintColor: "#D6D5D5",
-        tabBarStyle: { backgroundColor: "#0E1432" },
+        tabBarInactiveTintColor: "gainboro",
+        tabBarStyle: { backgroundColor: Colors.light.tint },
       }}
     >
       <Tabs.Screen name="index" options={{ href: null }} />
@@ -125,6 +125,14 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="transactions"
+        options={{
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="returned"
         options={{
           headerShown: false,
           tabBarButton: () => null,

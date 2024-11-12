@@ -1,29 +1,44 @@
-import React, { memo } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
-import { useGroupedSalesTransaction } from "@/src/api/products";
-import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
-import { useBranchStoreAdmin } from "@/store/branchAdmin";
-import AdminViewTransaction from "@/components/AdminViewTransaction";
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import {
+  useBranchData,
+  useGetPendingProducts,
+  useLocalBranchData,
+} from "@/src/api/products";
+import ListItem from "@/src/components/listItem";
+import { Link } from "expo-router";
+import Button from "@/src/components/Button";
+import GroupedReturnedItem from "@/components/AdminReturnReturnedProducts";
 
 const Index = () => {
-  const { id_branch, branchName } = useBranchStoreAdmin();
-  console.log("ADMIN TRANSACTION:", id_branch);
-  console.log("ADMIN TRANSACTION:", branchName);
+  const { data: branch } = useBranchData();
+  const { data: localBranch } = useLocalBranchData();
+
+  console.log("Branch data:", branch);
+  console.log("Local branch data:", localBranch);
+
   const currentDate = new Date().toLocaleDateString();
   const currentDay = new Date().toLocaleDateString("en-US", {
     weekday: "long",
   });
 
-  const { data: groupedSales }: any = useGroupedSalesTransaction(
-    id_branch?.toString() ?? ""
-  );
+  const { data: pendingProducts } = useGetPendingProducts();
+  console.log("Pending products??:", pendingProducts);
 
   const renderItem = ({ item }: { item: any }) => {
+    const createdAtDate = item.created_at.split("T")[0];
+    console.log("IDBRNch:", item.id_branch.id_branch);
     return (
-      <AdminViewTransaction
-        id_branch={item.id_branch}
-        created_at={item.created_at}
-        amount={item.amount}
+      <GroupedReturnedItem
+        id_branch={item.id_branch.id_branch}
+        id_branch_place={item.id_branch_place}
+        created_at={createdAtDate}
       />
     );
   };
@@ -35,16 +50,13 @@ const Index = () => {
         <Text style={styles.dateText}>{currentDate}</Text>
       </View>
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
-        <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>
-          Total Amount
-        </Text>
+        <Text style={[styles.headerText, styles.statusHeader]}>From</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>Date</Text>
       </View>
       <FlatList
-        data={groupedSales}
-        keyExtractor={(item) => item.id_group}
+        data={pendingProducts}
         renderItem={renderItem}
+        // keyExtractor={(item) => item.created_at} pede bani??
       />
     </View>
   );
@@ -66,7 +78,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "gray",
-    paddingLeft: 13,
   },
   dayText: {
     fontSize: 25,
@@ -90,22 +101,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   statusHeader: {
-    fontSize: 15,
     textAlign: "left",
-    flex: 1,
-  },
-  statusMiddle: {
-    fontSize: 15,
-    flex: 1,
+    flex: 0.5,
+    paddingLeft: 25,
   },
   placeHeader: {
     textAlign: "left",
     flex: 1.5,
   },
   moreInfoHeader: {
-    fontSize: 15,
     textAlign: "right",
     flex: 1,
+    paddingRight: 35,
   },
 });
 

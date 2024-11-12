@@ -11,7 +11,7 @@ import {
   Button,
 } from "react-native";
 import React, { memo, useState } from "react";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useInsertBatch, useProductList } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
@@ -24,6 +24,7 @@ const Index = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentProductId, setCurrentProductId] = useState<string | null>(null);
   const [inputQuantity, setInputQuantity] = useState<string>("");
+  const router = useRouter();
 
   const { data: products, error, isLoading } = useProductList(selectedCategory);
   const { mutate: insertBatch } = useInsertBatch();
@@ -102,6 +103,7 @@ const Index = () => {
               insertBatch({ id_products: Number(id_products), quantity });
             }
           );
+          // router.push("/(admin)/category");
           Alert.alert(
             "Changes Confirmed",
             "You have successfully added the products"
@@ -136,19 +138,22 @@ const Index = () => {
       onPress={() => handleOpenModal(item.id_products)}
       style={styles.productItem}
     >
-      <Text style={styles.productName}>{item.name}</Text>
-      <Text style={styles.quantityText}>
-        Quantity: {productQuantities[item.id_products] || 0}
-      </Text>
+      <View style={styles.productRow}>
+        <Text style={styles.productName}>{item.name}</Text>
+        <Text style={styles.quantityInput}>
+          Quantity Entered: {productQuantities[item.id_products] || 0}
+        </Text>
+      </View>
+      <Text style={styles.quantityText}>Available Stocks: {item.quantity}</Text>
     </Pressable>
   );
 
   return (
     <View style={styles.screenContainer}>
-      <Stack.Screen options={{ title: "Stock In Products" }} />
+      <Stack.Screen options={{ title: "Update Quantity" }} />
       <Stack.Screen
         options={{
-          title: "Stock In Products",
+          title: "Update Quantity",
           headerRight: () => (
             <Pressable onPress={handleSubmit}>
               {({ pressed }) => (
@@ -201,6 +206,9 @@ const Index = () => {
         onConfirm={handleConfirmModal}
         inputQuantity={inputQuantity}
         setInputQuantity={setInputQuantity}
+        name={
+          products?.find((item) => item.id_products === currentProductId)?.name
+        }
       />
     </View>
   );
@@ -226,15 +234,14 @@ const styles = StyleSheet.create({
   pressable: {
     flex: 1,
     height: 50,
-    backgroundColor: "#FDFDFD",
+    backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 5,
     borderRadius: 15,
-    borderColor: "BLACK",
   },
   pressableText: {
-    color: "#0E1432",
+    color: "lightblue",
     fontStyle: "italic",
     fontWeight: "bold",
   },
@@ -250,12 +257,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
   },
+  productRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   productName: {
     fontSize: 18,
     fontWeight: "bold",
   },
   quantityText: {
     marginTop: 5,
+    fontSize: 14,
+  },
+  quantityInput: {
+    marginLeft: 10,
     fontSize: 14,
   },
   modalContainer: {
