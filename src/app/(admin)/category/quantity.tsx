@@ -36,7 +36,7 @@ const Index = () => {
     setInputQuantity(productQuantities[productId]?.toString() || ""); // Set input to the existing quantity
     setIsModalVisible(true);
   };
-
+  //hi
   const handleConfirmModal = () => {
     const quantity = parseInt(inputQuantity);
     if (quantity > 0) {
