@@ -4,26 +4,21 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 
 interface GroupedSalesTransactionItemProps {
   created_at: string;
+  amount: number;
   id_branch: number;
-  id_branch_place: string;
 }
 
-const GroupedReturnedItem: React.FC<GroupedSalesTransactionItemProps> = ({
-  created_at,
-  id_branch_place,
+const AdminViewTransaction: React.FC<GroupedSalesTransactionItemProps> = ({
   id_branch,
+  created_at,
+  amount,
 }) => {
-  //   console.log("id_group HEREEE", id_group);
-  const link: any = `/(admin)/returned/details?id_branch=${id_branch}`;
   return (
-    <Link href={link} asChild>
-      <Pressable>
-        <View style={styles.itemContainer}>
-          <Text style={styles.itemLeft}>{id_branch_place}</Text>
-          <Text style={styles.itemText}>{created_at}</Text>
-        </View>
-      </Pressable>
-    </Link>
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemLeft}>{id_branch}</Text>
+      <Text style={styles.itemText}>{created_at}</Text>
+      <Text style={styles.itemRight}> {amount}</Text>
+    </View>
   );
 };
 
@@ -45,14 +40,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     flex: 1,
-    paddingLeft: "50%",
   },
   itemLeft: {
     fontSize: 16,
     // fontWeight: "bold",
     flex: 1,
     textAlign: "left",
-    paddingLeft: 10,
   },
   itemRight: {
     fontSize: 16,
@@ -68,4 +61,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GroupedReturnedItem;
+export default AdminViewTransaction;

@@ -114,7 +114,7 @@ export const useSettedBranchProductList = (
   date: string
 ) => {
   return useQuery({
-    queryKey: ["batch", id, idB, date],
+    queryKey: ["setBatch", id, idB, date],
     queryFn: async () => {
       if (!idB) {
         return [];
@@ -460,6 +460,7 @@ export const useInsertBatch = () => {
           quantity: data.quantity,
           id_products: data.id_products,
         });
+
         return newBatch;
       } catch (error) {
         console.error("Error inserting batch:", error);
@@ -468,6 +469,12 @@ export const useInsertBatch = () => {
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: ["batches"] });
+      await queryClient.invalidateQueries({ queryKey: ["batch"] });
+      await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
+      await queryClient.invalidateQueries({ queryKey: ["id_products"] });
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+      await queryClient.invalidateQueries({ queryKey: ["back inventory"] });
+      await queryClient.invalidateQueries({ queryKey: ["setBatch"] });
     },
   });
 };
@@ -496,6 +503,17 @@ export const useBatchList = (id: string) => {
         throw new Error(localBatchError.message);
       }
 
+      const { data: confirmedproductsData, error: confirmedproductsError } =
+        await supabase
+          .from("confirmedproducts")
+          .select("*, id_branch(*), id_batch(*), id_products(*, category(*))")
+          .eq("id_products", id)
+          .gt("quantity", 0);
+      if (confirmedproductsError) {
+        console.error("Supabase localbatch error:", confirmedproductsError);
+        throw new Error(confirmedproductsError.message);
+      }
+
       const { data: pendingLocalBatchData, error: pendingLocalBatchError } =
         await supabase
           .from("pendinglocalbatch")
@@ -511,9 +529,18 @@ export const useBatchList = (id: string) => {
         throw new Error(pendingLocalBatchError.message);
       }
 
+      // Add a label to confirmedproducts data
+      const labeledConfirmedProductsData = confirmedproductsData.map(
+        (item) => ({
+          ...item,
+          label: "returned products",
+        })
+      );
+
       const combinedData = [
         ...batchData,
         ...localBatchData,
+        ...labeledConfirmedProductsData,
         ...pendingLocalBatchData,
       ];
 
@@ -538,6 +565,7 @@ export const useBatchList = (id: string) => {
             pendingLocalBatchId: item.id_pendinglocalbranch || null,
             expire_date: item.expire_date,
             type: item.date ? "pending" : item.id_branch ? "local" : "batch",
+            label: item.label || null,
           };
         }
         acc[compositeKey].quantity += item.quantity;
@@ -1414,6 +1442,7 @@ export const useGroupedSalesReport = (id: string, date: Date) => {
             amount_by_product: 0,
             created_at: formattedDate,
             transactions: [],
+            created_by: item.created_by,
           };
         }
         acc[key].amount_by_product += item.amount_by_product;
@@ -1955,7 +1984,7 @@ export const useGetPendingProducts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("confirmedproducts")
-        .select(`*, id_branch(place)`);
+        .select(`*, id_branch(*)`);
       if (error) {
         throw new Error(error.message);
       }
@@ -1964,8 +1993,9 @@ export const useGetPendingProducts = () => {
         const groupId = `${item.id_group}_${item.id_branch}`;
         if (!acc[groupId]) {
           acc[groupId] = {
-            id_branch: item.id_branch.place,
+            id_branch_place: item.id_branch.place,
             created_at: item.created_at,
+            id_branch: item.id_branch,
           };
         }
 
@@ -1990,7 +2020,19 @@ export const useGetPendingProductsDetails = () => {
         throw new Error(error.message);
       }
 
-      return data;
+      const combinedData = data.reduce((acc, item) => {
+        const productId = item.id_products.id_products;
+        if (!acc[productId]) {
+          acc[productId] = {
+            ...item,
+            quantity: 0,
+          };
+        }
+        acc[productId].quantity += item.quantity;
+        return acc;
+      }, {});
+
+      return Object.values(combinedData);
     },
   });
 };
@@ -1999,13 +2041,15 @@ export const useTransferReturnedBatch = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { id_branch: number }) => {
+    mutationFn: async (data: { id_branch: number; newId_branch: number }) => {
+      console.log("dataHEREE", data.id_branch);
+      console.log("dataHEREE", data.newId_branch);
       try {
         const { data: pendingproducts, error: pendingproductsError } =
           await supabase
             .from("confirmedproducts")
             .select("*")
-            .eq("id_branch", data.id_branch);
+            .eq("id_branch", data.newId_branch);
 
         if (pendingproductsError) {
           throw new Error("Error fetching transactions");
@@ -2019,7 +2063,7 @@ export const useTransferReturnedBatch = () => {
             id_batch: pendingproduct.id_batch,
             quantity: pendingproduct.quantity,
             // id_user: pendingproduct.id_user,
-            id_branch: pendingproduct.id_branch,
+            id_branch: data.id_branch,
             // id_group: pendingproduct.id_group,
           };
 
@@ -2055,7 +2099,7 @@ export const useTransferReturnedBatch = () => {
         const insertedIds = await Promise.all(promises);
         return insertedIds;
       } catch (error) {
-        console.error("Error processing pending products:", error);
+        console.error("Error processing pending productss:", error);
         throw error;
       }
     },
@@ -2064,6 +2108,9 @@ export const useTransferReturnedBatch = () => {
       await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
       await queryClient.invalidateQueries({ queryKey: ["pendingproducts"] });
       await queryClient.invalidateQueries({ queryKey: ["confirmedproducts"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["transaferPendingProducts"],
+      });
     },
   });
 };

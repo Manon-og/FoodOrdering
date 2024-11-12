@@ -57,6 +57,9 @@ const Details = ({ ddd }: any) => {
     date
   );
 
+  console.log("RETURN salesReport:", salesReport);
+  const created_by = salesReport?.map((item: any) => item.created_by);
+
   const totalSales =
     salesReport?.reduce(
       (acc: any, item: { amount_by_product: any }) =>
@@ -187,6 +190,10 @@ const Details = ({ ddd }: any) => {
                   <Text style={styles.totalQuantitiesText}>
                     ₱ {totalVoidedSales}
                   </Text>
+                </View>
+                <View style={styles.totalQuantitiesContainer}>
+                  <Text style={styles.totalQuantities}>Created By</Text>
+                  <Text style={styles.created_by}>{created_by}</Text>
                 </View>
               </View>
               <View style={styles.buttonRow}>
@@ -419,6 +426,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginRight: 10,
+  },
+  created_by: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: Colors.light.tint,
   },
 });
 

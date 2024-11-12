@@ -13,7 +13,7 @@ import {
   useLocalBranchData,
   useTransferReturnedBatch,
 } from "@/src/api/products";
-import { Link, Stack, useRouter } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import Button from "@/src/components/Button";
 import GroupedReturnedItemDetails from "@/components/AdminReturnReturnedProductDetails";
 import Colors from "@/constants/Colors";
@@ -49,20 +49,25 @@ const Index = () => {
 
   console.log("place:", place);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(
+  const [selectedBranchName, setSelectedBranchName] = useState<number | null>(
     null
   );
 
   const transferReturnedBatch = useTransferReturnedBatch();
 
-  const onSelectBranch = (id_branch: number, branchName: string) => {
+  const { id_branch: branchID } = useLocalSearchParams();
+  console.log("Branch ID:", branchID);
+
+  const onSelectBranch = (
+    id_branch: number,
+    branchName: string
+    // branchID: string
+  ) => {
     console.log("Selected branch ID:", id_branch, branchName);
-    setSelectedBranchName(branchName);
-    transferReturnedBatch.mutate({ id_branch });
-    // router.push({
-    //   pathname: "/(admin)/locations",
-    //   params: { id_branch, branchName },
-    // });
+    setSelectedBranchName(id_branch);
+    console.log("Selected branch IDIIII:", { newId_branch: Number(branchID) });
+    transferReturnedBatch.mutate({ newId_branch: Number(branchID), id_branch });
+    router.push("/(admin)/returned");
   };
 
   return (
@@ -82,7 +87,7 @@ const Index = () => {
           style={styles.button}
           onPress={() => setModalVisible(true)}
         >
-          <Text style={styles.buttonText}>USE</Text>
+          <Text style={styles.buttonText}>TRANSFER</Text>
         </TouchableOpacity>
       </View>
       <ReturnBranchOptionsModal

@@ -29,13 +29,15 @@ const Index = () => {
   });
 
   const { data: pendingProducts } = useGetPendingProducts();
-  console.log("Pending products:", pendingProducts);
+  console.log("Pending products??:", pendingProducts);
 
   const renderItem = ({ item }: { item: any }) => {
     const createdAtDate = item.created_at.split("T")[0];
+    console.log("IDBRNch:", item.id_branch.id_branch);
     return (
       <GroupedReturnedItem
-        id_branch={item.id_branch}
+        id_branch={item.id_branch.id_branch}
+        id_branch_place={item.id_branch_place}
         created_at={createdAtDate}
       />
     );

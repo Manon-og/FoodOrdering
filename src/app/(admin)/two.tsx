@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList } from "react-native";
 import { useGroupedSalesTransaction } from "@/src/api/products";
 import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
+import AdminViewTransaction from "@/components/AdminViewTransaction";
 
 const Index = () => {
   const { id_branch, branchName } = useBranchStoreAdmin();
@@ -16,21 +17,15 @@ const Index = () => {
   const { data: groupedSales }: any = useGroupedSalesTransaction(
     id_branch?.toString() ?? ""
   );
-  let currentIdGroup = 1;
-
-  console.log("GROUPED SALES ADMINNN:", groupedSales);
 
   const renderItem = ({ item }: { item: any }) => {
-    const displayIdGroup = currentIdGroup;
-    currentIdGroup++;
-    const createdAtDate = new Date(item.created_at).toLocaleDateString();
-    console.log("CREATED AT DATE:", createdAtDate);
-
-    if (createdAtDate !== currentDate) {
-      return null;
-    }
-
-    return <GroupedSalesTransactionItem transactions={item.transactions} />;
+    return (
+      <AdminViewTransaction
+        id_branch={item.id_branch}
+        created_at={item.created_at}
+        amount={item.amount}
+      />
+    );
   };
 
   return (
@@ -40,9 +35,7 @@ const Index = () => {
         <Text style={styles.dateText}>{currentDate}</Text>
       </View>
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>
-          Transaction
-        </Text>
+        <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
           Total Amount
