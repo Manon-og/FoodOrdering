@@ -7,9 +7,8 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from "react-native";
-import { Stack } from "expo-router";
 
-const BranchOptionsModal = ({
+const ReturnBranchOptionsModal = ({
   visible,
   onClose,
   branches = [],
@@ -27,6 +26,9 @@ const BranchOptionsModal = ({
         <View style={styles.centeredView}>
           <TouchableWithoutFeedback>
             <View style={styles.modalView}>
+              <Text style={styles.titleText}>
+                Choose a location to transfer
+              </Text>
               {branches.map((branch: any) => (
                 <Pressable
                   key={branch.id_branch}
@@ -36,7 +38,7 @@ const BranchOptionsModal = ({
                     onClose();
                   }}
                 >
-                  <Text style={styles.textStyle}>{branch.place}</Text>
+                  <Text style={styles.optionText}>{branch.place}</Text>
                 </Pressable>
               ))}
             </View>
@@ -58,8 +60,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
-    paddingLeft: 50,
-    paddingRight: 50,
     alignItems: "center",
     shadowColor: "gray",
     shadowOffset: {
@@ -70,26 +70,23 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  button: {
-    borderRadius: 40,
-    paddingLeft: 30,
-    paddingRight: 30,
-    elevation: 100,
-  },
-  buttonClose: {
-    backgroundColor: "lightblue",
+  titleText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
   },
   option: {
     padding: 10,
     marginVertical: 5,
+    width: "100%",
+    alignItems: "center",
   },
-  textStyle: {
-    fontSize: 18,
-    padding: 5,
+  optionText: {
+    fontSize: 16,
     color: "black",
-    fontWeight: "bold",
     textAlign: "center",
   },
 });
 
-export default BranchOptionsModal;
+export default ReturnBranchOptionsModal;

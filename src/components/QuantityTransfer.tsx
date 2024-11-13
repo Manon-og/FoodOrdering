@@ -4,6 +4,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import Button from "./Button";
+import { useRouter } from "expo-router";
 
 interface ProductQuantities {
   [id_products: string]: number;
@@ -29,6 +30,7 @@ const QuantityTransfer: React.FC<QuantityTransferProps> = ({
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+  const router = useRouter();
 
   const onChange = (event: DateTimePickerEvent, date?: Date) => {
     if (event.type === "set") {

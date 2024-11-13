@@ -100,7 +100,7 @@ const Index = () => {
 export default Index;
 
 const styles = StyleSheet.create({
-    background: {
+  background: {
     flex: 1,
     backgroundColor: "#B9D2F7",
     alignItems: "center",
@@ -129,8 +129,33 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  location: {
+    margin: 10,
+    marginLeft: "30%",
+    width: "40%",
+  },
+
+  profileHeader: {
+    alignItems: "center",
+    paddingBottom: "40%",
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 10,
+  },
+  email: {
+    fontSize: 18,
+    color: "gray",
+  },
   menuItems: {
     width: "90%",
+    marginLeft: "10%",
     alignItems: "center",
   },
   menuButton: {

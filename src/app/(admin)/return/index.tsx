@@ -57,6 +57,9 @@ const Details = ({ ddd }: any) => {
     date
   );
 
+  console.log("RETURN salesReport:", salesReport);
+  const created_by = salesReport?.map((item: any) => item.created_by);
+
   const totalSales =
     salesReport?.reduce(
       (acc: any, item: { amount_by_product: any }) =>
@@ -104,6 +107,7 @@ const Details = ({ ddd }: any) => {
   console.log("idGroup>:", idGroup);
 
   const deleteLocalBatch = useDeleteLocalBatch();
+  console.log("DELETE:", deleteLocalBatch);
   console.log("RETURN asdas:", {
     id_branch: Number(id_branch),
   });
@@ -186,6 +190,10 @@ const Details = ({ ddd }: any) => {
                   <Text style={styles.totalQuantitiesText}>
                     ₱ {totalVoidedSales}
                   </Text>
+                </View>
+                <View style={styles.totalQuantitiesContainer}>
+                  <Text style={styles.totalQuantities}>Created By</Text>
+                  <Text style={styles.created_by}>{created_by}</Text>
                 </View>
               </View>
               <View style={styles.buttonRow}>
@@ -364,7 +372,7 @@ const styles = StyleSheet.create({
   border: {
     borderStyle: "solid",
     borderWidth: 2,
-    borderColor: "gray",
+    borderColor: Colors.light.tint,
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
@@ -373,9 +381,9 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5, // For Android shadow
+    // shadowOpacity: 0.25,
+    // shadowRadius: 3.84,
+    // elevation: 5, // For Android shadow
   },
   totalQuantities: {
     fontSize: 17,
@@ -418,6 +426,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginRight: 10,
+  },
+  created_by: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: Colors.light.tint,
   },
 });
 

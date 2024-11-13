@@ -19,13 +19,13 @@ import { useCategory } from "@/src/components/categoryParams";
 import { useByBranch } from "@/src/providers/BranchProvider";
 import { useBranchName } from "@/src/components/branchParams";
 import { useArchivedParams } from "@/components/archivedParams";
-import { color } from "react-native-elements/dist/helpers";
 
 const MemoizedProductListItem = memo(ProductListItem);
 
 export default function MenuScreen() {
   const category = useCategory();
   const { id_branch, branchName } = useBranchName();
+  console.log("MERONG POTANGINANG id_branch:", id_branch);
   const { setBranchName, setIdBranch } = useByBranch();
   const { id_archive } = useArchivedParams();
   const IDarchive = id_archive ? 1 : 2;
@@ -40,6 +40,7 @@ export default function MenuScreen() {
 
   const branchId = id_branch || null;
   const currentDate = new Date().toLocaleDateString();
+  console.log("currentDate", currentDate);
 
   const { data: settedProductsByBranch } = useSettedBranchProductList(
     category,
@@ -47,14 +48,18 @@ export default function MenuScreen() {
     currentDate
   );
 
+  console.log("MERONG settedProductsByBranch:", settedProductsByBranch);
   const { data: unsettedProductsByBranch } = useBranchProductList(
     category,
     branchId
   );
+  console.log("MERONG unsettedProductsByBranch:", unsettedProductsByBranch);
 
   const productsByBranch = id_branch
     ? settedProductsByBranch
     : unsettedProductsByBranch;
+
+  console.log("MERONG POTANGINANG:", productsByBranch);
 
   const { data: productsByBackInventory } =
     useBackInventoryProductList(category);
@@ -78,7 +83,7 @@ export default function MenuScreen() {
 
   const renderItem = ({ item }: { item: any }) => {
     return (
-      <MemoizedProductListItem 
+      <MemoizedProductListItem
         product={item}
         productsByBackInventory={productsByBackInventory}
       />
@@ -100,20 +105,20 @@ export default function MenuScreen() {
   return (
     <View style={styles.container}>
       <TextInput
-      style={styles.searchBar}
-      placeholder="Search products..."
-      placeholderTextColor="#0E1432"
-      value={searchQuery}
-      onChangeText={setSearchQuery}
+        style={styles.searchBar}
+        placeholder="Search products..."
+        placeholderTextColor="#0E1432"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
       />
       <FlatList
-      data={filteredProducts}
-      renderItem={renderItem}
-      keyExtractor={(item) =>
-        item.id_products
-        ? item.id_products.toString()
-        : item.id_batch.toString()
-      }
+        data={filteredProducts}
+        renderItem={renderItem}
+        keyExtractor={(item) =>
+          item.id_products
+            ? item.id_products.toString()
+            : item.id_batch.toString()
+        }
       />
     </View>
   );

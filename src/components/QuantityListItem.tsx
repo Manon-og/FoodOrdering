@@ -30,7 +30,9 @@ const QuantityListItem = ({ batch }: any) => {
         <View style={styles.itemContainer}>
           <Text style={styles.title}>Quantity: {batch.quantity}</Text>
           <Text style={styles.quantity}>
-            {batch.type === "pending"
+            {batch.label === "returned products"
+              ? "Returned products"
+              : batch.type === "pending"
               ? "Pending"
               : batch.branch
               ? batch.branch.place

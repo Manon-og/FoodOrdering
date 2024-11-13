@@ -84,7 +84,7 @@ function ProductDetailScreen() {
 
       <FlatList
         data={batch}
-        keyExtractor={(item: any) => item.id_batch}
+        // keyExtractor={(item: any) => item.quantity}
         renderItem={renderItemByBatch}
         contentContainerStyle={{ gap: 10, padding: 10 }}
       />

@@ -48,11 +48,11 @@ const Index = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id_branch.toString()}
       />
-      <View>
+      {/* <View>
         <Link href="/places/overview" asChild>
           <Button text={"INVENTORY OVERVIEW"} />
         </Link>
-      </View>
+      </View> */}
     </View>
   );
 };

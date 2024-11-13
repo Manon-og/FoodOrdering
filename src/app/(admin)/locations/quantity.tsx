@@ -8,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import React, { useState } from "react";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import {
   useTransferQuantity,
@@ -20,6 +20,7 @@ import { useBranchName } from "@/components/branchParams";
 import QuantityTransfer from "@/components/QuantityTransfer";
 
 const Index = () => {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("1");
   const [productQuantities, setProductQuantities] = useState<{
     [key: string]: number;

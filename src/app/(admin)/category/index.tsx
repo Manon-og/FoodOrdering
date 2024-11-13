@@ -14,16 +14,25 @@ import BranchOptionsModal from "@/src/modals/branchModals";
 const Index = () => {
   const router = useRouter();
   const { data: branch } = useBranch();
+  console.log("branchs:", branch);
   const place = branch?.map((item) => item.place);
+  console.log("place:", place);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(null);
+  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(
+    null
+  );
 
   const onSelectBranch = (id_branch: string, branchName: string) => {
+    console.log("Selected branch ID:", id_branch, branchName);
     setSelectedBranchName(branchName);
     router.push({
       pathname: "/(admin)/locations",
       params: { id_branch, branchName },
     });
+  };
+
+  const handleNavigate = () => {
+    router.push("/(admin)/returned");
   };
 
   return (
@@ -39,7 +48,7 @@ const Index = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuButton}>
+        <TouchableOpacity style={styles.menuButton} onPress={handleNavigate}>
           <View style={styles.menuTextContainer}>
             <Text style={styles.menuText}>Returned Products</Text>
             <Text style={styles.arrow}>→</Text>
@@ -55,7 +64,7 @@ const Index = () => {
       />
       <View style={styles.container}>
         <Link href={`/(admin)/menu?category=1`} asChild>
-          <Pressable style={styles.categoryCard}>
+        <Pressable style={styles.categoryCard}>
             <Text style={styles.categoryText}>COOKIE</Text>
           </Pressable>
         </Link>
@@ -111,8 +120,33 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  location: {
+    margin: 10,
+    marginLeft: "30%",
+    width: "40%",
+  },
+
+  profileHeader: {
+    alignItems: "center",
+    paddingBottom: "40%",
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 10,
+  },
+  email: {
+    fontSize: 18,
+    color: "gray",
+  },
   menuItems: {
     width: "90%",
+    marginLeft: "10%",
     alignItems: "center",
   },
   menuButton: {
