@@ -31,7 +31,7 @@ const SignInScreen = () => {
     <View style={styles.container}>
       <Stack.Screen options={{ title: "Sign in" }} />
       <Image
-        // source={require("../../../assets/images/logo.png")} // Corrected image path
+        // source={require("../../../assets/images/logo.png")} // FIX THIS LATER
         style={styles.image}
       />
       <Text style={styles.label}>Email</Text>
