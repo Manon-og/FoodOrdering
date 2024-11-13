@@ -76,23 +76,6 @@ export default function MenuStack() {
         name="index"
         options={{
           title: fi,
-          headerRight: () => (
-            <Link
-              href={`/(admin)/locations/quantity?id_branch=${id_branch}&branchName=${branchName}`}
-              asChild
-            >
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="cart-plus"
-                    size={25}
-                    color={Colors.light.tint}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
           headerLeft: () => (
             <Link href={`/(admin)/category`} asChild>
               <Pressable style={styles.backButton}>
@@ -101,7 +84,7 @@ export default function MenuStack() {
                     <FontAwesome
                       name="angle-left"
                       size={24}
-                      color={Colors.light.tint}
+                      color={"#0E1432"}
                       style={{ marginRight: 5, opacity: pressed ? 0.5 : 1 }}
                     />
                     <Text
@@ -131,7 +114,7 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   backButtonText: {
-    color: Colors.light.tint,
+    color: "#0E1432",
     fontSize: 18,
   },
 });

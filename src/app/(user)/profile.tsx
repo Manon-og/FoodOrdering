@@ -10,6 +10,7 @@ import {
 import { useBranchName } from "@/components/branchParams";
 import { useBranchStore } from "@/store/branch";
 import { useUUIDStore } from "@/store/user";
+import Colors from "@/constants/Colors";
 
 export default function UserProfile() {
   const router = useRouter();
@@ -46,12 +47,9 @@ export default function UserProfile() {
   return (
     <View style={styles.container}>
       <View style={styles.topButton}>
-        <Pressable
-          style={styles.logoutButton}
-          onPress={() => handleLogout(router)}
-        >
-          <Text style={styles.logoutText}>Log out</Text>
-        </Pressable>
+        <Text onPress={() => handleLogout(router)} style={styles.logoutText}>
+          Log out
+        </Text>
       </View>
 
       <View style={styles.profileHeader}>
@@ -167,7 +165,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   logoutText: {
-    color: "white",
+    color: Colors.light.tint,
     fontWeight: "bold",
   },
   menuTextContainer: {

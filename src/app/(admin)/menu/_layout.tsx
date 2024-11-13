@@ -46,7 +46,7 @@ export default function MenuStack() {
                     <FontAwesome
                       name="plus-square-o"
                       size={25}
-                      color={"#0E1432"}
+                      color={Colors.light.tint}
                       style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                     />
                   )}
@@ -62,7 +62,7 @@ export default function MenuStack() {
                     <FontAwesome
                       name="angle-left"
                       size={35}
-                      color={Colors.light.tint}
+                      color={"#0E1432"}
                       style={{ marginRight: 5, opacity: pressed ? 0.5 : 1 }}
                     />
                     <Text style={[styles.backButtonText, { opacity: pressed ? 0.5 : 1 }]}>
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   backButtonText: {
-    color: Colors.light.tint,
+    color: "#0E1432",
     fontSize: 18,
   },
 });

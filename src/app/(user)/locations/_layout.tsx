@@ -90,6 +90,7 @@ export default function MenuStack() {
 }
 
 const styles = StyleSheet.create({
+  
   backButton: {
     flexDirection: "row",
     alignItems: "center",

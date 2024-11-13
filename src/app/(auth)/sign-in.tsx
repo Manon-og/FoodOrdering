@@ -27,11 +27,13 @@ const SignInScreen = () => {
     );
   };
 
+  const imageLogo = require("../../../assets/images/Logo.png");
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "Sign in" }} />
       <Image
-        // source={require("../../../assets/images/logo.png")} // FIX THIS LATER
+        source={imageLogo}
         style={styles.image}
       />
       <Text style={styles.label}>Email</Text>
@@ -69,7 +71,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 200,
     resizeMode: "contain",
-    marginBottom: 20,
   },
   label: {
     color: "black",

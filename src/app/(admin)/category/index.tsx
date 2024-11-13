@@ -30,14 +30,21 @@ const Index = () => {
       params: { id_branch, branchName },
     });
   };
-
-  const handleNavigate = () => {
+  const handleNavigateStockIn = () => {
+    router.push("/(admin)/category/quantity");
+  };
+  const handleNavigateReturn = () => {
     router.push("/(admin)/returned");
   };
 
   return (
     <View style={styles.background}>
       <View style={styles.menuItems}>
+      <TouchableOpacity style={styles.menuButton} onPress={handleNavigateStockIn}>
+          <View style={styles.menuTextContainer}>
+            <Text style={styles.menuText}>Stock In Products</Text>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.menuButton}
           onPress={() => setModalVisible(true)}
@@ -48,9 +55,9 @@ const Index = () => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuButton} onPress={handleNavigate}>
+        <TouchableOpacity style={styles.menuButton} onPress={handleNavigateReturn}>
           <View style={styles.menuTextContainer}>
-            <Text style={styles.menuText}>Returned Products</Text>
+            <Text style={styles.menuText}>Return Products</Text>
             <Text style={styles.arrow}>→</Text>
           </View>
         </TouchableOpacity>
@@ -101,13 +108,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
-    marginTop: "30%",
     flexDirection: "row",
     flexWrap: "wrap",
+    marginTop: "10%",
   },
   categoryCard: {
     width: "40%",
-    height: 100,
+    height: "33%",
     backgroundColor: "#FDFDFD",
     justifyContent: "center",
     alignItems: "center",
@@ -146,8 +153,8 @@ const styles = StyleSheet.create({
   },
   menuItems: {
     width: "90%",
-    marginLeft: "10%",
     alignItems: "center",
+    marginTop: 10,
   },
   menuButton: {
     backgroundColor: "#0E1432",
