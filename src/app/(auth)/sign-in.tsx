@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert, Image } from "react-native";
 import React, { useState } from "react";
 import Button from "../../components/Button";
 import Colors from "../../constants/Colors";
@@ -27,18 +27,22 @@ const SignInScreen = () => {
     );
   };
 
+  const imageLogo = require("../../../assets/images/Logo.png");
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "Sign in" }} />
-
+      <Image
+        source={imageLogo}
+        style={styles.image}
+      />
       <Text style={styles.label}>Email</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
-        placeholder="jon@gmail.com"
+        placeholder="example@gmail.com"
         style={styles.input}
       />
-
       <Text style={styles.label}>Password</Text>
       <TextInput
         value={password}
@@ -47,7 +51,6 @@ const SignInScreen = () => {
         style={styles.input}
         secureTextEntry
       />
-
       <Button
         onPress={handleSignIn}
         disabled={loading}
@@ -62,18 +65,24 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
     flex: 1,
+    backgroundColor: "#B9D2F7", // Set background color
+  },
+  image: {
+    width: "100%",
+    height: 200,
+    resizeMode: "contain",
   },
   label: {
-    color: "gray",
+    color: "black",
   },
   input: {
     borderWidth: 1,
-    borderColor: "gray",
+    borderColor: "#0E1432",
     padding: 10,
     marginTop: 5,
     marginBottom: 20,
     backgroundColor: "white",
-    borderRadius: 5,
+    borderRadius: 7,
   },
   textButton: {
     alignSelf: "center",

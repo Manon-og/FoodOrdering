@@ -234,14 +234,14 @@ const styles = StyleSheet.create({
   pressable: {
     flex: 1,
     height: 50,
-    backgroundColor: "white",
+    backgroundColor: "#FDFDFD",
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 5,
     borderRadius: 15,
   },
   pressableText: {
-    color: "lightblue",
+    color: "#0E1432",
     fontStyle: "italic",
     fontWeight: "bold",
   },
