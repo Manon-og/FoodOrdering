@@ -34,7 +34,7 @@ export default function MenuStack() {
       <Stack.Screen
         name="index"
         options={{
-          title: `Archives`,
+          title: `Archived Products`,
         
           headerLeft: () => (
             <Link href={`${change}`} asChild>
