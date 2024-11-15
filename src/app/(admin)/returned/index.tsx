@@ -68,22 +68,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "30%",
+    paddingTop: "20%",
   },
   dateContainer: {
     position: "absolute",
-    top: 50,
+    top: "2.5%",
   },
   dateText: {
     fontSize: 20,
-    fontWeight: "bold",
     color: "gray",
+    textAlign: "center", 
   },
   dayText: {
-    fontSize: 25,
+    fontSize: 21,
     fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+    color: "#0E1432",
+    textAlign: "center",
   },
   headerContainer: {
     flexDirection: "row",
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
   },
   headerText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     flex: 1,
     textAlign: "center",
