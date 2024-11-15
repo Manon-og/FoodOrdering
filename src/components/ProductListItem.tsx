@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   title: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "bold",
     color: "#0E1432",
   },
@@ -122,13 +122,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   price3: {
-    fontSize: 15,
+    fontSize: 14,
     color: "#393939",
     fontWeight: "bold",
     flex: 1,
   },
   price1: {
-    fontSize: 15,
+    fontSize: 14,
     color: "darkgreen",
     fontWeight: "bold",
     textAlign: "right",

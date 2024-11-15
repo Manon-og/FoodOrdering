@@ -4,6 +4,7 @@ import { useGroupedSalesTransaction } from "@/src/api/products";
 import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import AdminViewTransaction from "@/components/AdminViewTransaction";
+import DropdownComponent from "@/components/DropDown";
 
 const Index = () => {
   const { id_branch, branchName } = useBranchStoreAdmin();
@@ -14,26 +15,27 @@ const Index = () => {
     weekday: "long",
   });
 
-  const { data: groupedSales }: any = useGroupedSalesTransaction(
-    id_branch?.toString() ?? ""
-  );
+  const { data: groupedSales }: any = useGroupedSalesTransaction();
+  console.log("GROUPED SALESs:", groupedSales);
 
   const renderItem = ({ item }: { item: any }) => {
     return (
       <AdminViewTransaction
-        id_branch={item.id_branch}
+        id_branch={item.id_branch.place}
         created_at={item.created_at}
-        amount={item.amount}
+        amount_by_product={item.amount_by_product}
       />
     );
   };
 
+  const keyExtractor = (item: any) => {
+    const date = new Date(item.created_at).toISOString().split("T")[0];
+    return `${item.id_branch.id_branch}_${date}`;
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.dateContainer}>
-        <Text style={styles.dayText}>{currentDay}</Text>
-        <Text style={styles.dateText}>{currentDate}</Text>
-      </View>
+      <View>{/* <DropdownComponent/> */}</View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
@@ -43,7 +45,7 @@ const Index = () => {
       </View>
       <FlatList
         data={groupedSales}
-        keyExtractor={(item) => item.id_group}
+        keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
     </View>
@@ -56,7 +58,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "30%",
+    paddingTop: "20%",
   },
   dateContainer: {
     position: "absolute",

@@ -120,7 +120,7 @@ const Details = ({ ddd }: any) => {
       {
         onSuccess: (data) => {
           console.log("Inserted IDs:", data);
-          Alert.alert("Success", "Request for return products sent");
+          Alert.alert("Success", "Request for return products accepted");
           router.push("/(admin)/profile");
         },
         onError: (error) => {

@@ -18,7 +18,7 @@ export default function EmployeeStack() {
                 <FontAwesome
                   name="angle-left"
                   size={35}
-                  color={Colors.light.tint}
+                  color={"#0E1432"}
                 />
                 <Text style={styles.backButtonText}>Back</Text>
               </Pressable>
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   backButtonText: {
-    color: Colors.light.tint,
+    color: "#0E1432",
     fontSize: 18,
   },
 });
