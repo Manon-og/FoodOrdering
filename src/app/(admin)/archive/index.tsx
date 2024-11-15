@@ -9,26 +9,26 @@ import { Link } from "expo-router";
 
 const Index = () => {
   return (
-    <View>
+    <View style={styles.background}>
       <View style={styles.container}>
         <Link href={`/(admin)/menu?category=1&id_archive=1`} asChild>
-          <Pressable style={styles.pressable}>
-            <Text style={styles.pressableText}>COOKIE</Text>
+          <Pressable style={styles.categoryCard}>
+            <Text style={styles.categoryText}>COOKIE</Text>
           </Pressable>
         </Link>
         <Link href={`/(admin)/menu?category=2&id_archive=1`} asChild>
-          <Pressable style={styles.pressable}>
-            <Text style={styles.pressableText}>BREADS</Text>
+          <Pressable style={styles.categoryCard}>
+            <Text style={styles.categoryText}>BREADS</Text>
           </Pressable>
         </Link>
         <Link href={`/(admin)/menu?category=3&id_archive=1`} asChild>
-          <Pressable style={styles.pressable}>
-            <Text style={styles.pressableText}>CAKES</Text>
+          <Pressable style={styles.categoryCard}>
+            <Text style={styles.categoryText}>CAKES</Text>
           </Pressable>
         </Link>
         <Link href={`/(admin)/menu?category=4&id_archive=1`} asChild>
-          <Pressable style={styles.pressable}>
-            <Text style={styles.pressableText}>BENTO CAKES</Text>
+          <Pressable style={styles.categoryCard}>
+            <Text style={styles.categoryText}>BENTO CAKES</Text>
           </Pressable>
         </Link>
       </View>
@@ -39,6 +39,11 @@ const Index = () => {
 export default Index;
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: "#B9D2F7",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -48,17 +53,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
   },
-  pressable: {
+  categoryCard: {
     width: "40%",
     height: 100,
-    backgroundColor: "lightblue",
+    backgroundColor: "#FDFDFD",
     justifyContent: "center",
     alignItems: "center",
     margin: 10,
     borderRadius: 15,
   },
-  pressableText: {
+  categoryText: {
     color: "black",
     fontStyle: "italic",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
