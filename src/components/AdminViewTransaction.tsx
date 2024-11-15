@@ -4,20 +4,21 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 
 interface GroupedSalesTransactionItemProps {
   created_at: string;
-  amount: number;
+  amount_by_product: number;
   id_branch: number;
 }
 
 const AdminViewTransaction: React.FC<GroupedSalesTransactionItemProps> = ({
   id_branch,
   created_at,
-  amount,
+  amount_by_product,
 }) => {
+  const date = new Date(created_at).toISOString().split("T")[0];
   return (
     <View style={styles.itemContainer}>
       <Text style={styles.itemLeft}>{id_branch}</Text>
-      <Text style={styles.itemText}>{created_at}</Text>
-      <Text style={styles.itemRight}> {amount}</Text>
+      <Text style={styles.itemText}>{date}</Text>
+      <Text style={styles.itemRight}> {amount_by_product}</Text>
     </View>
   );
 };

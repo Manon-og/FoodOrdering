@@ -1323,14 +1323,13 @@ export const getLastSignInTime = async (userId: string) => {
   return data?.user?.last_sign_in_at;
 };
 
-export const useGroupedSalesTransaction = (id: string) => {
+export const useGroupedSalesTransaction = () => {
   return useQuery({
-    queryKey: ["groupedSalesTransaction", id],
+    queryKey: ["groupedSalesTransaction"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("salestransaction")
-        .select("*, id_products(name)")
-        .eq("id_branch", id);
+        .select("*, id_products(name), id_branch(*)");
 
       if (error) {
         throw new Error(error.message);
@@ -1341,22 +1340,26 @@ export const useGroupedSalesTransaction = (id: string) => {
       }
 
       const groupedData = data.reduce((acc, item) => {
-        const key = `${item.id_group}`;
+        const date = new Date(item.created_at).toISOString().split("T")[0];
+        console.log("date HERE", date);
+        const key = `${item.id_branch.id_branch}_${date}`;
         if (!acc[key]) {
           acc[key] = {
             id_group: item.id_group,
             id_products: item.id_products,
+            id_branch: item.id_branch,
             quantity: 0,
-            amount: item.amount,
+            amount_by_product: 0,
             created_at: item.created_at,
             transactions: [],
           };
         }
-
+        acc[key].quantity += item.quantity;
+        acc[key].amount_by_product += item.amount_by_product;
         acc[key].transactions.push(item);
+
         return acc;
       }, {});
-
       return Object.values(groupedData);
     },
   });
