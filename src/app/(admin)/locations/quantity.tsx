@@ -93,7 +93,11 @@ const Index = () => {
 
     console.log("Products:", products); // Log the products array
 
-    const summary = products
+    const filteredProducts = products?.filter(
+      (product) => productQuantities[product.id_products] > 0
+    );
+
+    const summary = filteredProducts
       ?.map((product) => {
         const quantity = productQuantities[product.id_products] || 0;
         console.log(
