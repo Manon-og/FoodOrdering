@@ -41,8 +41,17 @@ const Index = () => {
     setIsModalVisible(true);
   };
 
-  const handleConfirmModal = () => {
+  const handleConfirmModal = (item: any) => {
     const quantity = parseInt(inputQuantity);
+    const availableQuantity = item.quantity;
+
+    if (quantity > availableQuantity) {
+      Alert.alert(
+        "Invalid Input",
+        `The inputted quantity exceeds the available quantity of ${availableQuantity}.`
+      );
+      return;
+    }
     if (quantity > 0) {
       setProductQuantities((prev) => ({
         ...prev,
@@ -129,7 +138,12 @@ const Index = () => {
       onPress={() => handleOpenModal(item.id_products)}
       style={styles.productItem}
     >
-      <Text style={styles.productName}>{item.name}</Text>
+      <View style={styles.productRow}>
+        <Text style={styles.productName}>{item.name}</Text>
+        <Text style={styles.quantityInput}>
+          Quantity Entered: {productQuantities[item.id_products] || 0}
+        </Text>
+      </View>
       <Text style={styles.quantityText}>
         Available Quantity: {item.quantity}
       </Text>
@@ -230,6 +244,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 5,
     borderRadius: 15,
+  },
+  productRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  quantityInput: {
+    marginLeft: 10,
+    fontSize: 14,
   },
   pressableText: {
     color: "lightblue",
