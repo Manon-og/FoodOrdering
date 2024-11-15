@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
 import {
   View,
   Text,
@@ -9,17 +9,13 @@ import {
   Modal,
   Platform,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
 import Colors from "@/constants/Colors";
 import Button from "@/src/components/Button";
-import {
-  handleCreateEmployee,
-  handleUpdateEmployee,
-  fetchEmployees,
-} from "@/api/products"; // Ensure the correct import path
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { handleCreateEmployee, handleUpdateEmployee, fetchEmployees } from "@/api/products"; // Ensure the correct import path
+import { Dropdown } from "react-native-element-dropdown";  // Import Dropdown
 
 const EmployeeForm = () => {
   const router = useRouter();
@@ -185,17 +181,27 @@ const EmployeeForm = () => {
           onChange={onDateChange}
         />
       )}
-      <Picker
-        selectedValue={idRoles}
-        onValueChange={(itemValue) => setIdRoles(itemValue)}
-        style={styles.input}
-      >
-        <Picker.Item label="Select Role" value={0} />
-        <Picker.Item label="Admin" value={1} />
-        <Picker.Item label="Staff" value={2} />
-      </Picker>
-      <Button onPress={handleSubmit} text={isUpdating ? "Update" : "Create"} />
+      
+      {/* Replaced Picker with Dropdown for Role selection */}
+      <View style={styles.dropdownContainer}>
+        <Dropdown
+          data={[
+            { label: "Select Role", value: 0 },
+            { label: "Admin", value: 1 },
+            { label: "Staff", value: 2 }
+          ]}
+          labelField="label"
+          valueField="value"
+          value={idRoles}
+          onChange={(item: { label: string; value: number }) => setIdRoles(item.value)}
+          placeholder="Select Role"
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderText}
+          selectedTextStyle={styles.selectedText}
+        />
+      </View>
 
+      <Button onPress={handleSubmit} text={isUpdating ? "Update" : "Create"} />
       <Text onPress={handleCancel} style={styles.cancelButtonText}>
         Cancel
       </Text>
@@ -258,26 +264,31 @@ const styles = StyleSheet.create({
     borderColor: "gray",
     padding: 10,
     marginTop: 5,
-    marginBottom: 20,
+    marginBottom: 15,
     backgroundColor: "white",
     borderRadius: 5,
+    fontSize: 16,
   },
-  submitButton: {
-    padding: 15,
-    backgroundColor: "green",
+  dropdownContainer: {
+    marginTop: 10,
+    width: "100%",
+    marginBottom: 15,
+  },
+  dropdown: {
+    height: 50,
+    borderColor: "gray",
+    borderWidth: 1,
     borderRadius: 5,
-    alignItems: "center",
-    marginBottom: 10,
+    paddingLeft: 10,
+    backgroundColor: "white",
   },
-  submitButtonText: {
-    color: "white",
-    fontWeight: "bold",
+  placeholderText: {
+    color: "#888",
+    fontSize: 16,
   },
-  cancelButton: {
-    padding: 15,
-    backgroundColor: "#dc3545",
-    borderRadius: 5,
-    alignItems: "center",
+  selectedText: {
+    color: "#000", 
+    fontSize: 16,
   },
   cancelButtonText: {
     color: Colors.light.tint,
@@ -324,23 +335,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-  },
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  buttonCancel: {
-    backgroundColor: "#dc3545",
-  },
-  buttonConfirm: {
-    backgroundColor: "green",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
   },
 });
 
