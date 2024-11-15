@@ -27,7 +27,7 @@ const Index = () => {
   }>({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [Date, setDate] = useState(false);
-  const [currentProductId, setCurrentProductId] = useState<string | null>(null);
+  const [currentProduct, setCurrentProduct] = useState<any>(null);
   const [inputQuantity, setInputQuantity] = useState<string>("");
 
   const { data: products, error, isLoading } = useProductList(selectedCategory);
@@ -35,18 +35,27 @@ const Index = () => {
 
   const { branchName, id_branch } = useBranchName();
 
-  const handleOpenModal = (productId: string) => {
-    setCurrentProductId(productId);
-    setInputQuantity(productQuantities[productId]?.toString() || ""); // Set input to the existing quantity
+  const handleOpenModal = (product: any) => {
+    setCurrentProduct(product);
+    setInputQuantity(productQuantities[product.id_products]?.toString() || ""); // Set input to the existing quantity
     setIsModalVisible(true);
   };
 
   const handleConfirmModal = () => {
     const quantity = parseInt(inputQuantity);
+    const availableQuantity = currentProduct.quantity;
+
+    if (quantity > availableQuantity) {
+      Alert.alert(
+        "Invalid Input",
+        `The inputted quantity exceeds the available quantity of ${availableQuantity}.`
+      );
+      return;
+    }
     if (quantity > 0) {
       setProductQuantities((prev) => ({
         ...prev,
-        [currentProductId as string]: quantity,
+        [currentProduct.id_products]: quantity,
       }));
       setIsModalVisible(false);
     } else {
@@ -84,7 +93,11 @@ const Index = () => {
 
     console.log("Products:", products); // Log the products array
 
-    const summary = products
+    const filteredProducts = products?.filter(
+      (product) => productQuantities[product.id_products] > 0
+    );
+
+    const summary = filteredProducts
       ?.map((product) => {
         const quantity = productQuantities[product.id_products] || 0;
         console.log(
@@ -125,11 +138,13 @@ const Index = () => {
     : [];
 
   const renderItem = ({ item }: { item: any }) => (
-    <Pressable
-      onPress={() => handleOpenModal(item.id_products)}
-      style={styles.productItem}
-    >
-      <Text style={styles.productName}>{item.name}</Text>
+    <Pressable onPress={() => handleOpenModal(item)} style={styles.productItem}>
+      <View style={styles.productRow}>
+        <Text style={styles.productName}>{item.name}</Text>
+        <Text style={styles.quantityInput}>
+          Quantity Entered: {productQuantities[item.id_products] || 0}
+        </Text>
+      </View>
       <Text style={styles.quantityText}>
         Available Quantity: {item.quantity}
       </Text>
@@ -230,6 +245,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 5,
     borderRadius: 15,
+  },
+  productRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  quantityInput: {
+    marginLeft: 10,
+    fontSize: 14,
   },
   pressableText: {
     color: "lightblue",
