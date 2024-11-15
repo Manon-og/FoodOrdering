@@ -47,7 +47,6 @@ const Index = () => {
         >
           <View style={styles.menuTextContainer}>
             <Text style={styles.menuText}>Choose Location</Text>
-            <Text style={styles.arrow}>→</Text>
           </View>
         </TouchableOpacity>
       </View>

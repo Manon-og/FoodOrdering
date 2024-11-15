@@ -103,7 +103,7 @@ const Index = () => {
               insertBatch({ id_products: Number(id_products), quantity });
             }
           );
-          // router.push("/(admin)/category");
+          router.push("/(admin)/category");
           Alert.alert(
             "Changes Confirmed",
             "You have successfully added the products"
@@ -153,7 +153,7 @@ const Index = () => {
       <Stack.Screen options={{ title: "Update Quantity" }} />
       <Stack.Screen
         options={{
-          title: "Update Quantity",
+          title: "Stock In Products",
           headerRight: () => (
             <Pressable onPress={handleSubmit}>
               {({ pressed }) => (

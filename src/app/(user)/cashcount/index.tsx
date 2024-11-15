@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
+import { View, Text, StyleSheet, TextInput, Alert, ScrollView } from "react-native";
 import { useAllLocalBranchData, useInsertCashCount } from "@/src/api/products";
-import ReturnProducts from "@/components/ReturnProducts";
 import Button from "@/src/components/Button";
 import { useBranchStore } from "@/store/branch";
 import { useUUIDStore } from "@/store/user";
@@ -9,13 +8,8 @@ import { useRouter } from "expo-router";
 
 const Index = () => {
   const router = useRouter();
-  // const renderItem = ({ item }: { item: any }) => {
-  //   return <ReturnProducts name={item.name} quantity={item.quantity} />;
-  // };
   const numbers = [1, 5, 10, 20, 50, 100, 200, 500, 1000];
-  const [inputValues, setInputValues] = useState<number[]>(
-    Array(numbers.length).fill(0)
-  );
+  const [inputValues, setInputValues] = useState<number[]>(Array(numbers.length).fill(0));
 
   const handleInputChange = (value: string, index: number) => {
     const newValues = [...inputValues];
@@ -55,14 +49,8 @@ const Index = () => {
   };
 
   const { id } = useUUIDStore();
-  console.log("CASHCOUNT:", id);
-
   const { id_branch, branchName } = useBranchStore();
-  console.log("CASHCOUNT:", id_branch);
-  console.log("CASHCOUNT:", branchName);
-
   const { data: returnProducts } = useAllLocalBranchData(id_branch ?? "");
-  console.log("CASHCOUNT RETURN PRODUCTS", returnProducts);
 
   const confirmSubmit = () => {
     Alert.alert(
@@ -84,32 +72,33 @@ const Index = () => {
   return (
     <View style={styles.container}>
       <View style={styles.dateContainer}>
-        <Text style={styles.dayText}>Cash Count</Text>
-      </View>
-      <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>Peso Bill</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>
-          Number of Bills
-        </Text>
-      </View>
-      {numbers.map((number, index) => (
-        <View key={number} style={styles.itemContainer}>
-          <Text style={styles.itemLeft}>₱ {number}</Text>
-          <TextInput
-            style={styles.inputBox}
-            placeholder="Enter"
-            keyboardType="numeric"
-            onChangeText={(value) => handleInputChange(value, index)}
-            value={inputValues[index].toString()}
-          />
+          <Text style={styles.dayText}>Cash Count</Text>
         </View>
-      ))}
+        <View style={styles.headerContainer}>
+          <Text style={[styles.headerText, styles.statusHeader]}>Peso Bill</Text>
+          <Text style={[styles.headerText, styles.moreInfoHeader]}>Number of Bills</Text>
+        </View>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Loop through numbers and render input fields */}
+        {numbers.map((number, index) => (
+          <View key={number} style={styles.itemContainer}>
+            <Text style={styles.itemLeft}>₱ {number}</Text>
+            <TextInput
+              style={styles.inputBox}
+              placeholder="Enter"
+              keyboardType="numeric"
+              onChangeText={(value) => handleInputChange(value, index)}
+              value={inputValues[index].toString()}
+            />
+          </View>
+        ))}
+        </ScrollView>
 
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalText}>TOTAL</Text>
-        <Text style={styles.totalValue}>₱ {total}</Text>
-      </View>
-      <Button text={"Confirm"} onPress={confirmSubmit} />
+        <View style={styles.totalContainer}>
+          <Text style={styles.totalText}>TOTAL</Text>
+          <Text style={styles.totalValue}>₱ {total}</Text>
+        </View>
+        <Button text={"Confirm"} onPress={confirmSubmit} style={styles.confirmBtn}/>
     </View>
   );
 };
@@ -120,30 +109,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "30%",
+    paddingTop: "20%",
   },
-  dateContainer: {
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "flex-start", 
+    width: "100%",
+  },
+    dateContainer: {
     position: "absolute",
-    top: 50,
-  },
-  dateText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "gray",
-    paddingLeft: 13,
+    top: 25,
   },
   dayText: {
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+    color: "#0E1432",
   },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    paddingVertical: 10,
+    paddingBottom: 10,
     borderBottomWidth: 2,
     borderBottomColor: "#ccc",
   },
@@ -158,14 +145,6 @@ const styles = StyleSheet.create({
     textAlign: "left",
     paddingLeft: 20,
     flex: 1,
-  },
-  statusMiddle: {
-    fontSize: 15,
-    flex: 1,
-  },
-  placeHeader: {
-    textAlign: "left",
-    flex: 1.5,
   },
   moreInfoHeader: {
     fontSize: 15,
@@ -194,12 +173,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "left",
   },
-  itemRight: {
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "right",
-    paddingRight: 37,
-  },
   inputBox: {
     paddingRight: 37,
   },
@@ -210,7 +183,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: 10,
     paddingHorizontal: 15,
-    marginVertical: 5,
+    marginVertical: 0,
   },
   totalText: {
     fontSize: 16,
@@ -225,6 +198,10 @@ const styles = StyleSheet.create({
     color: "gray",
     textAlign: "right",
   },
+  confirmBtn: {
+    height: 10,
+    backgroundColor: "#0E1432",
+  }
 });
 
 export default Index;

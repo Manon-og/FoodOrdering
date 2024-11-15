@@ -85,19 +85,22 @@ const styles = StyleSheet.create({
   },
   dateContainer: {
     position: "absolute",
-    top: 50,
+    top: 25,
+    width: "100%", // Ensure the container takes full width
+    alignItems: "center", // Center the children horizontally
   },
   dateText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: "gray",
-    paddingLeft: 13,
+    textAlign: "center", // Center the text
+
   },
   dayText: {
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+    color: "#0E1432",
+    textAlign: "center", // Center the text
   },
   headerContainer: {
     flexDirection: "row",

@@ -1,9 +1,9 @@
 import {
   View,
   Text,
-  Pressable,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import React, { useState } from "react";
 import { Link, useRouter } from "expo-router";
@@ -19,7 +19,6 @@ const Index = () => {
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
 
   const handleSelectBranch = (id_branch: string, branchName: string) => {
-    console.log("Selected branch ID:", id_branch, branchName);
     setSelectedBranchName(branchName); // Store selected branch name
     setSelectedBranchId(id_branch);   // Store selected branch ID
     router.push({
@@ -45,29 +44,31 @@ const Index = () => {
   return (
     <View style={styles.background}>
       <View style={styles.menuItems}>
+        <TouchableOpacity style={styles.menuButton} onPress={handleNavigateStockIn}>
+          <View style={styles.menuTextContainer}>
+            <Text style={styles.menuText}>Stock In Products</Text>
+          </View>
+        </TouchableOpacity>
+
         {/* Transfer Products Dropdown */}
         <View style={styles.locationContainer}>
           <Dropdown
             data={branchOptions}
             labelField="label"
             valueField="value"
-            value={selectedBranchId}  
+            value={selectedBranchId}
             onChange={(item) => handleSelectBranch(item.value, item.label)}
-            placeholder={selectedBranchId ? selectedBranchName ?? undefined : "Transfer Products"}  
-            placeholderStyle={styles.placeholderText}
+            placeholder={selectedBranchId ? selectedBranchName ?? undefined : "Transfer Products"}
+            placeholderStyle={styles.placeholderText}  // White color for placeholder
             style={styles.dropdown}
             renderItem={(item) => (
               <View style={styles.dropdownItem}>
-                <Text>{item.label}</Text>
+                <Text style={styles.dropdownText}>{item.label}</Text>
               </View>
             )}
+            selectedTextStyle={selectedBranchId ? styles.selectedText : null} // Make selected text white
           />
         </View>
-        <TouchableOpacity style={styles.menuButton} onPress={handleNavigateStockIn}>
-          <View style={styles.menuTextContainer}>
-            <Text style={styles.menuText}>Stock In Products</Text>
-          </View>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.menuButton} onPress={handleNavigateReturn}>
           <View style={styles.menuTextContainer}>
             <Text style={styles.menuText}>Return Products</Text>
@@ -77,7 +78,7 @@ const Index = () => {
 
       <View style={styles.container}>
         <Link href={`/(admin)/menu?category=1`} asChild>
-        <Pressable style={styles.categoryCard}>
+          <Pressable style={styles.categoryCard}>
             <Text style={styles.categoryText}>COOKIE</Text>
           </Pressable>
         </Link>
@@ -118,21 +119,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     marginTop: "10%",
   },
-  categoryCard: {
-    width: "40%",
-    height: "33%",
-    backgroundColor: "#FDFDFD",
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 10,
-    borderRadius: 15,
-  },
-  categoryText: {
-    color: "black",
-    fontStyle: "italic",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
   menuItems: {
     width: "90%",
     alignItems: "center",
@@ -156,18 +142,24 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: "bold",
   },
-  arrow: {
-    color: "#FFFFFF",
-    paddingLeft: 10,
+  categoryCard: {
+    width: "40%",
+    height: "33%",
+    backgroundColor: "#FDFDFD",
+    justifyContent: "center",
+    alignItems: "center",
+    margin: 10,
+    borderRadius: 15,
+  },
+  categoryText: {
+    color: "black",
+    fontStyle: "italic",
+    fontWeight: "bold",
+    fontSize: 16,
   },
   locationContainer: {
     width: "90%",
-    marginTop: 20,
-  },
-  locationLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
+    marginTop: 10,
   },
   dropdown: {
     height: 50,
@@ -180,12 +172,21 @@ const styles = StyleSheet.create({
   },
   dropdownItem: {
     padding: 10,
-    color: "#FFFFFF",
+    color: "#000000", // Default black color for dropdown items
+    fontWeight: "bold",
+  },
+  dropdownText: {
+    color: "#000000", // Black color for dropdown items when not selected
   },
   placeholderText: {
-    color: "#FFFFFF",
+    color: "#FFFFFF",  // White color for the placeholder
     fontSize: 16,
-    flex: 1,
+    fontWeight: "bold",
+    paddingLeft: "1%",
+  },
+  selectedText: {
+    color: "#FFFFFF",  // White for selected item text
+    fontSize: 16,
     fontWeight: "bold",
     paddingLeft: "1%",
   },

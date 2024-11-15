@@ -31,7 +31,7 @@ export default function MenuStack() {
                     <FontAwesome
                       name="angle-left"
                       size={24}
-                      color={Colors.light.tint}
+                      color={"#0E1432"}
                       style={{ marginRight: 5, opacity: pressed ? 0.5 : 1 }}
                     />
                     <Text
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   backButtonText: {
-    color: Colors.light.tint,
+    color: "#0E1432",
     fontSize: 18,
   },
   voidButton: {
