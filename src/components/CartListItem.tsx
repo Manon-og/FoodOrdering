@@ -19,18 +19,20 @@ const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
 
   const { data: limitedQuantity } = useLimitQuantity(id_branch);
   console.log("LIMIT QUANTITY:", limitedQuantity);
-  const quan = limitedQuantity?.map((item: any) => item.quantity);
-  console.log("QUANTITY:", quan);
+
+  const productLimit =
+    limitedQuantity?.find((item: any) => item.productId === cartItem.product.id)
+      ?.quantity || 0;
+  console.log("PRODUCT LIMIT:", productLimit);
 
   const handleIncrement = () => {
-    if (cartItem.quantity >= (quan?.[0] || 0)) {
+    if (cartItem.quantity >= productLimit) {
       Alert.alert("Limit Quantity", "You have reached the limit quantity", [
         { text: "Ok", style: "cancel" },
       ]);
     } else {
       updateQuantity(cartItem.id, 1);
     }
-    updateQuantity(cartItem.id, 1);
   };
 
   const handleDecrement = () => {
@@ -45,6 +47,19 @@ const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
       );
     } else {
       updateQuantity(cartItem.id, -1);
+    }
+  };
+
+  const handleConfirmQuantity = (newQuantity: number) => {
+    if (newQuantity > productLimit) {
+      Alert.alert(
+        "Invalid Input",
+        `The inputted quantity exceeds the available quantity of ${productLimit}.`,
+        [{ text: "Ok", style: "cancel" }]
+      );
+    } else {
+      updateQuantity(cartItem.id, newQuantity - cartItem.quantity);
+      setQuantityModalVisible(false);
     }
   };
 
@@ -103,9 +118,7 @@ const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
       <CartModal
         visible={quantityModalVisible}
         onClose={() => setQuantityModalVisible(false)}
-        onConfirm={(newQuantity) =>
-          updateQuantity(cartItem.id, newQuantity - cartItem.quantity)
-        }
+        onConfirm={handleConfirmQuantity}
         currentQuantity={cartItem.quantity}
       />
     </View>
