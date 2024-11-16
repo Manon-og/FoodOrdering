@@ -5,17 +5,31 @@ import { UseCart } from "../providers/CartProvider";
 import Colors from "../constants/Colors";
 import { DefaultPhoto } from "./ProductListItem";
 import CartModal from "../modals/cartModals";
+import { useLimitQuantity } from "@/api/products";
 
 type CartListItemProps = {
   cartItem: any;
   onRemove: any;
+  id_branch: any;
 };
 
-const CartListItem = ({ cartItem }: CartListItemProps) => {
+const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
   const { updateQuantity, removeItem } = UseCart();
   const [quantityModalVisible, setQuantityModalVisible] = useState(false);
 
+  const { data } = useLimitQuantity(id_branch);
+  console.log("LIMIT QUANTITY:", data);
+  const quan = data?.map((item: any) => item.quantity);
+  console.log("QUANTITY:", quan);
+
   const handleIncrement = () => {
+    if (cartItem.quantity >= (quan?.[0] || 0)) {
+      Alert.alert("Limit Quantity", "You have reached the limit quantity", [
+        { text: "Ok", style: "cancel" },
+      ]);
+    } else {
+      updateQuantity(cartItem.id, 1);
+    }
     updateQuantity(cartItem.id, 1);
   };
 

@@ -139,6 +139,51 @@ export const useBranchProductList = (id: string, idB: string | null) => {
   });
 };
 
+export const useLimitQuantity = (idB: string | null) => {
+  return useQuery({
+    queryKey: ["batch", idB],
+    queryFn: async () => {
+      if (!idB) {
+        return [];
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("localbatch")
+          .select(`*, id_products(*), id_branch(*)`)
+
+          .eq("id_branch", idB)
+          .not("id_products", "is", null);
+
+        if (error) {
+          console.error("select??? localbatch", error);
+          throw new Error(error.message);
+        }
+
+        const groupedData = data.reduce((acc: any, item: LocalBatch) => {
+          const productId = item.id_products.id_products;
+          if (!acc[productId]) {
+            acc[productId] = {
+              ...item.id_products,
+              quantity: 0,
+              id_branch: item.id_branch,
+            };
+          }
+          acc[productId].quantity += item.quantity;
+          return acc;
+        }, {});
+
+        console.log("CARTT", groupedData);
+
+        return Object.values(groupedData);
+      } catch (error) {
+        console.error("Error fetching branch product list:", error);
+        throw error;
+      }
+    },
+  });
+};
+
 export const useSettedBranchProductList = (
   id: string,
   idB: string | null,
@@ -2427,3 +2472,107 @@ export const useGetTotalSalesReport = (id_branch: string, date: string) => {
 //     },
 //   });
 // };
+
+export const useOverviewProductList = () => {
+  return useQuery({
+    queryKey: ["hhh"],
+    queryFn: async () => {
+      try {
+        const [
+          { data: productsTable, error: productsTableError },
+          { data: batchTable, error: batchTableError },
+          { data: localBatchTable, error: localBatchTableError },
+          { data: confirmedProductTable, error: confirmedProductTableError },
+          { data: pendinglocalbatchTable, error: pendinglocalbatchTableError },
+        ] = await Promise.all([
+          supabase.from("products").select(`id_products, name`),
+          supabase.from("batch").select(` id_products, quantity`),
+          supabase
+            .from("localbatch")
+            .select(`id_branch(place), id_products, quantity`),
+          supabase
+            .from("confirmedproducts")
+            .select(`id_branch(place), id_products, quantity`),
+          supabase
+            .from("pendinglocalbatch")
+            .select(`id_branch(place), id_products, quantity`),
+        ]);
+
+        if (productsTableError) {
+          throw new Error(productsTableError.message);
+        }
+        if (batchTableError) {
+          throw new Error(batchTableError.message);
+        }
+        if (localBatchTableError) {
+          throw new Error(localBatchTableError.message);
+        }
+        if (confirmedProductTableError) {
+          throw new Error(confirmedProductTableError.message);
+        }
+        if (pendinglocalbatchTableError) {
+          throw new Error(pendinglocalbatchTableError.message);
+        }
+
+        console.log("productsTable", productsTable);
+        console.log("batchTable", batchTable);
+        console.log("localBatchTable", localBatchTable);
+        console.log("confirmedProductTable", confirmedProductTable);
+        console.log("pendinglocalbatchTable", pendinglocalbatchTable);
+
+        // Combine data from all tables
+        const combinedData = productsTable.map((product) => {
+          const batchData: any = batchTable.find(
+            (item) => item.id_products === product.id_products
+          );
+          const localBatchData: any = localBatchTable.find(
+            (item) => item.id_products === product.id_products
+          );
+          const confirmedProductData: any = confirmedProductTable.find(
+            (item) => item.id_products === product.id_products
+          );
+          const pendingLocalBatchData: any = pendinglocalbatchTable.find(
+            (item) => item.id_products === product.id_products
+          );
+
+          console.log("batchData", batchData);
+          console.log("localBatchData", localBatchData);
+          console.log("confirmedProductData", confirmedProductData);
+          console.log("pendingLocalBatchData", pendingLocalBatchData);
+
+          return {
+            ...product,
+            batch: batchData
+              ? {
+                  quantity: batchData.quantity,
+                }
+              : null,
+            localBatch: localBatchData
+              ? {
+                  place: localBatchData.id_branch.place,
+                  quantity: localBatchData.quantity,
+                }
+              : null,
+            confirmedProduct: confirmedProductData
+              ? {
+                  place: confirmedProductData.id_branch.place,
+                  quantity: confirmedProductData.quantity,
+                }
+              : null,
+            pendingLocalBatch: pendingLocalBatchData
+              ? {
+                  place: pendingLocalBatchData.id_branch.place,
+                  quantity: pendingLocalBatchData.quantity,
+                }
+              : null,
+          };
+        });
+
+        return combinedData;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        throw error;
+      }
+    },
+  });
+};

@@ -138,6 +138,7 @@ const CartScreen = () => {
           return (
             <CartListItem
               cartItem={item}
+              id_branch={id_branch}
               onRemove={() => handleRemoveItem(item.id)}
             />
           );
@@ -176,7 +177,12 @@ const CartScreen = () => {
               }}
             />
             {change !== null && (
-              <Text style={[styles.changeText, { color: change >= 0 ? "green" : "red" }]}>
+              <Text
+                style={[
+                  styles.changeText,
+                  { color: change >= 0 ? "green" : "red" },
+                ]}
+              >
                 Change: ₱{change >= 0 ? change.toFixed(2) : "Insufficient"}
               </Text>
             )}

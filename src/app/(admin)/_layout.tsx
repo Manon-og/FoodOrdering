@@ -146,6 +146,14 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+
+      <Tabs.Screen
+        name="overview"
+        options={{
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 }
