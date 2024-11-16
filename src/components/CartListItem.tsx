@@ -30,7 +30,6 @@ const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
     } else {
       updateQuantity(cartItem.id, 1);
     }
-    updateQuantity(cartItem.id, 1);
   };
 
   const handleDecrement = () => {
@@ -45,6 +44,19 @@ const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
       );
     } else {
       updateQuantity(cartItem.id, -1);
+    }
+  };
+
+  const handleConfirmQuantity = (newQuantity: number) => {
+    if (newQuantity > (quan?.[0] || 0)) {
+      Alert.alert(
+        "Invalid Input",
+        `The inputted quantity exceeds the available quantity of ${quan}.`,
+        [{ text: "Ok", style: "cancel" }]
+      );
+    } else {
+      updateQuantity(cartItem.id, newQuantity - cartItem.quantity);
+      setQuantityModalVisible(false);
     }
   };
 
@@ -103,9 +115,7 @@ const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
       <CartModal
         visible={quantityModalVisible}
         onClose={() => setQuantityModalVisible(false)}
-        onConfirm={(newQuantity) =>
-          updateQuantity(cartItem.id, newQuantity - cartItem.quantity)
-        }
+        onConfirm={handleConfirmQuantity}
         currentQuantity={cartItem.quantity}
       />
     </View>
