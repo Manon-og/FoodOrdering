@@ -136,7 +136,7 @@ const Index = () => {
           Product Name
         </Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>
-          Total Quantity
+          Total Qty
         </Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
           Total Amount
@@ -188,10 +188,9 @@ const styles = StyleSheet.create({
     paddingLeft: 13,
   },
   dayText: {
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+    color: "#0E1432",
     paddingBottom: 10,
   },
   headerContainer: {
@@ -264,17 +263,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     paddingHorizontal: 20,
-    marginBottom: 40,
+    marginBottom: 15,
   },
   totalSalesText: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "darkgreen",
+    color: "#0E1432",
   },
   totalSalesNumber: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "darkgreen",
+    color: "#0E1432",
   },
 });
 
