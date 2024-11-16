@@ -71,7 +71,7 @@ const Index = () => {
         </View>
         <TouchableOpacity style={styles.menuButton} onPress={handleNavigateReturn}>
           <View style={styles.menuTextContainer}>
-            <Text style={styles.menuText}>Return Products</Text>
+            <Text style={styles.menuText}>Returned Products</Text>
           </View>
         </TouchableOpacity>
       </View>

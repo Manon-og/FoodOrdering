@@ -99,19 +99,19 @@ export default function UserProfile() {
         <Link href="/(user)/cashcount" asChild>
           <Pressable style={styles.menuButton}>
             <View style={styles.menuTextContainer}>
-              <Text style={styles.menuText}>Cash Count</Text>
+              <Text style={styles.menuText}>End of Day/Bazaar</Text>
               <Text style={styles.arrow}>→</Text>
             </View>
           </Pressable>
         </Link>
-        <Link href="/(user)/return" asChild>
+        {/* <Link href="/(user)/return" asChild>
           <Pressable style={styles.menuButton}>
             <View style={styles.menuTextContainer}>
               <Text style={styles.menuText}>Return Products</Text>
               <Text style={styles.arrow}>→</Text>
             </View>
           </Pressable>
-        </Link>
+        </Link> */}
       </View>
     </View>
   );

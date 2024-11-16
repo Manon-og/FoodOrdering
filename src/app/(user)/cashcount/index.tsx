@@ -1,15 +1,29 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, Alert, ScrollView } from "react-native";
-import { useAllLocalBranchData, useInsertCashCount } from "@/src/api/products";
+import { View, Text, StyleSheet, TextInput, Alert, ScrollView, Modal, TouchableOpacity, FlatList } from "react-native";
+import { useAllLocalBranchData, useInsertCashCount, useInsertPendingProducts, useSalesTransaction } from "@/src/api/products";
 import Button from "@/src/components/Button";
 import { useBranchStore } from "@/store/branch";
 import { useUUIDStore } from "@/store/user";
 import { useRouter } from "expo-router";
+import ReturnProducts from "@/components/ReturnProducts";
+import { v4 as uuidv4 } from "uuid";
 
-const Index = () => {
+const EndDay = () => {
   const router = useRouter();
   const numbers = [1, 5, 10, 20, 50, 100, 200, 500, 1000];
   const [inputValues, setInputValues] = useState<number[]>(Array(numbers.length).fill(0));
+  const [showReturnProducts, setShowReturnProducts] = useState(false);
+  const [showFinalModal, setShowFinalModal] = useState(false);
+  const [cashCountTotal, setCashCountTotal] = useState(0);
+
+  const { id } = useUUIDStore();
+  const { id_branch, branchName } = useBranchStore();
+  const { data: returnProducts } = useAllLocalBranchData(id_branch ?? "");
+  const { data: totalTransactionsData } = useSalesTransaction();
+
+  const transactionId = uuidv4();
+  const insertPendingProducts = useInsertPendingProducts();
+  const mutation = useInsertCashCount();
 
   const handleInputChange = (value: string, index: number) => {
     const newValues = [...inputValues];
@@ -22,9 +36,7 @@ const Index = () => {
     0
   );
 
-  const mutation = useInsertCashCount();
-
-  const handleSubmit = () => {
+  const handleSubmitCashCount = () => {
     const data = {
       id_branch,
       id_user: id,
@@ -43,19 +55,36 @@ const Index = () => {
     mutation.mutate(data, {
       onSuccess: () => {
         setInputValues(Array(numbers.length).fill(0));
-        router.push("/(user)/profile");
+        setCashCountTotal(total);
+        setShowReturnProducts(true);
       },
     });
   };
 
-  const { id } = useUUIDStore();
-  const { id_branch, branchName } = useBranchStore();
-  const { data: returnProducts } = useAllLocalBranchData(id_branch ?? "");
+  const handleInsertPendingProducts = () => {
+    insertPendingProducts.mutate(
+      {
+        id_branch: Number(id_branch),
+        id_user: id?.toString() ?? "",
+        id_group: transactionId,
+      },
+      {
+        onSuccess: (data) => {
+          console.log("Inserted IDs:", data);
+          Alert.alert("Success", "Request for return products sent");
+          router.push("/(user)/profile");
+        },
+        onError: (error) => {
+          console.error("Error inserting pending products:", error);
+        },
+      }
+    );
+  };
 
-  const confirmSubmit = () => {
+  const confirmSubmitCashCount = () => {
     Alert.alert(
       "Confirmation",
-      "Are you sure you want to submit the Cash Count?",
+      `Are you sure you want to submit the Cash Count?\n\nThe total is ₱${total.toLocaleString()}.\n\n⚠️ WARNING: This cannot be changed later on. Please double-check before submitting.`,
       [
         {
           text: "Cancel",
@@ -63,7 +92,24 @@ const Index = () => {
         },
         {
           text: "Confirm",
-          onPress: handleSubmit,
+          onPress: handleSubmitCashCount,
+        },
+      ]
+    );
+  };
+
+  const confirmReturnProducts = () => {
+    Alert.alert(
+      "Confirmation",
+      "Are you sure you want to return the products?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: handleInsertPendingProducts,
         },
       ]
     );
@@ -71,34 +117,65 @@ const Index = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.dateContainer}>
-          <Text style={styles.dayText}>Cash Count</Text>
-        </View>
-        <View style={styles.headerContainer}>
-          <Text style={[styles.headerText, styles.statusHeader]}>Peso Bill</Text>
-          <Text style={[styles.headerText, styles.moreInfoHeader]}>Number of Bills</Text>
-        </View>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Loop through numbers and render input fields */}
-        {numbers.map((number, index) => (
-          <View key={number} style={styles.itemContainer}>
-            <Text style={styles.itemLeft}>₱ {number}</Text>
-            <TextInput
-              style={styles.inputBox}
-              placeholder="Enter"
-              keyboardType="numeric"
-              onChangeText={(value) => handleInputChange(value, index)}
-              value={inputValues[index].toString()}
-            />
+      {!showReturnProducts ? (
+        <>
+          <View style={styles.dateContainer}>
+            <Text style={styles.dayText}>Cash Count</Text>
           </View>
-        ))}
-        </ScrollView>
+          <View style={styles.headerContainer}>
+            <Text style={[styles.headerText, styles.statusHeader]}>Peso Bill</Text>
+            <Text style={[styles.headerText, styles.moreInfoHeader]}>Number of Bills</Text>
+          </View>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            {numbers.map((number, index) => (
+              <View key={number} style={styles.itemContainer}>
+                <Text style={styles.itemLeft}>₱ {number}</Text>
+                <TextInput
+                  style={styles.inputBox}
+                  placeholder="Enter"
+                  keyboardType="numeric"
+                  onChangeText={(value) => handleInputChange(value, index)}
+                  value={inputValues[index].toString()}
+                />
+              </View>
+            ))}
+          </ScrollView>
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>TOTAL</Text>
+            <Text style={styles.totalValue}>₱ {total}</Text>
+          </View>
+          <Button text={"Confirm"} onPress={confirmSubmitCashCount} style={styles.confirmBtn} />
+        </>
+      ) : (
+        <>
+          <View style={styles.dateContainer}>
+            <Text style={styles.dayText}>Return Products</Text>
+          </View>
+          <View style={styles.headerContainer}>
+            <Text style={[styles.headerText, styles.statusHeader]}>Products</Text>
+            <Text style={[styles.headerText, styles.moreInfoHeader]}>Total Quantity</Text>
+          </View>
+          <FlatList
+            data={returnProducts}
+            keyExtractor={(item: any) => item.id_products.toString()}
+            renderItem={({ item }) => (
+              <ReturnProducts name={item.name} quantity={item.quantity} />
+            )}
+          />
+          <Button text={"Return"} onPress={confirmReturnProducts} />
+        </>
+      )}
 
-        <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>TOTAL</Text>
-          <Text style={styles.totalValue}>₱ {total}</Text>
-        </View>
-        <Button text={"Confirm"} onPress={confirmSubmit} style={styles.confirmBtn}/>
+        <Modal visible={showFinalModal} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>End of Day Summary</Text>
+              <Text style={styles.modalText}>Cash Count Total: ₱{cashCountTotal.toLocaleString()}</Text>
+              <Text style={styles.modalText}>Total Transactions: ₱{totalTransactionsData?.toLocaleString()}</Text>
+              <Button text={"Close"} onPress={() => router.push("/(user)/profile")} />
+            </View>
+          </View>
+        </Modal>
     </View>
   );
 };
@@ -113,10 +190,10 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: "flex-start", 
+    justifyContent: "flex-start",
     width: "100%",
   },
-    dateContainer: {
+  dateContainer: {
     position: "absolute",
     top: 25,
   },
@@ -201,7 +278,29 @@ const styles = StyleSheet.create({
   confirmBtn: {
     height: 10,
     backgroundColor: "#0E1432",
-  }
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
 });
 
-export default Index;
+export default EndDay;

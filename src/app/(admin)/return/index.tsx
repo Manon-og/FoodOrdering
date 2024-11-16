@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { router, Stack, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import {
   useGetCashCount,
   useGetVoidedTransaction,
   useGroupedSalesReport,
-} from "@/src/api/products"; // Adjust the import path accordingly
+} from "@/src/api/products"; 
 
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import ItemDetailsReturn from "@/components/ItemsDetailsReturn";
@@ -112,7 +112,10 @@ const Details = ({ ddd }: any) => {
     id_branch: Number(id_branch),
   });
 
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
   const handleInsertPendingProducts = () => {
+    setIsButtonDisabled(true);
     deleteLocalBatch.mutate(
       {
         id_branch: Number(id_branch),
@@ -125,6 +128,7 @@ const Details = ({ ddd }: any) => {
         },
         onError: (error) => {
           console.error("Error inserting pending products:", error);
+          setIsButtonDisabled(false); 
         },
       }
     );
@@ -135,8 +139,8 @@ const Details = ({ ddd }: any) => {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <TouchableOpacity onPress={handleInsertPendingProducts}>
-              <Text style={styles.confirmText}>Accept</Text>
+            <TouchableOpacity onPress={handleInsertPendingProducts} disabled={isButtonDisabled}>
+              <Text style={[styles.confirmText, isButtonDisabled && styles.disabledText]}>Accept</Text>
             </TouchableOpacity>
           ),
         }}
@@ -150,7 +154,7 @@ const Details = ({ ddd }: any) => {
               </Text>
 
               <Text style={[styles.headerText, styles.moreInfoHeader]}>
-                Quantity
+                Qty
                 <Text style={[styles.headerText, styles.moreInfoHeaderBefore]}>
                   {" "}
                   Before
@@ -426,6 +430,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginRight: 10,
+  },
+  disabledText: {
+    color: "gray",
   },
   created_by: {
     fontSize: 17,

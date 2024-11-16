@@ -1,18 +1,34 @@
-import { View, StyleSheet, FlatList } from "react-native";
 import React, { memo, useState } from "react";
-
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  TextInput,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import { useBranch } from "@/src/api/products";
-
-import ChooseLocation from "@/components/ChooseLocation";
+import ChooseLocation from "@/src/components/ChooseLocation";
 
 const Index = () => {
   const { data: branch } = useBranch();
+  const [searchText, setSearchText] = useState("");
+  const [filteredLocations, setFilteredLocations] = useState(branch);
+
+  const filterLocations = (text: string) => {
+    setSearchText(text);
+    if (text.trim() === "") {
+      setFilteredLocations(branch);
+    } else {
+      const filtered = branch?.filter((item) =>
+        item.place.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredLocations(filtered);
+    }
+  };
 
   console.log("branchsPOTA>:", branch);
-  const place = branch
-    ?.map((item) => item.place)
-    .filter((place) => place !== "inStore");
-  console.log("place:", place);
+  console.log("filteredLocations:", filteredLocations);
 
   const MemoizedChooseLocation = memo(ChooseLocation);
   const renderItem = ({ item }: { item: any }) => {
@@ -20,102 +36,75 @@ const Index = () => {
       <MemoizedChooseLocation
         id_branch={item.id_branch}
         branchName={item.place}
+        style={styles.card} 
       />
     );
   };
 
   return (
-    <View>
+    <View style={styles.container}>
+  
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search locations..."
+        placeholderTextColor="#999"
+        value={searchText}
+        onChangeText={filterLocations}
+      />
+
+      {filteredLocations?.length === 0 && (
+        <Text style={styles.noResultsText}>No locations found</Text>
+      )}
+
       <FlatList
-        data={branch}
+        data={filteredLocations}
         keyExtractor={(item) => item.id_branch.toString()}
         renderItem={renderItem}
+        contentContainerStyle={styles.flatListContent}
       />
     </View>
   );
 };
 
-export default Index;
-
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    backgroundColor: "#B9D2F7",
-    alignItems: "center",
-  },
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "#B9D2F7",
     padding: 10,
-    marginTop: "30%",
-    flexDirection: "row",
-    flexWrap: "wrap",
   },
-  categoryCard: {
-    width: "40%",
-    height: 100,
+  searchBar: {
+    height: 40,
+    borderColor: "#0E1432",
     backgroundColor: "#FDFDFD",
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 10,
-    borderRadius: 15,
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 5,
+    color: "#0E1432",
   },
-  categoryText: {
-    color: "black",
-    fontStyle: "italic",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  location: {
-    margin: 10,
-    marginLeft: "30%",
-    width: "40%",
-  },
-
-  profileHeader: {
-    alignItems: "center",
-    paddingBottom: "40%",
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-  email: {
-    fontSize: 18,
+  noResultsText: {
+    textAlign: "center",
     color: "gray",
-  },
-  menuItems: {
-    width: "90%",
-    marginLeft: "10%",
-    alignItems: "center",
-  },
-  menuButton: {
-    backgroundColor: "#0E1432",
-    padding: 15,
-    borderRadius: 10,
-    width: "90%",
-    marginTop: 10,
-  },
-  menuTextContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  menuText: {
-    color: "#FFFFFF",
     fontSize: 16,
-    flex: 1,
-    fontWeight: "bold",
+    marginVertical: 10,
   },
-  arrow: {
-    color: "#FFFFFF",
-    paddingLeft: 10,
+  flatListContent: {
+    paddingBottom: 20,
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    marginVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
+
+export default Index;

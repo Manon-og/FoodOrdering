@@ -1,9 +1,8 @@
 import { Link } from "expo-router";
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import Index from "@/src/app/(user)/two";
-
-const GroupedSalesTransactionItem = ({ id_branch, branchName }: any) => {
+import Colors from "@/constants/Colors"; 
+const ChooseLocation = ({ id_branch, branchName }: any) => {
   console.log("id_branchPOTA:", id_branch);
   console.log("branchNamePOTA:", branchName);
   return (
@@ -12,8 +11,8 @@ const GroupedSalesTransactionItem = ({ id_branch, branchName }: any) => {
         href={`/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`}
         asChild
       >
-        <Pressable style={styles.pressable}>
-          <Text style={styles.pressableText}>{branchName}</Text>
+        <Pressable style={styles.card}>
+          <Text style={styles.cardText}>{branchName}</Text>
         </Pressable>
       </Link>
     </View>
@@ -25,23 +24,31 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    // paddingTop: 50, // Add padding at the topmost level
-    // flexDirection: "row",
-    // flexWrap: "wrap",
+    marginTop: 20,
+    backgroundColor: "#B9D2F7",
   },
-  pressable: {
-    width: "45%", // Adjust width to fit two items per row
-    height: 100,
-    backgroundColor: "lightblue",
+  card: {
+    width: "90%", 
+    backgroundColor: Colors.light.background, 
+    borderRadius: 10,
+    padding: 18,
+    marginTop: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 3,
     justifyContent: "center",
     alignItems: "center",
-    margin: 10,
-    borderRadius: 15,
   },
-  pressableText: {
-    color: "black",
-    fontStyle: "italic",
+  cardText: {
+    color: Colors.light.text, 
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 
-export default GroupedSalesTransactionItem;
+export default ChooseLocation;

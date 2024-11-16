@@ -134,16 +134,49 @@ const Index = () => {
 };
 
 const styles = StyleSheet.create({
+  searchBar: {
+    height: 40,
+    borderColor: "#0E1432",
+    backgroundColor: "#FDFDFD",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 5,
+    color: "#0E1432",
+  },
+  noResultsText: {
+    textAlign: "center",
+    color: "gray",
+    fontSize: 16,
+    marginVertical: 10,
+  },
+  flatListContent: {
+    paddingBottom: 20,
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    marginVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "30%",
+    paddingTop: "12%",
   },
   dateContainer: {
     position: "absolute",
-    top: 50,
+    top: 25,
   },
   dateText: {
     fontSize: 20,
@@ -152,10 +185,9 @@ const styles = StyleSheet.create({
     paddingLeft: 13,
   },
   dayText: {
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+    color: "#0E1432",
   },
   headerContainer: {
     flexDirection: "row",
