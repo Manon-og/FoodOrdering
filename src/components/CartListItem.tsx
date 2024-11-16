@@ -17,9 +17,9 @@ const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
   const { updateQuantity, removeItem } = UseCart();
   const [quantityModalVisible, setQuantityModalVisible] = useState(false);
 
-  const { data } = useLimitQuantity(id_branch);
-  console.log("LIMIT QUANTITY:", data);
-  const quan = data?.map((item: any) => item.quantity);
+  const { data: limitedQuantity } = useLimitQuantity(id_branch);
+  console.log("LIMIT QUANTITY:", limitedQuantity);
+  const quan = limitedQuantity?.map((item: any) => item.quantity);
   console.log("QUANTITY:", quan);
 
   const handleIncrement = () => {
