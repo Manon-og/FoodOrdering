@@ -40,7 +40,9 @@ const Index = () => {
 
   return (
     <View style={styles.container}>
-      <View>{/* <DropdownComponent/> */}</View>
+      <View>
+        {/* <DropdownComponent/> filter for the transfering of products but not sure ano itsura*/}
+      </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>

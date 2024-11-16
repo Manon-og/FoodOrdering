@@ -209,6 +209,7 @@ const Index = () => {
         onConfirm={handleConfirmModal}
         inputQuantity={inputQuantity}
         setInputQuantity={setInputQuantity}
+        // name="Product Name"
       />
       {Date && (
         <QuantityTransfer

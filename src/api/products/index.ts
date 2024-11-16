@@ -456,10 +456,42 @@ export const useInsertBatch = () => {
   return useMutation({
     mutationFn: async (data: any) => {
       try {
-        const { data: newBatch, error } = await supabase.from("batch").insert({
-          quantity: data.quantity,
-          id_products: data.id_products,
-        });
+        const { data: productData, error: fetchError } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id_products", data.id_products)
+          .single();
+
+        if (fetchError) {
+          throw fetchError;
+        }
+
+        const { data: newBatch, error: insertError } = await supabase
+          .from("batch")
+          .insert({
+            quantity: data.quantity,
+            id_products: data.id_products,
+          })
+          .single();
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        console.log("ID", data.id_products);
+        console.log("productData", productData);
+        console.log("productData", productData.quantity);
+        const newQuantity = productData.quantity + data.quantity;
+        console.log("newQuantity", newQuantity);
+        const { data: updatedProduct, error: updateError } = await supabase
+          .from("products")
+          .update({ quantity: newQuantity })
+          .eq("id_products", data.id_products)
+          .single();
+
+        if (updateError) {
+          throw updateError;
+        }
 
         return newBatch;
       } catch (error) {
@@ -478,6 +510,16 @@ export const useInsertBatch = () => {
     },
   });
 };
+
+// onSuccess: async (data) => {
+//   await queryClient.invalidateQueries({ queryKey: ["batches"] });
+//   await queryClient.invalidateQueries({ queryKey: ["batch"] });
+//   await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
+//   await queryClient.invalidateQueries({ queryKey: ["id_products"] });
+//   await queryClient.invalidateQueries({ queryKey: ["products"] });
+//   await queryClient.invalidateQueries({ queryKey: ["back inventory"] });
+//   await queryClient.invalidateQueries({ queryKey: ["setBatch"] });
+// },
 
 export const useBatchList = (id: string) => {
   return useQuery({
@@ -1069,6 +1111,14 @@ export const useSetTransferQuantity = () => {
       date: string;
     }) => {
       try {
+        const { data: products } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id_products", data.id_products)
+          .single();
+
+        console.log("products}}}", products);
+
         const { data: batches, error: batchError } = await supabase
           .from("batch")
           .select("*")
@@ -1120,12 +1170,21 @@ export const useSetTransferQuantity = () => {
             throw new Error(deductError.message);
           }
 
+          const { data: updatedProduct, error: updateProductError } =
+            await supabase
+              .from("products")
+              .update({
+                quantity: products.quantity - transferQuantity,
+              })
+              .eq("id_products", data.id_products)
+              .single();
+
           remainingQuantity -= transferQuantity;
         }
 
         return true;
       } catch (error) {
-        console.error("Error transferring quantity:", error);
+        console.error("Error transferring quantitys:", error);
         throw error;
       }
     },
@@ -2114,20 +2173,20 @@ export const useGetPendingProductsDetails = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("confirmedproducts")
-        .select(`*, id_branch(place), id_products(name)`);
+        .select(`*, id_branch(place), id_products(*)`);
       if (error) {
         throw new Error(error.message);
       }
 
       const combinedData = data.reduce((acc, item) => {
-        const productId = item.id_products.id_products;
-        if (!acc[productId]) {
-          acc[productId] = {
-            ...item,
+        const key = `${item.id_products.id_products}`;
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
             quantity: 0,
           };
         }
-        acc[productId].quantity += item.quantity;
+        acc[key].quantity += item.quantity;
         return acc;
       }, {});
 
