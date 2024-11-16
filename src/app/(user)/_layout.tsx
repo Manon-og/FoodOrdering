@@ -1,6 +1,6 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Tabs } from "expo-router";
+import { Link, Tabs, useSegments } from "expo-router";
 import { Pressable, TouchableOpacity } from "react-native";
 
 import Colors from "@/src/constants/Colors";
@@ -21,7 +21,10 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { session } = useAuth();
   const { id_branch, branchName } = useBranchStore();
+  const segments = useSegments(); // get the current route segments
+
   console.log("MENU BUTTON:", id_branch);
+  console.log("Curr Segmentz:", segments);
 
   if (!session) {
     return <Link href="/" />;
@@ -31,14 +34,20 @@ export default function TabLayout() {
   //   return <Link href="/(user)/category" />;
   // }
 
+  // Determine if the tab bar should be hidden
+  const hide = segments.includes("category");
+
   return (
     <Tabs
-    screenOptions={{
-      tabBarActiveTintColor: "#FFFFFF",
-      headerShown: useClientOnlyValue(false, true),
-      tabBarInactiveTintColor: "#D6D5D5",
-      tabBarStyle: { backgroundColor: "#0E1432" },
-  }}
+      screenOptions={{
+        tabBarActiveTintColor: "#FFFFFF",
+        headerShown: useClientOnlyValue(false, true),
+        tabBarInactiveTintColor: "#D6D5D5",
+        tabBarStyle: {
+          backgroundColor: "#0E1432",
+          display: hide ? "none" : "flex", // hide magic tab
+        },
+      }}
     >
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen
