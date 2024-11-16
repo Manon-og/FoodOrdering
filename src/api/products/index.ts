@@ -2486,7 +2486,7 @@ export const useOverviewProductList = () => {
           { data: pendinglocalbatchTable, error: pendinglocalbatchTableError },
         ] = await Promise.all([
           supabase.from("products").select(`id_products, name`),
-          supabase.from("batch").select(` id_products, quantity`),
+          supabase.from("batch").select(`id_products, quantity`),
           supabase
             .from("localbatch")
             .select(`id_branch(place), id_products, quantity`),
@@ -2520,20 +2520,34 @@ export const useOverviewProductList = () => {
         console.log("confirmedProductTable", confirmedProductTable);
         console.log("pendinglocalbatchTable", pendinglocalbatchTable);
 
-        // Combine data from all tables
         const combinedData = productsTable.map((product) => {
-          const batchData: any = batchTable.find(
+          const batchData = batchTable.filter(
             (item) => item.id_products === product.id_products
           );
-          const localBatchData: any = localBatchTable.find(
+          const localBatchData: any = localBatchTable.filter(
             (item) => item.id_products === product.id_products
           );
-          const confirmedProductData: any = confirmedProductTable.find(
+          const confirmedProductData: any = confirmedProductTable.filter(
             (item) => item.id_products === product.id_products
           );
-          const pendingLocalBatchData: any = pendinglocalbatchTable.find(
+          const pendingLocalBatchData: any = pendinglocalbatchTable.filter(
             (item) => item.id_products === product.id_products
           );
+
+          const totalQuantity =
+            batchData.reduce((sum, item) => sum + item.quantity, 0) +
+            localBatchData.reduce(
+              (sum: any, item: { quantity: any }) => sum + item.quantity,
+              0
+            ) +
+            confirmedProductData.reduce(
+              (sum: any, item: { quantity: any }) => sum + item.quantity,
+              0
+            ) +
+            pendingLocalBatchData.reduce(
+              (sum: any, item: { quantity: any }) => sum + item.quantity,
+              0
+            );
 
           console.log("batchData", batchData);
           console.log("localBatchData", localBatchData);
@@ -2542,27 +2556,180 @@ export const useOverviewProductList = () => {
 
           return {
             ...product,
-            batch: batchData
+            totalQuantity,
+            batch: batchData.length
               ? {
-                  quantity: batchData.quantity,
+                  quantity: batchData.reduce(
+                    (sum, item) => sum + item.quantity,
+                    0
+                  ),
                 }
               : null,
-            localBatch: localBatchData
+            localBatch: localBatchData.length
               ? {
-                  place: localBatchData.id_branch.place,
-                  quantity: localBatchData.quantity,
+                  place: localBatchData[0].id_branch.place,
+                  quantity: localBatchData.reduce(
+                    (sum: any, item: { quantity: any }) => sum + item.quantity,
+                    0
+                  ),
                 }
               : null,
-            confirmedProduct: confirmedProductData
+            confirmedProduct: confirmedProductData.length
               ? {
-                  place: confirmedProductData.id_branch.place,
-                  quantity: confirmedProductData.quantity,
+                  place: confirmedProductData[0].id_branch.place,
+                  quantity: confirmedProductData.reduce(
+                    (sum: any, item: { quantity: any }) => sum + item.quantity,
+                    0
+                  ),
                 }
               : null,
-            pendingLocalBatch: pendingLocalBatchData
+            pendingLocalBatch: pendingLocalBatchData.length
               ? {
-                  place: pendingLocalBatchData.id_branch.place,
-                  quantity: pendingLocalBatchData.quantity,
+                  place: pendingLocalBatchData[0].id_branch.place,
+                  quantity: pendingLocalBatchData.reduce(
+                    (sum: any, item: { quantity: any }) => sum + item.quantity,
+                    0
+                  ),
+                }
+              : null,
+          };
+        });
+
+        return combinedData;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const useOverviewProductListById = (id_products: string) => {
+  return useQuery({
+    queryKey: ["hhh", id_products],
+    queryFn: async () => {
+      try {
+        const [
+          { data: productsTable, error: productsTableError },
+          { data: batchTable, error: batchTableError },
+          { data: localBatchTable, error: localBatchTableError },
+          { data: confirmedProductTable, error: confirmedProductTableError },
+          { data: pendinglocalbatchTable, error: pendinglocalbatchTableError },
+        ] = await Promise.all([
+          supabase
+            .from("products")
+            .select(`id_products, name`)
+            .eq("id_products", id_products),
+          supabase
+            .from("batch")
+            .select(`id_products, quantity`)
+            .eq("id_products", id_products),
+          supabase
+            .from("localbatch")
+            .select(`id_branch(place), id_products, quantity`)
+            .eq("id_products", id_products),
+          supabase
+            .from("confirmedproducts")
+            .select(`id_branch(place), id_products, quantity`)
+            .eq("id_products", id_products),
+          supabase
+            .from("pendinglocalbatch")
+            .select(`id_branch(place), id_products, quantity`)
+            .eq("id_products", id_products),
+        ]);
+
+        if (productsTableError) {
+          throw new Error(productsTableError.message);
+        }
+        if (batchTableError) {
+          throw new Error(batchTableError.message);
+        }
+        if (localBatchTableError) {
+          throw new Error(localBatchTableError.message);
+        }
+        if (confirmedProductTableError) {
+          throw new Error(confirmedProductTableError.message);
+        }
+        if (pendinglocalbatchTableError) {
+          throw new Error(pendinglocalbatchTableError.message);
+        }
+
+        console.log("productsTable", productsTable);
+        console.log("batchTable", batchTable);
+        console.log("localBatchTable", localBatchTable);
+        console.log("confirmedProductTable", confirmedProductTable);
+        console.log("pendinglocalbatchTable", pendinglocalbatchTable);
+
+        const combinedData = productsTable.map((product) => {
+          const batchData = batchTable.filter(
+            (item) => item.id_products === product.id_products
+          );
+          const localBatchData: any = localBatchTable.filter(
+            (item) => item.id_products === product.id_products
+          );
+          const confirmedProductData: any = confirmedProductTable.filter(
+            (item) => item.id_products === product.id_products
+          );
+          const pendingLocalBatchData: any = pendinglocalbatchTable.filter(
+            (item) => item.id_products === product.id_products
+          );
+
+          const totalQuantity =
+            batchData.reduce((sum, item) => sum + item.quantity, 0) +
+            localBatchData.reduce(
+              (sum: any, item: { quantity: any }) => sum + item.quantity,
+              0
+            ) +
+            confirmedProductData.reduce(
+              (sum: any, item: { quantity: any }) => sum + item.quantity,
+              0
+            ) +
+            pendingLocalBatchData.reduce(
+              (sum: any, item: { quantity: any }) => sum + item.quantity,
+              0
+            );
+
+          console.log("batchData", batchData);
+          console.log("localBatchData", localBatchData);
+          console.log("confirmedProductData", confirmedProductData);
+          console.log("pendingLocalBatchData", pendingLocalBatchData);
+
+          return {
+            ...product,
+            totalQuantity,
+            batch: batchData.length
+              ? {
+                  quantity: batchData.reduce(
+                    (sum, item) => sum + item.quantity,
+                    0
+                  ),
+                }
+              : null,
+            localBatch: localBatchData.length
+              ? {
+                  place: localBatchData[0].id_branch.place,
+                  quantity: localBatchData.reduce(
+                    (sum: any, item: { quantity: any }) => sum + item.quantity,
+                    0
+                  ),
+                }
+              : null,
+            confirmedProduct: confirmedProductData.length
+              ? {
+                  place: confirmedProductData[0].id_branch.place,
+                  quantity: confirmedProductData.reduce(
+                    (sum: any, item: { quantity: any }) => sum + item.quantity,
+                    0
+                  ),
+                }
+              : null,
+            pendingLocalBatch: pendingLocalBatchData.length
+              ? {
+                  place: pendingLocalBatchData[0].id_branch.place,
+                  quantity: pendingLocalBatchData.reduce(
+                    (sum: any, item: { quantity: any }) => sum + item.quantity,
+                    0
+                  ),
                 }
               : null,
           };
