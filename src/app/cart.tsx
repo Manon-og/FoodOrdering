@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Alert,
   Pressable,
+  Modal,
+  TextInput,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { UseCart } from "@/src/providers/CartProvider";
@@ -29,20 +31,17 @@ const CartScreen = () => {
     totalAmountPerProduct,
   } = UseCart();
 
-  // const { id_branches, branchName } = useBranchName();
   const { mutate: transferQuantity } = useUserTransferQuantity();
   const router = useRouter();
   const { id_branch, branchName } = useBranchStore();
-  // console.log("CART BUTTON:", id_branches);
-  console.log("CART BUTTON:", id_branch);
 
   const roundedTotal = parseFloat(total.toFixed(2));
-  const roundedTotalById = parseFloat(totalAmountPerProduct.toString());
-  console.log("TOTALBYPRODUCT FUCK IT", totalAmountPerProduct);
   const transactionId = uuidv4();
-  console.log("transactionId", transactionId);
 
   const [name, setName] = useState<string | null>(null);
+  const [isPaymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [amountPaid, setAmountPaid] = useState<string>("");
+  const [change, setChange] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -53,44 +52,45 @@ const CartScreen = () => {
     fetchUserName();
   }, []);
 
-  console.log("name?", name);
+  const calculateChange = (amount: string) => {
+    const paid = parseFloat(amount);
+    if (!isNaN(paid)) {
+      setChange(paid - roundedTotal);
+    } else {
+      setChange(null);
+    }
+  };
 
-  const handleCheckout = () => {
-    Alert.alert("Confirm Order", "Are you sure you want to place this order?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Confirm",
-        onPress: () => {
-          const totalAmounts = Object.values(totalAmountPerProduct);
-          items.forEach((item, index) => {
-            console.log("??????????????????????", item);
-            transferQuantity({
-              id_localbranch: item.id_localbranch,
-              id_branch: Number(id_branch),
-              id_products: item.id_products,
-              quantity: item.quantity,
-              amount: roundedTotal,
-              created_by: name || "",
-              id_group: transactionId,
-              amount_by_product: totalAmounts[index],
-            });
-          });
-          setTimeout(() => {
-            clearCart();
-            Alert.alert(
-              "Order Successful",
-              "Your order has been placed successfully."
-            );
-            router.push(
-              `/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`
-            );
-          }, 1000);
-        },
-      },
-    ]);
+  const handleConfirmPayment = () => {
+    if (change !== null && change >= 0) {
+      const totalAmounts = Object.values(totalAmountPerProduct);
+      items.forEach((item, index) => {
+        transferQuantity({
+          id_localbranch: item.id_localbranch,
+          id_branch: Number(id_branch),
+          id_products: item.id_products,
+          quantity: item.quantity,
+          amount: roundedTotal,
+          created_by: name || "",
+          id_group: transactionId,
+          amount_by_product: totalAmounts[index],
+        });
+      });
+
+      setTimeout(() => {
+        clearCart();
+        setPaymentModalVisible(false);
+        Alert.alert(
+          "Payment Successful",
+          `Order completed. Change: ₱${change.toFixed(2)}`
+        );
+        router.push(
+          `/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`
+        );
+      }, 1000);
+    } else {
+      Alert.alert("Error", "The amount paid must cover the total cost.");
+    }
   };
 
   const handleRemoveItem = (itemId: string) => {
@@ -147,9 +147,49 @@ const CartScreen = () => {
       />
       <View style={styles.footer}>
         <Text style={styles.totalText}>Total: ₱{roundedTotal}</Text>
-        <Button text="Checkout" onPress={handleCheckout} />
+        <Button
+          text="Proceed to Payment"
+          onPress={() => setPaymentModalVisible(true)}
+        />
       </View>
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
+
+      {/* Payment Modal */}
+      <Modal
+        visible={isPaymentModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setPaymentModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Payment</Text>
+            <Text style={styles.modalText}>Total: ₱{roundedTotal}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter amount paid"
+              keyboardType="numeric"
+              value={amountPaid}
+              onChangeText={(value) => {
+                setAmountPaid(value);
+                calculateChange(value);
+              }}
+            />
+            {change !== null && (
+              <Text style={[styles.changeText, { color: change >= 0 ? "green" : "red" }]}>
+                Change: ₱{change >= 0 ? change.toFixed(2) : "Insufficient"}
+              </Text>
+            )}
+            <View style={styles.modalButtonsRow}>
+              <Button
+                text="Cancel"
+                onPress={() => setPaymentModalVisible(false)}
+              />
+              <Button text="Confirm Payment" onPress={handleConfirmPayment} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -160,7 +200,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   listContent: {
-    paddingBottom: 100, // Ensure there's space for the footer
+    paddingBottom: 100,
   },
   footer: {
     position: "absolute",
@@ -190,6 +230,48 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
     color: "gray",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "90%", // Increase modal width
+    padding: 30, // Add more padding for a larger feel
+    backgroundColor: "white",
+    borderRadius: 15,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 15,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 15,
+    width: "100%",
+    marginBottom: 15,
+    textAlign: "center",
+    fontSize: 16,
+  },
+  changeText: {
+    fontSize: 18,
+    marginTop: 10,
+  },
+  modalButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 20,
   },
 });
 
