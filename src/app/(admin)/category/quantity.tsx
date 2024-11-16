@@ -13,7 +13,11 @@ import {
 import React, { memo, useState } from "react";
 import { Stack, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
-import { useInsertBatch, useProductList } from "@/src/api/products";
+import {
+  useInsertBatch,
+  useProductList,
+  useTransferBackInventoryProductList,
+} from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 
 const Index = () => {
@@ -27,6 +31,7 @@ const Index = () => {
   const router = useRouter();
 
   const { data: products, error, isLoading } = useProductList(selectedCategory);
+  const { data: availQuantity } = useTransferBackInventoryProductList();
   const { mutate: insertBatch } = useInsertBatch();
   console.log("asjhdbaksh:", products);
   console.log("Selected Category:", selectedCategory);
@@ -37,6 +42,17 @@ const Index = () => {
     setIsModalVisible(true);
   };
   //hi
+
+  const combinedProducts = products?.map((product) => {
+    const quantityData: any = availQuantity?.find(
+      (item: any) => item.id_products === product.id_products
+    );
+    return {
+      ...product,
+      quantity: quantityData ? quantityData.quantity : 0,
+    };
+  });
+
   const handleConfirmModal = () => {
     const quantity = parseInt(inputQuantity);
     if (quantity > 0) {
@@ -80,7 +96,7 @@ const Index = () => {
 
     console.log("Products:", products); // Log the products array
 
-    const filteredProducts = products?.filter(
+    const filteredProducts = combinedProducts?.filter(
       (product) => productQuantities[product.id_products] > 0
     );
 
@@ -133,8 +149,8 @@ const Index = () => {
     );
   }
 
-  const filteredProductList = Array.isArray(products)
-    ? products.filter((item) => item.id_archive === 2)
+  const filteredProductList = Array.isArray(combinedProducts)
+    ? combinedProducts.filter((item) => item.id_archive === 2)
     : [];
 
   const renderItem = ({ item }: { item: any }) => (

@@ -14,6 +14,7 @@ import {
   useTransferQuantity,
   useProductList,
   useSetTransferQuantity,
+  useTransferBackInventoryProductList,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 import { useBranchName } from "@/components/branchParams";
@@ -30,10 +31,21 @@ const Index = () => {
   const [currentProduct, setCurrentProduct] = useState<any>(null);
   const [inputQuantity, setInputQuantity] = useState<string>("");
 
-  const { data: products, error, isLoading } = useProductList(selectedCategory);
+  const { data: products } = useProductList(selectedCategory);
+  const { data: availQuantity } = useTransferBackInventoryProductList();
   const { mutate: transferQuantity } = useSetTransferQuantity();
 
   const { branchName, id_branch } = useBranchName();
+
+  const combinedProducts = products?.map((product) => {
+    const quantityData: any = availQuantity?.find(
+      (item: any) => item.id_products === product.id_products
+    );
+    return {
+      ...product,
+      quantity: quantityData ? quantityData.quantity : 0,
+    };
+  });
 
   const handleOpenModal = (product: any) => {
     setCurrentProduct(product);
@@ -91,9 +103,9 @@ const Index = () => {
       return;
     }
 
-    console.log("Products:", products); // Log the products array
+    console.log("Products:", combinedProducts);
 
-    const filteredProducts = products?.filter(
+    const filteredProducts = combinedProducts?.filter(
       (product) => productQuantities[product.id_products] > 0
     );
 
@@ -121,20 +133,8 @@ const Index = () => {
     ]);
   };
 
-  if (isLoading) {
-    return <ActivityIndicator />;
-  }
-
-  if (error) {
-    return (
-      <View>
-        <Text>Error: {error.message}</Text>
-      </View>
-    );
-  }
-
-  const filteredProductList = Array.isArray(products)
-    ? products.filter((item) => item.id_archive === 2)
+  const filteredProductList = Array.isArray(combinedProducts)
+    ? combinedProducts.filter((item) => item.id_archive === 2)
     : [];
 
   const renderItem = ({ item }: { item: any }) => (
@@ -209,7 +209,7 @@ const Index = () => {
         onConfirm={handleConfirmModal}
         inputQuantity={inputQuantity}
         setInputQuantity={setInputQuantity}
-        // name="Product Name"
+        name={currentProduct?.name}
       />
       {Date && (
         <QuantityTransfer

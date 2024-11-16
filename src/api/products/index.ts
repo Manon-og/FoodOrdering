@@ -20,6 +20,37 @@ export const useProductList = (id: string) => {
   });
 };
 
+// export const useCombinedProductList = (id: string) => {
+//   const { data: productList, error: productListError } = useProductList(id);
+//   const { data: batchList, error: batchListError } =
+//     useTransferBackInventoryProductList();
+
+//   if (productListError) {
+//     throw new Error(productListError.message);
+//   }
+
+//   if (batchListError) {
+//     throw new Error(batchListError.message);
+//   }
+
+//   if (!productList || !batchList) {
+//     return [];
+//   }
+
+//   // Combine product list with batch quantities
+//   const combinedData = productList.map((product) => {
+//     const batchItem = batchList.find(
+//       (batch) => batch.id_products === product.id_products
+//     );
+//     return {
+//       ...product,
+//       quantity: batchItem ? batchItem : 0,
+//     };
+//   });
+
+//   return combinedData;
+// };
+
 export const useArchiveIdProducts = (id: number) => {
   return useQuery({
     queryKey: ["batch", id],
@@ -225,6 +256,36 @@ export const useBackInventoryProductList = (id: string) => {
 
       return Object.values(groupedData);
       // return data;
+    },
+  });
+};
+
+export const useTransferBackInventoryProductList = () => {
+  return useQuery({
+    queryKey: ["back inventory"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("batch")
+        .select(`*`)
+        .not("id_products", "is", null);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const combinedData = data.reduce((acc, item) => {
+        console.log("item", item.id_products);
+        const key = `${item.id_products}`;
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
+            quantity: 0,
+          };
+        }
+        acc[key].quantity += item.quantity;
+        return acc;
+      }, {});
+
+      return Object.values(combinedData);
     },
   });
 };
