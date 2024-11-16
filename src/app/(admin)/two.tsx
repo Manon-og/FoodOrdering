@@ -1,6 +1,9 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
-import { useGroupedSalesTransaction } from "@/src/api/products";
+import {
+  useGroupedSalesTransaction,
+  useGroupedSalesTransactionADMIN,
+} from "@/src/api/products";
 import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import AdminViewTransaction from "@/components/AdminViewTransaction";
@@ -15,15 +18,17 @@ const Index = () => {
     weekday: "long",
   });
 
-  const { data: groupedSales }: any = useGroupedSalesTransaction();
+  const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
   console.log("GROUPED SALESs:", groupedSales);
 
   const renderItem = ({ item }: { item: any }) => {
     return (
       <AdminViewTransaction
-        id_branch={item.id_branch.place}
+        place={item.id_branch.place}
+        id_branch={item.id_branch.id_branch}
         created_at={item.created_at}
         amount_by_product={item.amount_by_product}
+        created_by={item.created_by}
       />
     );
   };

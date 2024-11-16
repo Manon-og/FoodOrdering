@@ -4,22 +4,32 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 
 interface GroupedSalesTransactionItemProps {
   created_at: string;
+  created_by: string;
   amount_by_product: number;
+  place: number;
   id_branch: number;
 }
 
 const AdminViewTransaction: React.FC<GroupedSalesTransactionItemProps> = ({
-  id_branch,
+  place,
   created_at,
+  created_by,
   amount_by_product,
+  id_branch,
 }) => {
   const date = new Date(created_at).toISOString().split("T")[0];
+  console.log("Date HIRRRRRRR:", date);
+  const link: any = `/(admin)/salesreport?id_branch=${id_branch}&created_at=${date}&created_by=${created_by}`;
   return (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemLeft}>{id_branch}</Text>
-      <Text style={styles.itemText}>{date}</Text>
-      <Text style={styles.itemRight}> {amount_by_product}</Text>
-    </View>
+    <Link href={link} asChild>
+      <Pressable>
+        <View style={styles.itemContainer}>
+          <Text style={styles.itemLeft}>{place}</Text>
+          <Text style={styles.itemText}>{date}</Text>
+          <Text style={styles.itemRight}> {amount_by_product}</Text>
+        </View>
+      </Pressable>
+    </Link>
   );
 };
 

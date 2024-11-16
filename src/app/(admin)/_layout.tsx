@@ -138,6 +138,14 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+
+      <Tabs.Screen
+        name="salesreport"
+        options={{
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 }

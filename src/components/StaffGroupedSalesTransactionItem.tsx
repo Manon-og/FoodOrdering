@@ -22,6 +22,7 @@ const GroupedSalesTransactionItem: React.FC<
   GroupedSalesTransactionItemProps
 > = ({ id_group, id_number, amount, created_at }) => {
   console.log("id_group HEREEE", id_group);
+  console.log("id_number HEREEE", amount);
   const link: any = `/(user)/transaction?id_group=${id_group}`;
   return (
     <Link href={link} asChild>

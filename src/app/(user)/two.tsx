@@ -26,6 +26,8 @@ const Index = () => {
   const { data: groupedSales }: any = useGroupedSalesTransaction(
     id_branch ?? ""
   );
+
+  console.log("GROUPED SALESs:", groupedSales);
   let currentIdGroup = 1;
 
   const renderItem = ({ item }: { item: any }) => {
@@ -44,7 +46,7 @@ const Index = () => {
       <GroupedSalesTransactionItem
         id_group={item.id_group}
         id_number={displayIdGroup.toString()}
-        amount={item.amount}
+        amount={item.amount_by_product}
         created_at={createdAtDate}
         transactions={item.transactions}
       />
@@ -94,7 +96,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "gray",
     textAlign: "center", // Center the text
-
   },
   dayText: {
     fontSize: 20,

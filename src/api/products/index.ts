@@ -1323,7 +1323,52 @@ export const getLastSignInTime = async (userId: string) => {
   return data?.user?.last_sign_in_at;
 };
 
-export const useGroupedSalesTransaction = () => {
+export const useGroupedSalesTransaction = (id_branch: string) => {
+  return useQuery({
+    queryKey: ["groupedSalesTransaction"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salestransaction")
+        .select("*, id_products(name), id_branch(*)")
+        .eq("id_branch", id_branch);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const date = new Date(item.created_at).toISOString().split("T")[0];
+        console.log("date HERE", date);
+        console.log("itemSSS", item.id_branch.id_branch);
+        const key = `${item.id_branch.id_branch}_${date}`;
+        if (!acc[key]) {
+          acc[key] = {
+            id_group: item.id_group,
+            id_products: item.id_products,
+            id_branch: item.id_branch,
+            quantity: 0,
+            amount_by_product: 0,
+            created_at: date,
+            transactions: [],
+            created_by: item.created_by,
+          };
+        }
+        acc[key].quantity += item.quantity;
+        acc[key].amount_by_product += item.amount_by_product;
+        acc[key].transactions.push(item);
+
+        return acc;
+      }, {});
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useGroupedSalesTransactionADMIN = () => {
   return useQuery({
     queryKey: ["groupedSalesTransaction"],
     queryFn: async () => {
@@ -1342,6 +1387,7 @@ export const useGroupedSalesTransaction = () => {
       const groupedData = data.reduce((acc, item) => {
         const date = new Date(item.created_at).toISOString().split("T")[0];
         console.log("date HERE", date);
+        console.log("itemSSS", item.id_branch.id_branch);
         const key = `${item.id_branch.id_branch}_${date}`;
         if (!acc[key]) {
           acc[key] = {
@@ -1350,8 +1396,9 @@ export const useGroupedSalesTransaction = () => {
             id_branch: item.id_branch,
             quantity: 0,
             amount_by_product: 0,
-            created_at: item.created_at,
+            created_at: date,
             transactions: [],
+            created_by: item.created_by,
           };
         }
         acc[key].quantity += item.quantity;
@@ -2117,3 +2164,82 @@ export const useTransferReturnedBatch = () => {
     },
   });
 };
+
+export const useGetTotalSalesReport = (id_branch: string, date: string) => {
+  return useQuery({
+    queryKey: ["useGetTotalSalesReport", id_branch, date],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("salestransaction")
+        .select(`*, id_branch(place), id_products(name)`)
+        .eq("id_branch", id_branch);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Filter data based on the provided date
+      const filteredData = data.filter((item) => {
+        const itemDate = new Date(item.created_at).toISOString().split("T")[0];
+        console.log("itemDate", itemDate);
+        console.log("itemDate", date);
+        return itemDate === date;
+      });
+
+      console.log("filteredData", filteredData);
+
+      return Object.values(filteredData);
+    },
+  });
+};
+
+// export const useSalesReportADMIN = (id: string, date: string) => {
+//   return useQuery({
+//     queryKey: [
+//       "useSalesReportADMIN",
+//       id,
+//       date,
+//     ],
+//     queryFn: async () => {
+//       const { data, error } = await supabase
+//         .from("salestransaction")
+//         .select("*, id_products(*)")
+//         .eq("id_branch", id);
+
+//       if (error) {
+//         throw new Error(error.message);
+//       }
+
+//       if (data.length === 0) {
+//         return [];
+//       }
+
+//       const filteredData = data.filter((item) => {
+//         const itemDate = new Date(item.created_at).toISOString().split("T")[0];
+//         return itemDate === formattedDate;
+//       });
+
+//       console.log("filteredData", filteredData);
+
+//       const groupedData = filteredData.reduce((acc, item) => {
+//         const key = `${item.id_products.id_products}`;
+//         if (!acc[key]) {
+//           acc[key] = {
+//             id_products: item.id_products,
+//             quantity: 0,
+//             amount_by_product: 0,
+//             created_at: formattedDate,
+//             transactions: [],
+//             created_by: item.created_by,
+//           };
+//         }
+//         acc[key].amount_by_product += item.amount_by_product;
+//         acc[key].quantity += item.quantity;
+//         acc[key].transactions.push(item);
+//         return acc;
+//       }, {});
+
+//       return Object.values(groupedData);
+//     },
+//   });
+// };
