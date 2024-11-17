@@ -11,22 +11,34 @@ interface ProductQuantities {
 }
 
 interface TransferQuantityParams {
+  // branchName: string;
   id_branch: number;
   id_products: number;
   quantity: number;
   date: string;
 }
 
+interface ProductionHistoryParams {
+  id_products: string;
+  quantity: number;
+  location: string;
+  // branchName: string;
+}
+
 interface QuantityTransferProps {
+  branchName: string;
   id_branch: number;
   productQuantities: ProductQuantities;
   transferQuantity: (params: TransferQuantityParams) => void;
+  insertProductionHistory: (params: ProductionHistoryParams) => void;
 }
 
 const QuantityTransfer: React.FC<QuantityTransferProps> = ({
+  branchName,
   id_branch,
   productQuantities,
   transferQuantity,
+  insertProductionHistory,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
@@ -61,6 +73,13 @@ const QuantityTransfer: React.FC<QuantityTransferProps> = ({
         id_products: Number(id_products),
         quantity: quantity,
         date: dateString,
+      });
+    });
+    Object.entries(productQuantities).forEach(([id_products, quantity]) => {
+      insertProductionHistory({
+        location: branchName,
+        id_products: id_products.toString(),
+        quantity: quantity,
       });
     });
     Alert.alert(

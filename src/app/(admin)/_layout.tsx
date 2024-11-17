@@ -154,6 +154,22 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+
+      <Tabs.Screen
+        name="one"
+        options={{
+          title: "Production",
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="productionreport"
+        options={{
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 }

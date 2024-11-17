@@ -15,6 +15,7 @@ import { Stack, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import {
   useInsertBatch,
+  useInsertProductionHistory,
   useProductList,
   useTransferBackInventoryProductList,
 } from "@/src/api/products";
@@ -33,6 +34,7 @@ const Index = () => {
   const { data: products, error, isLoading } = useProductList(selectedCategory);
   const { data: availQuantity } = useTransferBackInventoryProductList();
   const { mutate: insertBatch } = useInsertBatch();
+  const { mutate: insertProductionHistory } = useInsertProductionHistory();
   console.log("asjhdbaksh:", products);
   console.log("Selected Category:", selectedCategory);
 
@@ -122,7 +124,16 @@ const Index = () => {
             ([id_products, quantity]) => {
               insertBatch({ id_products: Number(id_products), quantity });
             }
-          );
+          ),
+            Object.entries(productQuantities).forEach(
+              ([id_products, quantity]) => {
+                insertProductionHistory({
+                  location: "Back Inventory",
+                  id_products: id_products.toString(),
+                  quantity,
+                });
+              }
+            );
           router.push("/(admin)/category");
           Alert.alert(
             "Changes Confirmed",

@@ -1230,6 +1230,11 @@ export const useSetTransferQuantity = () => {
           .select("*")
           .eq("id_products", data.id_products);
         console.log("batches", batches);
+        const totalQuantity = batches?.reduce(
+          (acc, batch) => acc + batch.quantity,
+          0
+        );
+        console.log("totalQuantity", totalQuantity);
 
         if (batchError) {
           throw new Error("Error fetching batches");
@@ -1242,8 +1247,12 @@ export const useSetTransferQuantity = () => {
           if (remainingQuantity <= 0) break;
           console.log("Batch:", batch);
           console.log("batch.id_batch??", batch.id_batch);
+          console.log("batch.quantity??", batch.quantity);
 
-          const transferQuantity = Math.min(batch.quantity, remainingQuantity);
+          const transferQuantity = Math.min(
+            totalQuantity.quantity,
+            remainingQuantity
+          );
           console.log("TtransferQuantity", transferQuantity);
 
           const { data: updatedLocalBatch, error: updateError } = await supabase
@@ -1290,7 +1299,7 @@ export const useSetTransferQuantity = () => {
 
         return true;
       } catch (error) {
-        console.error("Error transferring quantitys:", error);
+        console.error("Error transferring quantityss:", error);
         throw error;
       }
     },
@@ -2740,6 +2749,169 @@ export const useOverviewProductListById = (id_products: string) => {
         console.error("Error fetching data:", error);
         throw error;
       }
+    },
+  });
+};
+
+export const useInsertProductionHistory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      location: string;
+      id_products: string;
+      quantity: number;
+    }) => {
+      try {
+        const { data: insertedProduct, error: pendingproductsError } =
+          await supabase.from("stockmovement").insert({
+            location: data.location,
+            id_products: data.id_products,
+            quantity: data.quantity,
+          });
+        // .select("id_products")
+        // .single();
+
+        if (pendingproductsError) {
+          throw new Error(
+            `Error inserting into stockmovement table: ${pendingproductsError.message}`
+          );
+        }
+
+        return insertedProduct;
+      } catch (error) {
+        console.error("Error inserting product:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const useGetProductionHistory = () => {
+  return useQuery({
+    queryKey: ["groupedProductionHistory"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("stockmovement")
+        .select("*, id_products(name)");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const date = new Date(item.created_at).toISOString().split("T")[0];
+        const key = `${item.location}_${date}`;
+        console.log("keyjsajjs", key);
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
+            location: item.location,
+            quantity: 0,
+            created_at: date,
+            transactions: [],
+          };
+        }
+        acc[key].quantity += item.quantity;
+        acc[key].transactions.push(item);
+
+        return acc;
+      }, {});
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useGetProductionHistoryByLocation = () => {
+  return useQuery({
+    queryKey: ["groupedProductionHistory"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("stockmovement")
+        .select("*, id_products(name)");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const date = new Date(item.created_at).toISOString().split("T")[0];
+        const key = `${item.location}_${date}`;
+        console.log("keyjsajjs", key);
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
+            location: item.location,
+            quantity: 0,
+
+            created_at: date,
+            transactions: [],
+          };
+        }
+        acc[key].quantity += item.quantity;
+        acc[key].transactions.push(item);
+
+        return acc;
+      }, {});
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useGetProductionHistoryDetails = (
+  location: string,
+  date: string
+) => {
+  return useQuery({
+    queryKey: ["groupedProductionHistory", location, date],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("stockmovement")
+        .select("*, id_products(name)")
+        .eq("location", location);
+
+      console.log("stockmovement", data);
+      console.log("stockmovement date", date);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const itemDate = new Date(item.created_at).toISOString().split("T")[0];
+        if (itemDate !== date) {
+          return acc;
+        }
+
+        const key = `${item.id_products.name}_${itemDate}`;
+
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
+            quantity: 0,
+            created_at: item.created_at,
+            transactions: [],
+          };
+        }
+        acc[key].quantity += item.quantity;
+        acc[key].transactions.push(item);
+
+        return acc;
+      }, {});
+
+      return Object.values(groupedData);
     },
   });
 };

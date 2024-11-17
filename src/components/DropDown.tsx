@@ -1,26 +1,36 @@
-import React, { useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
 
 type DropdownItem = {
   label: string;
   value: string;
 };
 
-const data: DropdownItem[] = [
-  { label: "Item 1", value: "1" },
-  { label: "Item 2", value: "2" },
-  { label: "Item 3", value: "3" },
-  { label: "Item 4", value: "4" },
-  { label: "Item 5", value: "5" },
-  { label: "Item 6", value: "6" },
-  { label: "Item 7", value: "7" },
-  { label: "Item 8", value: "8" },
-];
+type DropdownComponentProps = {
+  data: DropdownItem[];
+  defaultValue?: string;
+};
 
-const DropdownComponent = () => {
-  const [value, setValue] = useState<string | null>(null);
+const DropdownComponent: React.FC<DropdownComponentProps> = ({
+  data,
+  defaultValue,
+}) => {
+  const [value, setValue] = useState<string | null>(defaultValue || null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (value === "Production") {
+      router.push("/(admin)/one");
+      setValue(null);
+    } else if (value === "Sales Transaction") {
+      router.push("/(admin)/two");
+      setValue(null);
+    }
+  }, [value, router]);
 
   const renderItem = (item: DropdownItem) => {
     return (

@@ -15,6 +15,7 @@ import {
   useProductList,
   useSetTransferQuantity,
   useTransferBackInventoryProductList,
+  useInsertProductionHistory,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 import { useBranchName } from "@/components/branchParams";
@@ -34,8 +35,12 @@ const Index = () => {
   const { data: products } = useProductList(selectedCategory);
   const { data: availQuantity } = useTransferBackInventoryProductList();
   const { mutate: transferQuantity } = useSetTransferQuantity();
+  const { mutate: insertProductionHistory } = useInsertProductionHistory();
 
   const { branchName, id_branch } = useBranchName();
+  console.log("Branch Name HIRRRRRRRR@@:", branchName);
+  console.log(" availQuantit:", availQuantity);
+  console.log("products:", products);
 
   const combinedProducts = products?.map((product) => {
     const quantityData: any = availQuantity?.find(
@@ -46,6 +51,9 @@ const Index = () => {
       quantity: quantityData ? quantityData.quantity : 0,
     };
   });
+
+  console.log("combinedProducts:", combinedProducts);
+  console.log("productQuantities:", productQuantities);
 
   const handleOpenModal = (product: any) => {
     setCurrentProduct(product);
@@ -108,6 +116,8 @@ const Index = () => {
     const filteredProducts = combinedProducts?.filter(
       (product) => productQuantities[product.id_products] > 0
     );
+
+    console.log("Filtered Products:", filteredProducts);
 
     const summary = filteredProducts
       ?.map((product) => {
@@ -214,8 +224,10 @@ const Index = () => {
       {Date && (
         <QuantityTransfer
           id_branch={Number(id_branch)}
+          branchName={branchName}
           productQuantities={productQuantities}
           transferQuantity={transferQuantity}
+          insertProductionHistory={insertProductionHistory}
         />
       )}
     </View>

@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import {
+  useGetProductionHistory,
   useGroupedSalesTransaction,
   useGroupedSalesTransactionADMIN,
 } from "@/src/api/products";
@@ -8,6 +9,7 @@ import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransacti
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import AdminViewTransaction from "@/components/AdminViewTransaction";
 import DropdownComponent from "@/components/DropDown";
+import AdminViewProduction from "@/components/AdminViewProduction";
 
 const Index = () => {
   const filter = [
@@ -23,23 +25,23 @@ const Index = () => {
   });
 
   const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
+  const { data: groupedProduction }: any = useGetProductionHistory();
   console.log("GROUPED SALESs:", groupedSales);
+  console.log("GROUPED PRODUCTION:", groupedProduction);
 
   const renderItem = ({ item }: { item: any }) => {
     return (
-      <AdminViewTransaction
-        place={item.id_branch.place}
-        id_branch={item.id_branch.id_branch}
+      <AdminViewProduction
+        location={item.location}
         created_at={item.created_at}
-        amount_by_product={item.amount_by_product}
-        created_by={item.created_by}
+        quantity={item.quantity}
       />
     );
   };
 
   const keyExtractor = (item: any) => {
     const date = new Date(item.created_at).toISOString().split("T")[0];
-    return `${item.id_branch.id_branch}_${date}`;
+    return `${item.location}_${date}`;
   };
 
   return (
@@ -51,11 +53,11 @@ const Index = () => {
         <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
-          Total Amount
+          Total Quantity
         </Text>
       </View>
       <FlatList
-        data={groupedSales}
+        data={groupedProduction}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
