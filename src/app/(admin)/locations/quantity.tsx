@@ -16,6 +16,7 @@ import {
   useSetTransferQuantity,
   useTransferBackInventoryProductList,
   useInsertProductionHistory,
+  useAllProductList,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 import { useBranchName } from "@/components/branchParams";
@@ -32,6 +33,7 @@ const Index = () => {
   const [currentProduct, setCurrentProduct] = useState<any>(null);
   const [inputQuantity, setInputQuantity] = useState<string>("");
 
+  const { data: allProducts } = useAllProductList();
   const { data: products } = useProductList(selectedCategory);
   const { data: availQuantity } = useTransferBackInventoryProductList();
   const { mutate: transferQuantity } = useSetTransferQuantity();
@@ -106,9 +108,10 @@ const Index = () => {
       return;
     }
 
-    console.log("Products:", combinedProducts);
+    console.log("Products:", products); // Log the products array
+    console.log("All Products:", allProducts); // Log all products array
 
-    const filteredProducts = combinedProducts?.filter(
+    const filteredProducts = allProducts?.filter(
       (product) => productQuantities[product.id_products] > 0
     );
 

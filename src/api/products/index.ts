@@ -19,6 +19,41 @@ export const useProductList = (id: string) => {
     },
   });
 };
+export const useAllProductList = () => {
+  return useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      // Fetch products
+      const { data: products, error: productsError } = await supabase
+        .from("products")
+        .select("*");
+
+      if (productsError) {
+        throw new Error(productsError.message);
+      }
+
+      // Fetch prices
+      const { data: prices, error: pricesError } = await supabase
+        .from("price")
+        .select("id_price, amount");
+
+      if (pricesError) {
+        throw new Error(pricesError.message);
+      }
+
+      // Combine products with their prices
+      const combinedData = products.map((product) => {
+        const price = prices.find((p) => p.id_price === product.id_price);
+        return {
+          ...product,
+          price: price ? price.amount : null,
+        };
+      });
+
+      return combinedData;
+    },
+  });
+};
 
 // export const useCombinedProductList = (id: string) => {
 //   const { data: productList, error: productListError } = useProductList(id);
