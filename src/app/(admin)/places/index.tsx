@@ -128,22 +128,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "30%",
+    paddingTop: "25%",
   },
   dateContainer: {
     position: "absolute",
-    top: 50,
+    top: 20,
+    alignItems: "center",
   },
   dateText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: "gray",
   },
   dayText: {
-    fontSize: 25,
+    fontSize: 23,
     fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+    color: "#0E1432",
   },
   filterContainer: {
     flexDirection: "row", // Align Search Bar and Dropdown side by side
@@ -153,16 +153,16 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     height: 40,
-    flex: 1, // Take up all available space
+    flex: 1, 
     borderColor: "gray",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginRight: 10, // Space between search bar and dropdown
+    marginRight: 10, 
   },
   dropdown: {
     height: 40,
-    width: 120, 
+    width: 150, 
     borderColor: "gray",
     borderWidth: 0.5,
     borderRadius: 5,

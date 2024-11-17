@@ -79,12 +79,6 @@ const Index = () => {
           0
         )}
       </Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.buttonText}>Voided Transaction</Text>
-      </TouchableOpacity>
       <VoidedTransactionModalADMIN
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -101,6 +95,12 @@ const Index = () => {
         )}
       </Text>
       <Text style={styles.createdBy}>Created By: {name}</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.buttonText}>Voided Transaction</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   totalText: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "darkgreen",
+    color: "#0E1432",
     paddingVertical: 20,
   },
   createdBy: {
