@@ -18,6 +18,7 @@ import {
   useInsertProductionHistory,
   useProductList,
   useTransferBackInventoryProductList,
+  useAllProductList,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 
@@ -32,11 +33,14 @@ const Index = () => {
   const router = useRouter();
 
   const { data: products, error, isLoading } = useProductList(selectedCategory);
+  const { data: AllProducts } = useAllProductList();
+
   const { data: availQuantity } = useTransferBackInventoryProductList();
   const { mutate: insertBatch } = useInsertBatch();
   const { mutate: insertProductionHistory } = useInsertProductionHistory();
-  console.log("asjhdbaksh:", products);
+  console.log("CATEGORY PRODUCTS:", products);
   console.log("Selected Category:", selectedCategory);
+  console.log("ALL PRODUCTS:", AllProducts);
 
   const handleOpenModal = (productId: string) => {
     setCurrentProductId(productId);
