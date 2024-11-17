@@ -32,7 +32,7 @@ const OverViewModal = ({
 //   currentDate,
 //   currentDay,
 VoidedTransactionModalProps) => {
-  console.log("DATA:", Data);
+  console.log("DATA TO USE", Data);
 
   const renderPlaceItem = ({ item }: { item: any }) => {
     return (
@@ -44,7 +44,7 @@ VoidedTransactionModalProps) => {
   };
 
   const renderVoidedItem = ({ item }: { item: any }) => {
-    const places = [];
+    let places = [];
     if (
       item.batch !== undefined &&
       item.batch !== null &&
@@ -62,16 +62,20 @@ VoidedTransactionModalProps) => {
         quantity: item.confirmedProduct.quantity,
       });
     }
-    if (
-      item.localBatch !== undefined &&
-      item.localBatch !== null &&
-      item.localBatch.quantity > 0
-    ) {
-      places.push({
-        place: item.localBatch.place,
-        quantity: item.localBatch.quantity,
-      });
-    }
+
+    item.localBatch.map((item: any) => {
+      if (places.some((place) => place.place === item.place)) {
+        places.find((place) => place.place === item.place).quantity +=
+          item.quantity;
+        return;
+      } else {
+        places.push({
+          place: item.place,
+          quantity: item.quantity,
+        });
+      }
+    });
+
     if (
       item.pendingLocalBatch !== undefined &&
       item.pendingLocalBatch !== null &&
@@ -124,7 +128,7 @@ VoidedTransactionModalProps) => {
 
           <View style={styles.totalSalesContainer}>
             <Text style={styles.totalSalesText}> Total Quantity:</Text>
-            <Text style={styles.totalSalesNumber}>{totalQuantity}</Text>
+            <Text style={styles.totalSalesNumber}>{Data[0].totalQuantity}</Text>
           </View>
 
           <Pressable
