@@ -2589,7 +2589,7 @@ export const useOverviewProductList = () => {
         console.log("confirmedProductTable", confirmedProductTable);
         console.log("pendinglocalbatchTable", pendinglocalbatchTable);
 
-        const groupedLocalBatchTable = localBatchTable.reduce(
+        const groupedLocalBatchTable = localBatchTable?.reduce(
           (acc: any, item: any) => {
             const key = item.id_products; // Group by id_products
             if (!acc[key]) {
@@ -2620,17 +2620,13 @@ export const useOverviewProductList = () => {
           Object.values(groupedLocalBatchTable)
         );
 
-        const combinedData = productsTable.map((product) => {
-          const batchData = batchTable.filter(
+        const combinedData = productsTable?.map((product) => {
+          // back inventory
+          const batchData = batchTable?.filter(
             (item) => item.id_products === product.id_products
           );
 
-          console.log("batchData1", batchData);
-
-          const localBatchData = localBatchTable.filter(
-            (item: any) => item.id_products === product.id_products
-          );
-
+          console.log(batchData);
           // const localBatchGrouped = groupedLocalBatchTable.reduce(
           //   (acc: any, item: any) => {
           //     const place = item.id_branch.place;
@@ -2644,16 +2640,16 @@ export const useOverviewProductList = () => {
           // console.log("localBatchData!!!!", localBatchData);
           // console.log("????????????!!!!", localBatchGrouped);
 
-          const confirmedProductData: any = confirmedProductTable.filter(
+          const confirmedProductData: any = confirmedProductTable?.filter(
             (item) => item.id_products === product.id_products
           );
-          const pendingLocalBatchData: any = pendinglocalbatchTable.filter(
+          const pendingLocalBatchData: any = pendinglocalbatchTable?.filter(
             (item) => item.id_products === product.id_products
           );
 
           const totalQuantity =
-            batchData.reduce((sum, item) => sum + item.quantity, 0) +
-            localBatchData.reduce(
+            batchData?.reduce((sum, item) => sum + item.quantity, 0) +
+            localBatchTable?.reduce(
               (sum: any, item: { quantity: any }) => sum + item.quantity,
               0
             ) +
@@ -2675,27 +2671,27 @@ export const useOverviewProductList = () => {
           //   (item: any) => item.id_branch.place
           // ));
 
+          const localBatchDataItems = localBatchTable?.map((item: any) => {
+            return {
+              place: item.id_branch,
+              quantity: item.quantity,
+            };
+          });
+
           return {
             ...product,
             totalQuantity,
-            batch: batchData.length
+            batch: batchData?.length
               ? {
-                  quantity: batchData.reduce(
+                  quantity: batchData?.reduce(
                     (sum, item) => sum + item.quantity,
                     0
                   ),
                 }
               : null,
 
-            localBatch: localBatchData.length
-              ? {
-                  place: localBatchData[0].id_branch,
-                  quantity: localBatchData.reduce(
-                    (sum: any, item: { quantity: any }) => sum + item.quantity,
-                    0
-                  ),
-                }
-              : null,
+            // if localBatchData is not empty, render something
+            localBatch: localBatchTable?.length ? localBatchDataItems : null,
             confirmedProduct: confirmedProductData.length
               ? {
                   place: confirmedProductData[0].id_branch.place,
@@ -2782,22 +2778,22 @@ export const useOverviewProductListById = (id_products: string) => {
         console.log("confirmedProductTable", confirmedProductTable);
         console.log("pendinglocalbatchTable", pendinglocalbatchTable);
 
-        const combinedData = productsTable.map((product) => {
-          const batchData = batchTable.filter(
+        const combinedData = productsTable?.map((product) => {
+          const batchData = batchTable?.filter(
             (item) => item.id_products === product.id_products
           );
-          const localBatchData: any = localBatchTable.filter(
+          const localBatchData: any = localBatchTable?.filter(
             (item) => item.id_products === product.id_products
           );
-          const confirmedProductData: any = confirmedProductTable.filter(
+          const confirmedProductData: any = confirmedProductTable?.filter(
             (item) => item.id_products === product.id_products
           );
-          const pendingLocalBatchData: any = pendinglocalbatchTable.filter(
+          const pendingLocalBatchData: any = pendinglocalbatchTable?.filter(
             (item) => item.id_products === product.id_products
           );
 
           const totalQuantity =
-            batchData.reduce((sum, item) => sum + item.quantity, 0) +
+            batchData?.reduce((sum, item) => sum + item.quantity, 0) +
             localBatchData.reduce(
               (sum: any, item: { quantity: any }) => sum + item.quantity,
               0
@@ -2816,26 +2812,27 @@ export const useOverviewProductListById = (id_products: string) => {
           console.log("confirmedProductData", confirmedProductData);
           console.log("pendingLocalBatchData", pendingLocalBatchData);
 
+          const localBatchDataItems = localBatchData?.map((item: any) => {
+            return {
+              place: item.id_branch.place,
+              quantity: item.quantity,
+            };
+          });
+
+          console.log("LOCAL BATCH DATA ITEMS MODAL", localBatchDataItems);
+
           return {
             ...product,
             totalQuantity,
-            batch: batchData.length
+            batch: batchData?.length
               ? {
-                  quantity: batchData.reduce(
+                  quantity: batchData?.reduce(
                     (sum, item) => sum + item.quantity,
                     0
                   ),
                 }
               : null,
-            localBatch: localBatchData.length
-              ? {
-                  place: localBatchData[0].id_branch.place,
-                  quantity: localBatchData.reduce(
-                    (sum: any, item: { quantity: any }) => sum + item.quantity,
-                    0
-                  ),
-                }
-              : null,
+            localBatch: localBatchData.length ? localBatchDataItems : null,
             confirmedProduct: confirmedProductData.length
               ? {
                   place: confirmedProductData[0].id_branch.place,
@@ -2857,6 +2854,7 @@ export const useOverviewProductListById = (id_products: string) => {
           };
         });
 
+        console.log("COMBINED DATA", combinedData);
         return combinedData;
       } catch (error) {
         console.error("Error fetching data:", error);
