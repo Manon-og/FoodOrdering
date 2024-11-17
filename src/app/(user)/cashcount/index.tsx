@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, Alert, ScrollView, Modal, TouchableOpacity, FlatList } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, TextInput, Alert, ScrollView, Modal, FlatList } from "react-native";
 import { useAllLocalBranchData, useInsertCashCount, useInsertPendingProducts, useSalesTransaction } from "@/src/api/products";
 import Button from "@/src/components/Button";
 import { useBranchStore } from "@/store/branch";
@@ -15,6 +15,7 @@ const EndDay = () => {
   const [showReturnProducts, setShowReturnProducts] = useState(false);
   const [showFinalModal, setShowFinalModal] = useState(false);
   const [cashCountTotal, setCashCountTotal] = useState(0);
+  const [totalSales, setTotalSales] = useState(0);
 
   const { id } = useUUIDStore();
   const { id_branch, branchName } = useBranchStore();
@@ -57,6 +58,9 @@ const EndDay = () => {
         setInputValues(Array(numbers.length).fill(0));
         setCashCountTotal(total);
         setShowReturnProducts(true);
+
+        // Set the total sales value to be shown in the modal (from system data)
+        setTotalSales(totalTransactionsData?.reduce((acc, transaction) => acc + transaction.amount, 0) || 0);
       },
     });
   };
@@ -72,7 +76,9 @@ const EndDay = () => {
         onSuccess: (data) => {
           console.log("Inserted IDs:", data);
           Alert.alert("Success", "Request for return products sent");
-          router.push("/(user)/profile");
+
+          // Show the final modal after returning products
+          setShowFinalModal(true);
         },
         onError: (error) => {
           console.error("Error inserting pending products:", error);
@@ -166,16 +172,17 @@ const EndDay = () => {
         </>
       )}
 
-        <Modal visible={showFinalModal} transparent={true} animationType="slide">
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>End of Day Summary</Text>
-              <Text style={styles.modalText}>Cash Count Total: ₱{cashCountTotal.toLocaleString()}</Text>
-              <Text style={styles.modalText}>Total Transactions: ₱{totalTransactionsData?.toLocaleString()}</Text>
-              <Button text={"Close"} onPress={() => router.push("/(user)/profile")} />
-            </View>
+      {/* Modal to show the final summary */}
+      <Modal visible={showFinalModal} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>End of Day Summary</Text>
+            <Text style={styles.modalText}>Cash Count Total: ₱{cashCountTotal.toLocaleString()}</Text>
+            <Text style={styles.modalText}>Total Sales: ₱{totalSales.toLocaleString()}</Text>
+            <Button text={"Close"} onPress={() => router.push("/(user)/profile")} />
           </View>
-        </Modal>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -239,66 +246,57 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     backgroundColor: "#f9f9f9",
     borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
   },
   itemLeft: {
     fontSize: 16,
     fontWeight: "bold",
-    textAlign: "left",
+    flex: 1,
   },
   inputBox: {
-    paddingRight: 37,
+    fontSize: 16,
+    width: 100,
+    borderWidth: 1,
+    borderRadius: 5,
+    textAlign: "center",
+    padding: 5,
   },
   totalContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    paddingVertical: 20,
     alignItems: "center",
-    width: "100%",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    marginVertical: 0,
   },
   totalText: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "gray",
-    textAlign: "left",
   },
   totalValue: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: "bold",
-    paddingRight: 20,
-    color: "gray",
-    textAlign: "right",
+    color: "#0078D4",
   },
   confirmBtn: {
-    height: 10,
-    backgroundColor: "#0E1432",
+    width: "100%",
+    marginTop: 20,
   },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0,0,0,0.7)",
   },
   modalContent: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
     width: "80%",
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
     alignItems: "center",
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "bold",
     marginBottom: 10,
   },
   modalText: {
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 10,
   },
 });

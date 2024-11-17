@@ -28,7 +28,6 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<"default" | "asc" | "desc">("default");
 
-  // Filter the overview data based on the search query and selected category
   let filteredOverview = overview?.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
     (selectedCategory === "" || item.category === selectedCategory)

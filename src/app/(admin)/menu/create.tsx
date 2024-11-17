@@ -137,22 +137,16 @@ const CreateProductScreen = () => {
     );
   };
 
-  const onDelete = () => {
-    if (available) {
-      alert("The product still has some batches remaining.");
-      return;
-    }
-    console.log("Archiving product");
-    archiveProduct(id, {
-      onSuccess: () => {
-        resetFields();
-        router.replace("/(admin)");
-      },
-    });
-  };
-
   const confirmDelete = () => {
-    if (updatingProduct.quantity > 0) {
+    console.log("updatingProduct data:", updatingProduct);
+    const totalQuantity = [
+      updatingProduct.batch?.quantity || 0,
+      updatingProduct.localBatch?.quantity || 0,
+      updatingProduct.confirmedProduct?.quantity || 0,
+      updatingProduct.pendingLocalBatch?.quantity || 0
+    ].reduce((acc, quantity) => acc + quantity, 0);
+  
+    if (totalQuantity > 0) {
       alert("The product still has some batches remaining.");
     } else {
       Alert.alert("Confirm", "Are you sure you want to archive this product?", [
@@ -167,6 +161,28 @@ const CreateProductScreen = () => {
         },
       ]);
     }
+  };
+  
+  const onDelete = () => {
+    const totalQuantity = [
+      updatingProduct.batch?.quantity || 0,
+      updatingProduct.localBatch?.quantity || 0,
+      updatingProduct.confirmedProduct?.quantity || 0,
+      updatingProduct.pendingLocalBatch?.quantity || 0
+    ].reduce((acc, quantity) => acc + quantity, 0);
+  
+    if (totalQuantity > 0) {
+      alert("The product still has some batches remaining.");
+      return;
+    }
+  
+    console.log("Archiving product");
+    archiveProduct(id, {
+      onSuccess: () => {
+        resetFields();
+        router.replace("/(admin)");
+      },
+    });
   };
 
   const handleUnarchive = () => {
