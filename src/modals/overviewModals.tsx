@@ -46,11 +46,6 @@ VoidedTransactionModalProps) => {
   const renderVoidedItem = ({ item }: { item: any }) => {
     let places = [];
 
-    // const newLocations = item.localBatch.map((item: any) => {
-    //   if(item.localBatch.place.some((place: any) => place.place === item.localBatch.place)) {
-    //     places.
-    //   }
-
     if (
       item.batch !== undefined &&
       item.batch !== null &&
@@ -68,21 +63,38 @@ VoidedTransactionModalProps) => {
         quantity: item.confirmedProduct.quantity,
       });
     }
-    item.localBatch.map((item: any) => {
-      if (places.some((place) => place.place === item.place)) {
-        const foundPlace = places.find((place) => place.place === item.place);
-        if (foundPlace) {
-          foundPlace.quantity += item.quantity;
+    if (
+      item.localBatch !== undefined &&
+      item.localBatch !== null &&
+      Array.isArray(item.localBatch)
+    ) {
+      item.localBatch.forEach((batchItem: any) => {
+        if (places.some((place) => place.place === batchItem.place)) {
+          const foundPlace = places.find(
+            (place) => place.place === batchItem.place
+          );
+          if (foundPlace) {
+            foundPlace.quantity += batchItem.quantity;
+          }
+        } else {
+          places.push({
+            place: batchItem.place,
+            quantity: batchItem.quantity,
+          });
         }
-        item.quantity;
-        return;
-      } else {
-        places.push({
-          place: item.place,
-          quantity: item.quantity,
-        });
-      }
-    });
+      });
+    } else if (
+      item.localBatch !== undefined &&
+      item.localBatch !== null &&
+      typeof item.localBatch === "object"
+    ) {
+      // If localBatch is an object
+      places.push({
+        place: item.localBatch.place,
+        quantity: item.localBatch.quantity,
+      });
+    }
+
     if (
       item.pendingLocalBatch !== undefined &&
       item.pendingLocalBatch !== null &&

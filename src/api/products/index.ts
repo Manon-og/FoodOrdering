@@ -19,6 +19,41 @@ export const useProductList = (id: string) => {
     },
   });
 };
+export const useAllProductList = () => {
+  return useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      // Fetch products
+      const { data: products, error: productsError } = await supabase
+        .from("products")
+        .select("*");
+
+      if (productsError) {
+        throw new Error(productsError.message);
+      }
+
+      // Fetch prices
+      const { data: prices, error: pricesError } = await supabase
+        .from("price")
+        .select("id_price, amount");
+
+      if (pricesError) {
+        throw new Error(pricesError.message);
+      }
+
+      // Combine products with their prices
+      const combinedData = products.map((product) => {
+        const price = prices.find((p) => p.id_price === product.id_price);
+        return {
+          ...product,
+          price: price ? price.amount : null,
+        };
+      });
+
+      return combinedData;
+    },
+  });
+};
 
 // export const useCombinedProductList = (id: string) => {
 //   const { data: productList, error: productListError } = useProductList(id);
@@ -1216,94 +1251,51 @@ export const useSetTransferQuantity = () => {
       id_products: number;
       quantity: number;
       date: string;
+      currentDate: string;
     }) => {
       try {
-        // Fetch pendinglocalbatch data for the given date
-        const { data: pendinglocalbatch, error: pendingError } = await supabase
-          .from("pendinglocalbatch")
-          .select("*")
-          .eq("id_branch", data.id_branch)
-          .eq("date", data.date);
-
-        console.log("PENDING!!!", pendinglocalbatch);
-
-        if (pendingError) {
-          console.error("select pendinglocalbatch", pendingError);
-          throw new Error(pendingError.message);
-        }
-
-        // Insert pendinglocalbatch data into localbatch if exists
-        if (pendinglocalbatch && pendinglocalbatch.length > 0) {
-          const insertPromises = pendinglocalbatch.map((batch) =>
-            supabase.from("localbatch").insert({
-              id_branch: batch.id_branch,
-              id_batch: batch.id_batch,
-              quantity: batch.quantity,
-              id_products: batch.id_products,
-            })
-          );
-
-          const insertResults = await Promise.all(insertPromises);
-
-          insertResults.forEach(({ error: insertError }) => {
-            if (insertError) {
-              console.error("insert localbatch", insertError);
-              throw new Error(insertError.message);
-            }
-          });
-
-          const { error: deleteError } = await supabase
-            .from("pendinglocalbatch")
-            .delete()
-            .eq("date", data.date);
-
-          if (deleteError) {
-            console.error("delete pendinglocalbatch", deleteError);
-            throw new Error(deleteError.message);
-          }
-        }
-
-        // Fetch batches for the given product
         const { data: batches, error: batchError } = await supabase
           .from("batch")
           .select("*")
           .eq("id_products", data.id_products);
 
-        console.log("batches", batches);
-
         if (batchError) {
           throw new Error("Error fetching batches");
         }
 
-        let remainingQuantity = data.quantity;
-        console.log("Remaining quantity:", remainingQuantity);
+        console.log("batches", batches);
 
-        // Transfer quantity from batch to localbatch
-        for (const batch of batches) {
-          if (remainingQuantity <= 0) break;
-          console.log("Batch:", batch);
+        let remainingQuantityForPending = data.quantity;
+        console.log("Remaining quantity:", remainingQuantityForPending);
 
-          const transferQuantity = Math.min(batch.quantity, remainingQuantity);
+        const pendingLocalBatchPromises = batches.map(async (batch) => {
+          if (remainingQuantityForPending <= 0) return;
+
+          const transferQuantity = Math.min(
+            batch.quantity,
+            remainingQuantityForPending
+          );
           console.log("Transfer Quantity:", transferQuantity);
 
-          const { data: updatedLocalBatch, error: updateError } = await supabase
-            .from("localbatch")
-            .insert({
-              id_branch: data.id_branch,
-              id_products: data.id_products,
-              id_batch: batch.id_batch,
-              quantity: transferQuantity,
-              // date: data.date,
-            })
-            .single();
+          const { data: updatedPendingLocalBatch, error: updateError } =
+            await supabase
+              .from("pendinglocalbatch")
+              .insert({
+                id_branch: data.id_branch,
+                id_products: data.id_products,
+                id_batch: batch.id_batch,
+                quantity: transferQuantity,
+                date: data.date,
+              })
+              .single();
 
           if (updateError) {
             throw new Error(
-              `Error inserting into localbatch table: ${updateError.message}`
+              `Error inserting into pendinglocalbatch table: ${updateError.message}`
             );
           }
 
-          console.log("updatedLocalBatch:", updatedLocalBatch);
+          console.log("updatedPendingLocalBatch", updatedPendingLocalBatch);
 
           const { data: updatedBatch, error: deductError } = await supabase
             .from("batch")
@@ -1319,8 +1311,112 @@ export const useSetTransferQuantity = () => {
 
           console.log("updatedBatch:", updatedBatch);
 
-          remainingQuantity -= transferQuantity;
+          remainingQuantityForPending -= transferQuantity;
+        });
+
+        await Promise.all(pendingLocalBatchPromises);
+
+        console.log("POTA GAGO?", data.currentDate);
+
+        const { data: pendinglocalbatch, error: pendingError } = await supabase
+          .from("pendinglocalbatch")
+          .select("*")
+          .eq("id_branch", data.id_branch)
+          .eq("date", data.currentDate);
+
+        if (pendingError) {
+          throw new Error(pendingError.message);
         }
+
+        console.log("PENDING NICEEE!!!", pendinglocalbatch);
+
+        if (pendinglocalbatch && pendinglocalbatch.length > 0) {
+          const insertPromises = pendinglocalbatch.map((batch) =>
+            supabase.from("localbatch").insert({
+              id_branch: batch.id_branch,
+              id_batch: batch.id_batch,
+              quantity: batch.quantity,
+              id_products: batch.id_products,
+            })
+          );
+
+          const insertResults = await Promise.all(insertPromises);
+
+          insertResults.forEach(({ error: insertError }) => {
+            if (insertError) {
+              throw new Error(insertError.message);
+            }
+          });
+
+          const { error: deleteError } = await supabase
+            .from("pendinglocalbatch")
+            .delete()
+            .eq("date", data.currentDate);
+
+          if (deleteError) {
+            throw new Error(deleteError.message);
+          }
+        }
+
+        // // Fetch updated batches for the given product
+        // const { data: updatedBatches, error: updatedBatchError } =
+        //   await supabase
+        //     .from("batch")
+        //     .select("*")
+        //     .eq("id_products", data.id_products);
+
+        // if (updatedBatchError) {
+        //   throw new Error("Error fetching updated batches");
+        // }
+
+        // console.log("updated batches", updatedBatches);
+
+        // let remainingQuantity = data.quantity;
+        // console.log("Remaining quantity:", remainingQuantity);
+
+        // // Transfer remaining quantity from batch to localbatch
+        // const localBatchPromises = updatedBatches.map(async (batch) => {
+        //   if (remainingQuantity <= 0) return;
+
+        //   const transferQuantity = Math.min(batch.quantity, remainingQuantity);
+        //   console.log("Transfer Quantity:", transferQuantity);
+
+        //   const { data: updatedLocalBatch, error: updateError } = await supabase
+        //     .from("localbatch")
+        //     .insert({
+        //       id_branch: data.id_branch,
+        //       id_products: data.id_products,
+        //       id_batch: batch.id_batch,
+        //       quantity: transferQuantity,
+        //     })
+        //     .single();
+
+        //   if (updateError) {
+        //     throw new Error(
+        //       `Error inserting into localbatch table: ${updateError.message}`
+        //     );
+        //   }
+
+        //   console.log("updatedLocalBatch:", updatedLocalBatch);
+
+        //   const { data: updatedBatch, error: deductError } = await supabase
+        //     .from("batch")
+        //     .update({
+        //       quantity: batch.quantity - transferQuantity,
+        //     })
+        //     .eq("id_batch", batch.id_batch)
+        //     .single();
+
+        //   if (deductError) {
+        //     throw new Error(deductError.message);
+        //   }
+
+        //   console.log("updatedBatch:", updatedBatch);
+
+        //   remainingQuantity -= transferQuantity;
+        // });
+
+        // await Promise.all(localBatchPromises);
 
         return true;
       } catch (error) {
@@ -1329,9 +1425,13 @@ export const useSetTransferQuantity = () => {
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["localbatch", "batch", "back inventory"],
-      });
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: ["localbatch", "batch", "back inventory"],
+        });
+      } catch (error) {
+        console.error("Error invalidating queries:", error);
+      }
     },
   });
 };
