@@ -55,6 +55,10 @@ export default function MenuScreen() {
   );
   console.log("MERONG unsettedProductsByBranch:", unsettedProductsByBranch);
 
+  // useEffect(() => {
+  //   settedProductsByBranch;
+  // }, [settedProductsByBranch]);
+
   const productsByBranch = id_branch
     ? settedProductsByBranch
     : unsettedProductsByBranch;

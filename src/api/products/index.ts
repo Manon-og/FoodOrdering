@@ -202,7 +202,6 @@ export const useSettedBranchProductList = (
           .select("*")
           .eq("id_branch", idB)
           .eq("date", date);
-        // .not("id_products", "is", null);
 
         console.log("PENDING!!!", pendinglocalbatch);
 
@@ -212,21 +211,23 @@ export const useSettedBranchProductList = (
         }
 
         if (pendinglocalbatch && pendinglocalbatch.length > 0) {
-          for (const batch of pendinglocalbatch) {
-            const { error: insertError } = await supabase
-              .from("localbatch")
-              .insert({
-                id_branch: batch.id_branch,
-                id_batch: batch.id_batch,
-                quantity: batch.quantity,
-                id_products: batch.id_products,
-              });
+          const insertPromises = pendinglocalbatch.map((batch) =>
+            supabase.from("localbatch").insert({
+              id_branch: batch.id_branch,
+              id_batch: batch.id_batch,
+              quantity: batch.quantity,
+              id_products: batch.id_products,
+            })
+          );
 
+          const insertResults = await Promise.all(insertPromises);
+
+          insertResults.forEach(({ error: insertError }) => {
             if (insertError) {
               console.error("insert localbatch", insertError);
               throw new Error(insertError.message);
             }
-          }
+          });
 
           const { error: deleteError } = await supabase
             .from("pendinglocalbatch")
@@ -1217,24 +1218,58 @@ export const useSetTransferQuantity = () => {
       date: string;
     }) => {
       try {
-        const { data: products } = await supabase
-          .from("products")
+        // Fetch pendinglocalbatch data for the given date
+        const { data: pendinglocalbatch, error: pendingError } = await supabase
+          .from("pendinglocalbatch")
           .select("*")
-          .eq("id_products", data.id_products)
-          .single();
+          .eq("id_branch", data.id_branch)
+          .eq("date", data.date);
 
-        console.log("products}}}", products);
+        console.log("PENDING!!!", pendinglocalbatch);
 
+        if (pendingError) {
+          console.error("select pendinglocalbatch", pendingError);
+          throw new Error(pendingError.message);
+        }
+
+        // Insert pendinglocalbatch data into localbatch if exists
+        if (pendinglocalbatch && pendinglocalbatch.length > 0) {
+          const insertPromises = pendinglocalbatch.map((batch) =>
+            supabase.from("localbatch").insert({
+              id_branch: batch.id_branch,
+              id_batch: batch.id_batch,
+              quantity: batch.quantity,
+              id_products: batch.id_products,
+            })
+          );
+
+          const insertResults = await Promise.all(insertPromises);
+
+          insertResults.forEach(({ error: insertError }) => {
+            if (insertError) {
+              console.error("insert localbatch", insertError);
+              throw new Error(insertError.message);
+            }
+          });
+
+          const { error: deleteError } = await supabase
+            .from("pendinglocalbatch")
+            .delete()
+            .eq("date", data.date);
+
+          if (deleteError) {
+            console.error("delete pendinglocalbatch", deleteError);
+            throw new Error(deleteError.message);
+          }
+        }
+
+        // Fetch batches for the given product
         const { data: batches, error: batchError } = await supabase
           .from("batch")
           .select("*")
           .eq("id_products", data.id_products);
+
         console.log("batches", batches);
-        const totalQuantity = batches?.reduce(
-          (acc, batch) => acc + batch.quantity,
-          0
-        );
-        console.log("totalQuantity", totalQuantity);
 
         if (batchError) {
           throw new Error("Error fetching batches");
@@ -1243,35 +1278,32 @@ export const useSetTransferQuantity = () => {
         let remainingQuantity = data.quantity;
         console.log("Remaining quantity:", remainingQuantity);
 
+        // Transfer quantity from batch to localbatch
         for (const batch of batches) {
           if (remainingQuantity <= 0) break;
           console.log("Batch:", batch);
-          console.log("batch.id_batch??", batch.id_batch);
-          console.log("batch.quantity??", batch.quantity);
 
-          const transferQuantity = Math.min(
-            totalQuantity.quantity,
-            remainingQuantity
-          );
-          console.log("TtransferQuantity", transferQuantity);
+          const transferQuantity = Math.min(batch.quantity, remainingQuantity);
+          console.log("Transfer Quantity:", transferQuantity);
 
           const { data: updatedLocalBatch, error: updateError } = await supabase
-            .from("pendinglocalbatch")
+            .from("localbatch")
             .insert({
               id_branch: data.id_branch,
               id_products: data.id_products,
               id_batch: batch.id_batch,
               quantity: transferQuantity,
-              date: data.date,
+              // date: data.date,
             })
             .single();
-          console.log("updatedLocalBatch", updatedLocalBatch);
 
           if (updateError) {
             throw new Error(
               `Error inserting into localbatch table: ${updateError.message}`
             );
           }
+
+          console.log("updatedLocalBatch:", updatedLocalBatch);
 
           const { data: updatedBatch, error: deductError } = await supabase
             .from("batch")
@@ -1285,21 +1317,14 @@ export const useSetTransferQuantity = () => {
             throw new Error(deductError.message);
           }
 
-          const { data: updatedProduct, error: updateProductError } =
-            await supabase
-              .from("products")
-              .update({
-                quantity: products.quantity - transferQuantity,
-              })
-              .eq("id_products", data.id_products)
-              .single();
+          console.log("updatedBatch:", updatedBatch);
 
           remainingQuantity -= transferQuantity;
         }
 
         return true;
       } catch (error) {
-        console.error("Error transferring quantityss:", error);
+        console.error("Error transferring quantity:", error);
         throw error;
       }
     },
@@ -2529,13 +2554,61 @@ export const useOverviewProductList = () => {
         console.log("confirmedProductTable", confirmedProductTable);
         console.log("pendinglocalbatchTable", pendinglocalbatchTable);
 
+        const groupedLocalBatchTable = localBatchTable.reduce(
+          (acc: any, item: any) => {
+            const key = item.id_products; // Group by id_products
+            if (!acc[key]) {
+              acc[key] = {
+                id_products: item.id_products,
+                places: {}, // Store places dynamically
+                totalQuantity: 0,
+              };
+            }
+
+            console.log("item.id_branch.place", item.id_branch.place);
+            // Accumulate place and quantity
+            const placeKey = item.id_branch.place;
+            if (!acc[key].places[placeKey]) {
+              acc[key].places[placeKey] = 0;
+            }
+            acc[key].places[placeKey] += item.quantity;
+            acc[key].totalQuantity += item.quantity;
+
+            return acc;
+          },
+          {}
+        );
+
+        console.log("groupedLocalBatchTable HEREERR", groupedLocalBatchTable);
+        console.log(
+          "groupedLocalBatchTable HEREERR",
+          Object.values(groupedLocalBatchTable)
+        );
+
         const combinedData = productsTable.map((product) => {
           const batchData = batchTable.filter(
             (item) => item.id_products === product.id_products
           );
-          const localBatchData: any = localBatchTable.filter(
-            (item) => item.id_products === product.id_products
+
+          console.log("batchData1", batchData);
+
+          const localBatchData = localBatchTable.filter(
+            (item: any) => item.id_products === product.id_products
           );
+
+          // const localBatchGrouped = groupedLocalBatchTable.reduce(
+          //   (acc: any, item: any) => {
+          //     const place = item.id_branch.place;
+          //     acc.totalQuantity += item.quantity;
+          //     acc.places[place] = (acc.places[place] || 0) + item.quantity;
+          //     return acc;
+          //   },
+          //   { places: {}, totalQuantity: 0 } // Initialize accumulator
+          // );
+
+          // console.log("localBatchData!!!!", localBatchData);
+          // console.log("????????????!!!!", localBatchGrouped);
+
           const confirmedProductData: any = confirmedProductTable.filter(
             (item) => item.id_products === product.id_products
           );
@@ -2559,9 +2632,13 @@ export const useOverviewProductList = () => {
             );
 
           console.log("batchData", batchData);
-          console.log("localBatchData", localBatchData);
+          // console.log("localBatchData", localBatchData);
           console.log("confirmedProductData", confirmedProductData);
           console.log("pendingLocalBatchData", pendingLocalBatchData);
+          // console.log("????????", localBatchData.length);
+          // console.log(groupedLocalBatchTable.map(
+          //   (item: any) => item.id_branch.place
+          // ));
 
           return {
             ...product,
@@ -2574,9 +2651,10 @@ export const useOverviewProductList = () => {
                   ),
                 }
               : null,
+
             localBatch: localBatchData.length
               ? {
-                  place: localBatchData[0].id_branch.place,
+                  place: localBatchData[0].id_branch,
                   quantity: localBatchData.reduce(
                     (sum: any, item: { quantity: any }) => sum + item.quantity,
                     0

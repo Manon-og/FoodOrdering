@@ -8,6 +8,7 @@ import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransacti
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import AdminViewTransaction from "@/components/AdminViewTransaction";
 import DropdownComponent from "@/components/DropDown";
+import { Stack } from "expo-router";
 
 const Index = () => {
   const filter = [
@@ -44,6 +45,7 @@ const Index = () => {
 
   return (
     <View style={styles.container}>
+      {/* <Stack.Screen options={{ title: "Sales Invoice Transaction" }} /> */}
       <View>
         <DropdownComponent data={filter} />
       </View>

@@ -66,7 +66,7 @@ const QuantityTransfer: React.FC<QuantityTransferProps> = ({
   };
 
   const transferQuantitiesWithDate = () => {
-    const dateString = formatDateToLocalString(selectedDate); // Convert Date to local string
+    const dateString = formatDateToLocalString(selectedDate);
     Object.entries(productQuantities).forEach(([id_products, quantity]) => {
       transferQuantity({
         id_branch: Number(id_branch),

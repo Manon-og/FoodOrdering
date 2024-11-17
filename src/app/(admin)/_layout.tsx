@@ -60,7 +60,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "Transactions",
+          title: "  Transactions",
           tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
         }}
       />
@@ -158,7 +158,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="one"
         options={{
-          title: "Production",
+          title: "Production Transaction",
           tabBarButton: () => null,
         }}
       />
