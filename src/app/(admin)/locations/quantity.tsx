@@ -78,11 +78,6 @@ const Index = () => {
         [currentProduct.id_products]: quantity,
       }));
       setIsModalVisible(false);
-    } else {
-      Alert.alert(
-        "Invalid Input",
-        "Please enter a valid quantity greater than 0."
-      );
     }
   };
 
