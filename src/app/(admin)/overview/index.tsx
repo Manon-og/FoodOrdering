@@ -1,64 +1,54 @@
-import React, { memo } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from "react-native";
+import { Dropdown } from "react-native-element-dropdown"; // Import the dropdown component
 import {
-  useGroupedSalesTransaction,
   useGroupedSalesTransactionADMIN,
   useOverviewProductList,
 } from "@/src/api/products";
-import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
-import { useBranchStoreAdmin } from "@/store/branchAdmin";
-import AdminViewTransaction from "@/components/AdminViewTransaction";
-import DropdownComponent from "@/components/DropDown";
 import AdminOverView from "@/components/AdminOverView";
+import { useBranchStoreAdmin } from "@/store/branchAdmin";
+
+type OverviewItem = {
+  totalQuantity: any;
+  batch: { quantity: number } | null;
+  localBatch: { place: any; quantity: any } | null;
+  confirmedProduct: { place: any; quantity: any } | null;
+  pendingLocalBatch: { place: any; quantity: any } | null;
+  id_products: any;
+  name: any;
+  category: string; 
+};
 
 const Index = () => {
   const { id_branch, branchName } = useBranchStoreAdmin();
-  console.log("ADMIN TRANSACTION:", id_branch);
-  console.log("ADMIN TRANSACTION:", branchName);
-  const currentDate = new Date().toLocaleDateString();
-  const currentDay = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-  });
+  const { data: groupedSales } = useGroupedSalesTransactionADMIN();
+  const { data: overview } = useOverviewProductList() as unknown as { data: OverviewItem[] };
 
-  const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
-  console.log("GROUPED SALESs:", groupedSales);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"default" | "asc" | "desc">("default");
 
-  const { data: overview } = useOverviewProductList();
-  console.log("PRODUCT LISTs:", overview);
+  // Filter the overview data based on the search query and selected category
+  let filteredOverview = overview?.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    (selectedCategory === "" || item.category === selectedCategory)
+  );
+
+  if (sortOrder === "asc") {
+    filteredOverview = filteredOverview?.sort((a, b) => a.totalQuantity - b.totalQuantity);
+  } else if (sortOrder === "desc") {
+    filteredOverview = filteredOverview?.sort((a, b) => b.totalQuantity - a.totalQuantity);
+  }
+
+  const overallQuantity = filteredOverview?.reduce(
+    (acc, item) => acc + item.totalQuantity,
+    0
+  );
 
   const renderItem = ({ item }: { item: any }) => {
-    let totalLocation = 0;
-
-    if (
-      item.batch !== undefined &&
-      item.batch !== null &&
-      item.batch.quantity > 0
-    ) {
-      totalLocation += 1;
-    }
-    if (
-      item.confirmedProduct !== undefined &&
-      item.confirmedProduct !== null &&
-      item.confirmedProduct.quantity > 0
-    ) {
-      totalLocation += 1;
-    }
-    if (
-      item.localBatch !== undefined &&
-      item.localBatch !== null &&
-      item.localBatch.quantity > 0
-    ) {
-      totalLocation += 1;
-    }
-    if (
-      item.pendingLocalBatch !== undefined &&
-      item.pendingLocalBatch !== null &&
-      item.pendingLocalBatch.quantity > 0
-    ) {
-      totalLocation += 1;
-    }
-
-    console.log("TOTAL LOCATION:", totalLocation);
+    const totalLocation = ["batch", "confirmedProduct", "localBatch", "pendingLocalBatch"]
+      .map((key) => item[key]?.quantity > 0 ? 1 : 0)
+      .reduce<number>((acc, curr) => acc + curr, 0);
 
     return (
       <AdminOverView
@@ -70,23 +60,43 @@ const Index = () => {
     );
   };
 
+  const handleSortOrder = () => {
+    setSortOrder((prevOrder) => {
+      if (prevOrder === "default") return "asc";
+      if (prevOrder === "asc") return "desc";
+      return "default";
+    });
+  };
+
   return (
     <View style={styles.container}>
-      <View>
-        {/* <DropdownComponent/> filter for the transfering of products but not sure ano itsura*/}
+      <View style={styles.filterContainer}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search products..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
       </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
-        <Text style={[styles.headerText, styles.statusMiddle]}>Total Qty</Text>
+        <TouchableOpacity onPress={handleSortOrder}>
+          <Text style={[styles.headerText, styles.statusMiddle]}>Total Qty</Text>
+        </TouchableOpacity>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
           Available In
         </Text>
       </View>
+
       <FlatList
-        data={overview}
+        data={filteredOverview}
         keyExtractor={(item) => item.id_products.toString()}
         renderItem={renderItem}
       />
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Overall Quantity: {overallQuantity}</Text>
+      </View>
     </View>
   );
 };
@@ -97,23 +107,37 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    // paddingTop: "20%",
   },
-  dateContainer: {
-    position: "absolute",
-    top: 50,
+  filterContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    width: "100%",
   },
-  dateText: {
-    fontSize: 20,
-    fontWeight: "bold",
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginRight: 10,
+    flex: 1,
+  },
+  dropdown: {
+    height: 40,
+    flex: 1,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+  },
+  placeholderText: {
     color: "gray",
-    paddingLeft: 13,
+    fontSize: 16,
   },
-  dayText: {
-    fontSize: 25,
-    fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+  selectedText: {
+    color: "black",
+    fontSize: 16,
   },
   headerContainer: {
     flexDirection: "row",
@@ -140,14 +164,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     flex: 1,
   },
-  placeHeader: {
-    textAlign: "left",
-    flex: 1.5,
-  },
   moreInfoHeader: {
     fontSize: 15,
     textAlign: "right",
     flex: 1,
+  },
+  footer: {
+    marginTop: 20,
+    paddingVertical: 10,
+    borderTopWidth: 2,
+    borderTopColor: "#ccc",
+    width: "100%",
+    alignItems: "center",
+  },
+  footerText: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
 
