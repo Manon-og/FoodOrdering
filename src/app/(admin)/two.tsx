@@ -1,18 +1,18 @@
-import React, { memo } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import {
-  useGroupedSalesTransaction,
   useGroupedSalesTransactionADMIN,
+  useGetProductionHistory,
 } from "@/src/api/products";
-import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
-import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import AdminViewTransaction from "@/components/AdminViewTransaction";
-import DropdownComponent from "@/components/DropDown";
+import AdminViewProduction from "@/components/AdminViewProduction";
+import { useBranchStoreAdmin } from "@/store/branchAdmin";
+import { Dropdown } from "react-native-element-dropdown"; // Import the dropdown component
 
 const Index = () => {
   const filter = [
     { label: "Sales Transaction", value: "Sales Transaction" },
-    { label: "Production", value: "Production" },
+    { label: "Production Transaction", value: "Production" },
   ];
   const { id_branch, branchName } = useBranchStoreAdmin();
   console.log("ADMIN TRANSACTION:", id_branch);
@@ -23,39 +23,68 @@ const Index = () => {
   });
 
   const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
+  const { data: groupedProduction }: any = useGetProductionHistory();
   console.log("GROUPED SALESs:", groupedSales);
+  console.log("GROUPED PRODUCTION:", groupedProduction);
+
+  const [selectedFilter, setSelectedFilter] = useState<string>("Sales Transaction");
 
   const renderItem = ({ item }: { item: any }) => {
-    return (
-      <AdminViewTransaction
-        place={item.id_branch.place}
-        id_branch={item.id_branch.id_branch}
-        created_at={item.created_at}
-        amount_by_product={item.amount_by_product}
-        created_by={item.created_by}
-      />
-    );
+    if (selectedFilter === "Sales Transaction") {
+      return (
+        <AdminViewTransaction
+          place={item.id_branch.place}
+          id_branch={item.id_branch.id_branch}
+          created_at={item.created_at}
+          amount_by_product={item.amount_by_product}
+          created_by={item.created_by}
+        />
+      );
+    } else {
+      return (
+        <AdminViewProduction
+          location={item.location}
+          created_at={item.created_at}
+          quantity={item.quantity}
+        />
+      );
+    }
   };
 
   const keyExtractor = (item: any) => {
     const date = new Date(item.created_at).toISOString().split("T")[0];
-    return `${item.id_branch.id_branch}_${date}`;
+    return selectedFilter === "Sales Transaction"
+      ? `${item.id_branch.id_branch}_${date}`
+      : `${item.location}_${date}`;
   };
+
+  const filteredData =
+    selectedFilter === "Sales Transaction" ? groupedSales : groupedProduction;
 
   return (
     <View style={styles.container}>
       <View>
-        <DropdownComponent data={filter} />
+        <Dropdown
+          data={filter}
+          labelField="label"
+          valueField="value"
+          placeholder="Select Transaction Type"
+          value={selectedFilter}
+          onChange={(item) => setSelectedFilter(item.value)}
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderText}
+          selectedTextStyle={styles.selectedText}
+        />
       </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
-          Total Amount
+          {selectedFilter === "Sales Transaction" ? "Total Amount" : "Total Quantity"}
         </Text>
       </View>
       <FlatList
-        data={groupedSales}
+        data={filteredData}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
@@ -69,23 +98,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    // paddingTop: "20%",
   },
-  dateContainer: {
-    position: "absolute",
-    top: 50,
+  dropdown: {
+    width: 300,
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
   },
-  dateText: {
-    fontSize: 20,
-    fontWeight: "bold",
+  placeholderText: {
     color: "gray",
-    paddingLeft: 13,
+    fontSize: 16,
   },
-  dayText: {
-    fontSize: 25,
-    fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+  selectedText: {
+    color: "black",
+    fontSize: 16,
   },
   headerContainer: {
     flexDirection: "row",
@@ -110,10 +139,6 @@ const styles = StyleSheet.create({
   statusMiddle: {
     fontSize: 15,
     flex: 1,
-  },
-  placeHeader: {
-    textAlign: "left",
-    flex: 1.5,
   },
   moreInfoHeader: {
     fontSize: 15,
