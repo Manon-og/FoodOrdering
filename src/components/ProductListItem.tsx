@@ -3,7 +3,7 @@ import Colors from "../constants/Colors";
 import { Text, View } from "@/src/components/Themed";
 import { Product } from "@/src/types";
 import { Link, useSegments } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { useArchivedParams } from "./archivedParams";
 import { useBranchName } from "./branchParams";
 
@@ -29,6 +29,11 @@ const ProductListItem = ({ product, productsByBackInventory }: any) => {
   console.log("ID BRANCH#######", id_branch);
   console.log("ID ARCHIVE??????????:", id_archive);
   console.log("WHY?^^^^", productsByBackInventory);
+
+  useEffect(() => {
+    productsByBackInventory;
+  }, [productsByBackInventory]);
+
   const backInventoryProduct = productsByBackInventory?.find(
     (item: { id_products: any }) => item.id_products === product.id_products
   );

@@ -68,6 +68,12 @@ export default function MenuScreen() {
   const { data: productsByBackInventory } =
     useBackInventoryProductList(category);
 
+  console.log("MERONG POTANGINANG********", productsByBackInventory);
+
+  useEffect(() => {
+    productsByBackInventory;
+  }, [productsByBackInventory]);
+
   const { data: products, error, isLoading } = useProductList(category);
 
   useEffect(() => {

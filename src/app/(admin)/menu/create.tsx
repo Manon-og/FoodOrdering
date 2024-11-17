@@ -1,4 +1,12 @@
-import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  Pressable,
+  Platform,
+} from "react-native";
 import Button from "@/src/components/Button";
 import React, { useEffect, useState } from "react";
 import RNPickerSelect from "react-native-picker-select";
@@ -17,6 +25,7 @@ import {
 import { useCategory } from "@/src/components/categoryParams";
 import { useUnarchiveProduct } from "@/src/api/products";
 import { useArchivedParams } from "@/components/archivedParams";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const CreateProductScreen = () => {
   const [name, setNames] = useState("");
@@ -24,6 +33,20 @@ const CreateProductScreen = () => {
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [image, setImage] = useState<string | null>(null);
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
+
+  const showDatePickerModal = () => {
+    setShowDatePicker(true);
+  };
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === "ios");
+    if (selectedDate) {
+      setBirthDate(selectedDate);
+    }
+  };
 
   const { id: idString } = useLocalSearchParams();
   const { id_archive } = useArchivedParams();
@@ -143,9 +166,9 @@ const CreateProductScreen = () => {
       updatingProduct.batch?.quantity || 0,
       updatingProduct.localBatch?.quantity || 0,
       updatingProduct.confirmedProduct?.quantity || 0,
-      updatingProduct.pendingLocalBatch?.quantity || 0
+      updatingProduct.pendingLocalBatch?.quantity || 0,
     ].reduce((acc, quantity) => acc + quantity, 0);
-  
+
     if (totalQuantity > 0) {
       alert("The product still has some batches remaining.");
     } else {
@@ -162,20 +185,20 @@ const CreateProductScreen = () => {
       ]);
     }
   };
-  
+
   const onDelete = () => {
     const totalQuantity = [
       updatingProduct.batch?.quantity || 0,
       updatingProduct.localBatch?.quantity || 0,
       updatingProduct.confirmedProduct?.quantity || 0,
-      updatingProduct.pendingLocalBatch?.quantity || 0
+      updatingProduct.pendingLocalBatch?.quantity || 0,
     ].reduce((acc, quantity) => acc + quantity, 0);
-  
+
     if (totalQuantity > 0) {
       alert("The product still has some batches remaining.");
       return;
     }
-  
+
     console.log("Archiving product");
     archiveProduct(id, {
       onSuccess: () => {
@@ -248,6 +271,19 @@ const CreateProductScreen = () => {
         style={styles.input}
         maxLength={255}
       />
+      <Pressable onPress={showDatePickerModal} style={styles.input}>
+        <Text>
+          {birthDate ? birthDate.toDateString() : "Select Birth Date"}
+        </Text>
+      </Pressable>
+      {showDatePicker && (
+        <DateTimePicker
+          value={birthDate || new Date()}
+          mode="date"
+          display="default"
+          onChange={onDateChange}
+        />
+      )}
 
       {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
       <Button onPress={onSubmit} text={isUpdating ? "Update" : "Create"} />

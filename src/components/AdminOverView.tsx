@@ -26,13 +26,22 @@ const AdminOverView: React.FC<GroupedSalesTransactionItemProps> = ({
   console.log("LINK:", name);
   console.log("LINK:", totalQuantity);
 
+  let totalPlaces = 0;
+
+  if (overview && overview[0].localBatch) {
+    const uniquePlaces = new Set(
+      overview[0].localBatch.map((item: any) => item.place)
+    );
+    totalPlaces = uniquePlaces.size + 1;
+  }
+
   return (
     <>
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         <View style={styles.itemContainer}>
           <Text style={styles.itemLeft}>{name}</Text>
           <Text style={styles.itemText}>{totalQuantity}</Text>
-          <Text style={styles.itemRight}>{numberOfPlaces} areas</Text>
+          <Text style={styles.itemRight}>{totalPlaces} areas</Text>
         </View>
       </TouchableOpacity>
       <OverViewModal

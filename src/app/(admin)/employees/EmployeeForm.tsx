@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,8 +14,12 @@ import { useEmployeeContext } from "@/providers/EmployeeProvider";
 import Colors from "@/constants/Colors";
 import Button from "@/src/components/Button";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { handleCreateEmployee, handleUpdateEmployee, fetchEmployees } from "@/api/products"; // Ensure the correct import path
-import { Dropdown } from "react-native-element-dropdown";  // Import Dropdown
+import {
+  handleCreateEmployee,
+  handleUpdateEmployee,
+  fetchEmployees,
+} from "@/api/products"; // Ensure the correct import path
+import { Dropdown } from "react-native-element-dropdown"; // Import Dropdown
 
 const EmployeeForm = () => {
   const router = useRouter();
@@ -24,7 +28,7 @@ const EmployeeForm = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [idRoles, setIdRoles] = useState<number>(0); // Add state for id_roles
+  const [idRoles, setIdRoles] = useState<any>(0); // Add state for id_roles
   const [birthDate, setBirthDate] = useState<Date | undefined>(undefined); // Add state for birth_date
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState("");
@@ -79,7 +83,7 @@ const EmployeeForm = () => {
 
   const handleConfirm = () => {
     setModalVisible(false);
-    const formattedBirthDate = birthDate?.toISOString().split("T")[0]; // Format birth date as YYYY-MM-DD
+    const formattedBirthDate: any = birthDate?.toISOString().split("T")[0]; // Format birth date as YYYY-MM-DD
     if (isUpdating) {
       handleUpdateEmployee(
         id,
@@ -168,6 +172,7 @@ const EmployeeForm = () => {
           secureTextEntry
         />
       )}
+
       <Pressable onPress={showDatePickerModal} style={styles.input}>
         <Text>
           {birthDate ? birthDate.toDateString() : "Select Birth Date"}
@@ -181,19 +186,21 @@ const EmployeeForm = () => {
           onChange={onDateChange}
         />
       )}
-      
+
       {/* Replaced Picker with Dropdown for Role selection */}
       <View style={styles.dropdownContainer}>
         <Dropdown
           data={[
             { label: "Select Role", value: 0 },
             { label: "Admin", value: 1 },
-            { label: "Staff", value: 2 }
+            { label: "Staff", value: 2 },
           ]}
           labelField="label"
           valueField="value"
           value={idRoles}
-          onChange={(item: { label: string; value: number }) => setIdRoles(item.value)}
+          onChange={(item: { label: string; value: number }) =>
+            setIdRoles(item.value)
+          }
           placeholder="Select Role"
           style={styles.dropdown}
           placeholderStyle={styles.placeholderText}
@@ -287,7 +294,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   selectedText: {
-    color: "#000", 
+    color: "#000",
     fontSize: 16,
   },
   cancelButtonText: {
