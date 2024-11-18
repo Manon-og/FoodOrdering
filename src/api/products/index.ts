@@ -470,6 +470,7 @@ export const useInsertProduct = (id: number) => {
             image: data.image,
             id_price: newIdPrice.id_price,
             id_category: id,
+            expiry_date: data.expiry,
           })
           .eq("id_products", data.id)
           .single();
@@ -507,6 +508,7 @@ export const useInsertProduct = (id: number) => {
             image: data.image,
             id_price: newIdPrice.id_price,
             id_category: id,
+            expiry_date: data.expiry,
           })
           .eq("id_products", data.id)
           .single();
@@ -544,6 +546,7 @@ export const useUpdateProduct = () => {
             description: data.description,
             image: data.image,
             id_price: newIdPrice.id_price,
+            expiry_date: data.expiry,
           })
           .eq("id_products", data.id)
           .single();
@@ -575,6 +578,7 @@ export const useUpdateProduct = () => {
             description: data.description,
             image: data.image,
             id_price: newIdPrice.id_price,
+            expiry_date: data.expiry,
           })
           .eq("id_products", data.id)
           .single();

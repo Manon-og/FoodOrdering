@@ -102,6 +102,8 @@ const Index = () => {
       (product) => productQuantities[product.id_products] > 0
     );
 
+    console.log("Filtered Products:", filteredProducts);
+
     const summary = filteredProducts
       ?.map((product) => {
         const quantity = productQuantities[product.id_products] || 0;

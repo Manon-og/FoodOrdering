@@ -25,7 +25,6 @@ import {
 import { useCategory } from "@/src/components/categoryParams";
 import { useUnarchiveProduct } from "@/src/api/products";
 import { useArchivedParams } from "@/components/archivedParams";
-import DateTimePicker from "@react-native-community/datetimepicker";
 
 const CreateProductScreen = () => {
   const [name, setNames] = useState("");
@@ -33,20 +32,7 @@ const CreateProductScreen = () => {
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [image, setImage] = useState<string | null>(null);
-
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
-
-  const showDatePickerModal = () => {
-    setShowDatePicker(true);
-  };
-
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === "ios");
-    if (selectedDate) {
-      setBirthDate(selectedDate);
-    }
-  };
+  const [expiry, setExpiry] = useState("");
 
   const { id: idString } = useLocalSearchParams();
   const { id_archive } = useArchivedParams();
@@ -76,6 +62,7 @@ const CreateProductScreen = () => {
       setPrice(updatingProduct.id_price.amount.toString());
       setDescription(updatingProduct.description || "");
       setImage(updatingProduct.image);
+      setExpiry(updatingProduct.expiry || "");
     }
   }, [updatingProduct]);
 
@@ -103,6 +90,7 @@ const CreateProductScreen = () => {
     setNames("");
     setPrice("");
     setDescription("");
+    setExpiry("");
   };
 
   const onSubmit = () => {
@@ -120,7 +108,13 @@ const CreateProductScreen = () => {
       return;
     }
     insertProduct(
-      { name, description, image, id_price: { amount: parseFloat(price) } },
+      {
+        name,
+        description,
+        image,
+        id_price: { amount: parseFloat(price) },
+        expiry,
+      },
       {
         onSuccess: () => {
           console.log("Product inserted successfully");
@@ -146,7 +140,14 @@ const CreateProductScreen = () => {
     }
     console.log("Updating product");
     updateProduct(
-      { id, name, id_price: { amount: parseFloat(price) }, description, image },
+      {
+        id,
+        name,
+        id_price: { amount: parseFloat(price) },
+        description,
+        image,
+        expiry,
+      },
       {
         onSuccess: () => {
           console.log("Product updated successfully");
@@ -271,19 +272,14 @@ const CreateProductScreen = () => {
         style={styles.input}
         maxLength={255}
       />
-      <Pressable onPress={showDatePickerModal} style={styles.input}>
-        <Text>
-          {birthDate ? birthDate.toDateString() : "Select Birth Date"}
-        </Text>
-      </Pressable>
-      {showDatePicker && (
-        <DateTimePicker
-          value={birthDate || new Date()}
-          mode="date"
-          display="default"
-          onChange={onDateChange}
-        />
-      )}
+      <Text style={styles.label}>Shelf Life</Text>
+      <TextInput
+        value={expiry}
+        onChangeText={setExpiry}
+        placeholder="Number of Days"
+        style={styles.input}
+        maxLength={255}
+      />
 
       {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
       <Button onPress={onSubmit} text={isUpdating ? "Update" : "Create"} />
