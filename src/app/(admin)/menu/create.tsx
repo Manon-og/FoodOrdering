@@ -68,11 +68,12 @@ const CreateProductScreen = () => {
 
   const validate = () => {
     setError("");
-    if (!name || !price || !description) {
+    if (!name || !price || !description || !expiry) {
       setError("Please fill all fields");
       return false;
     }
     const parsedPrice = parseFloat(price);
+    const parsedExpiry = parseFloat(expiry);
     if (isNaN(parsedPrice) || parsedPrice < 0) {
       setPrice("0");
       setError("Price cannot be negative.");
@@ -82,6 +83,16 @@ const CreateProductScreen = () => {
       setError("Please enter a  price");
       return false;
     }
+    if (isNaN(parsedExpiry) || parsedExpiry < 0) {
+      setExpiry("0");
+      setError("Shelf Life cannot be negative.");
+      return false;
+    }
+    if (parsedExpiry === 0) {
+      setError("Please enter a  shelf life");
+      return false;
+    }
+
     setError("");
     return true;
   };

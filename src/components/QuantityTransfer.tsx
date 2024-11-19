@@ -92,6 +92,9 @@ const QuantityTransfer: React.FC<QuantityTransferProps> = ({
       "Changes Confirmed",
       "You have successfully added the products"
     );
+    router.push(
+      `/(admin)/locations?id_branch=${id_branch}&branchName=${branchName}`
+    );
   };
 
   const confirmTransfer = () => {

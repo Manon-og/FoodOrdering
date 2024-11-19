@@ -470,7 +470,7 @@ export const useInsertProduct = (id: number) => {
             image: data.image,
             id_price: newIdPrice.id_price,
             id_category: id,
-            expiry_date: data.expiry,
+            shelf_life: data.expiry,
           })
           .eq("id_products", data.id)
           .single();
@@ -508,7 +508,7 @@ export const useInsertProduct = (id: number) => {
             image: data.image,
             id_price: newIdPrice.id_price,
             id_category: id,
-            expiry_date: data.expiry,
+            shelf_life: data.expiry,
           })
           .eq("id_products", data.id)
           .single();
@@ -546,7 +546,7 @@ export const useUpdateProduct = () => {
             description: data.description,
             image: data.image,
             id_price: newIdPrice.id_price,
-            expiry_date: data.expiry,
+            shelf_life: data.expiry,
           })
           .eq("id_products", data.id)
           .single();
@@ -578,7 +578,7 @@ export const useUpdateProduct = () => {
             description: data.description,
             image: data.image,
             id_price: newIdPrice.id_price,
-            expiry_date: data.expiry,
+            shelf_life: data.expiry,
           })
           .eq("id_products", data.id)
           .single();
@@ -612,17 +612,51 @@ export const useInsertBatch = () => {
           throw fetchError;
         }
 
+        const expireDate: any = [];
+
         const { data: newBatch, error: insertError } = await supabase
           .from("batch")
           .insert({
             quantity: data.quantity,
             id_products: data.id_products,
           })
-          .single();
+          .select("*, id_products(*)");
 
         if (insertError) {
           throw insertError;
         }
+
+        expireDate.push(newBatch);
+
+        // Push new batches (this happens multiple times in your case)
+        expireDate.push(newBatch); // Assuming newBatch is an array
+
+        // Extract all id_batch values
+        const allIdBatches = expireDate.flatMap((batchArray: any[]) =>
+          batchArray.map((batch) => batch.id_batch)
+        );
+
+        console.log("ALL ID BATCHES:", allIdBatches);
+
+        console.log("shelfLife??", productData.shelf_life);
+        const createdAt = new Date();
+        const updatedExpiryDate = new Date(createdAt);
+        updatedExpiryDate.setDate(createdAt.getDate() + productData.shelf_life);
+
+        console.log("OPPSSSSSS IT WORKS", updatedExpiryDate);
+
+        const { data: updatedBatch, error: updatedBatchError } = await supabase
+          .from("batch")
+          .update({
+            expire_date: updatedExpiryDate,
+          })
+          .eq("id_batch", allIdBatches[0]);
+
+        if (updatedBatchError) {
+          throw updatedBatchError;
+        }
+
+        console.log("OPPSSSSSS IT WORKS", expireDate);
 
         console.log("ID", data.id_products);
         console.log("productData", productData);
@@ -1272,14 +1306,14 @@ export const useSetTransferQuantity = () => {
         let remainingQuantityForPending = data.quantity;
         console.log("Remaining quantity:", remainingQuantityForPending);
 
-        const pendingLocalBatchPromises = batches.map(async (batch) => {
+        for (const batch of batches) {
           if (remainingQuantityForPending <= 0) return;
 
           const transferQuantity = Math.min(
             batch.quantity,
             remainingQuantityForPending
           );
-          console.log("Transfer Quantity:", transferQuantity);
+          console.log("PPPPPPPP?:", transferQuantity);
 
           const { data: updatedPendingLocalBatch, error: updateError } =
             await supabase
@@ -1316,9 +1350,7 @@ export const useSetTransferQuantity = () => {
           console.log("updatedBatch:", updatedBatch);
 
           remainingQuantityForPending -= transferQuantity;
-        });
-
-        await Promise.all(pendingLocalBatchPromises);
+        }
 
         console.log("POTA GAGO?", data.currentDate);
 
@@ -1431,7 +1463,14 @@ export const useSetTransferQuantity = () => {
     onSuccess: async () => {
       try {
         await queryClient.invalidateQueries({
-          queryKey: ["localbatch", "batch", "back inventory"],
+          queryKey: [
+            "localbatch",
+            "batch",
+            "back inventory",
+            "setBatch",
+            "useOverviewProductList",
+            "products",
+          ],
         });
       } catch (error) {
         console.error("Error invalidating queries:", error);
@@ -2682,7 +2721,7 @@ export const useGetTotalSalesReport = (id_branch: string, date: string) => {
 
 export const useOverviewProductList = () => {
   return useQuery({
-    queryKey: ["hhh"],
+    queryKey: ["useOverviewProductList"],
     queryFn: async () => {
       try {
         const [
@@ -2873,7 +2912,7 @@ export const useOverviewProductList = () => {
 
 export const useOverviewProductListById = (id_products: string) => {
   return useQuery({
-    queryKey: ["hhh", id_products],
+    queryKey: ["useOverviewProductList", id_products],
     queryFn: async () => {
       try {
         const [

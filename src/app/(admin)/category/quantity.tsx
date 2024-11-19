@@ -136,7 +136,7 @@ const Index = () => {
                 });
               }
             );
-          router.push("/(admin)/category");
+          router.push("/(admin)");
           Alert.alert(
             "Changes Confirmed",
             "You have successfully added the products"
