@@ -1306,14 +1306,14 @@ export const useSetTransferQuantity = () => {
         let remainingQuantityForPending = data.quantity;
         console.log("Remaining quantity:", remainingQuantityForPending);
 
-        for (const batch of batches) {
+        const pendingLocalBatchPromises = batches.map(async (batch) => {
           if (remainingQuantityForPending <= 0) return;
 
           const transferQuantity = Math.min(
             batch.quantity,
             remainingQuantityForPending
           );
-          console.log("PPPPPPPP?:", transferQuantity);
+          console.log("Transfer Quantity:", transferQuantity);
 
           const { data: updatedPendingLocalBatch, error: updateError } =
             await supabase
@@ -1350,13 +1350,16 @@ export const useSetTransferQuantity = () => {
           console.log("updatedBatch:", updatedBatch);
 
           remainingQuantityForPending -= transferQuantity;
-        }
+        });
+
+        await Promise.all(pendingLocalBatchPromises);
 
         console.log("POTA GAGO?", data.currentDate);
 
         const { data: pendinglocalbatch, error: pendingError } = await supabase
           .from("pendinglocalbatch")
           .select("*")
+          .eq("id_products", data.id_products)
           .eq("id_branch", data.id_branch)
           .eq("date", data.currentDate);
 
@@ -1394,66 +1397,6 @@ export const useSetTransferQuantity = () => {
           }
         }
 
-        // // Fetch updated batches for the given product
-        // const { data: updatedBatches, error: updatedBatchError } =
-        //   await supabase
-        //     .from("batch")
-        //     .select("*")
-        //     .eq("id_products", data.id_products);
-
-        // if (updatedBatchError) {
-        //   throw new Error("Error fetching updated batches");
-        // }
-
-        // console.log("updated batches", updatedBatches);
-
-        // let remainingQuantity = data.quantity;
-        // console.log("Remaining quantity:", remainingQuantity);
-
-        // // Transfer remaining quantity from batch to localbatch
-        // const localBatchPromises = updatedBatches.map(async (batch) => {
-        //   if (remainingQuantity <= 0) return;
-
-        //   const transferQuantity = Math.min(batch.quantity, remainingQuantity);
-        //   console.log("Transfer Quantity:", transferQuantity);
-
-        //   const { data: updatedLocalBatch, error: updateError } = await supabase
-        //     .from("localbatch")
-        //     .insert({
-        //       id_branch: data.id_branch,
-        //       id_products: data.id_products,
-        //       id_batch: batch.id_batch,
-        //       quantity: transferQuantity,
-        //     })
-        //     .single();
-
-        //   if (updateError) {
-        //     throw new Error(
-        //       `Error inserting into localbatch table: ${updateError.message}`
-        //     );
-        //   }
-
-        //   console.log("updatedLocalBatch:", updatedLocalBatch);
-
-        //   const { data: updatedBatch, error: deductError } = await supabase
-        //     .from("batch")
-        //     .update({
-        //       quantity: batch.quantity - transferQuantity,
-        //     })
-        //     .eq("id_batch", batch.id_batch)
-        //     .single();
-
-        //   if (deductError) {
-        //     throw new Error(deductError.message);
-        //   }
-
-        //   console.log("updatedBatch:", updatedBatch);
-
-        //   remainingQuantity -= transferQuantity;
-        // });
-
-        // await Promise.all(localBatchPromises);
-
         return true;
       } catch (error) {
         console.error("Error transferring quantity:", error);
@@ -1463,14 +1406,7 @@ export const useSetTransferQuantity = () => {
     onSuccess: async () => {
       try {
         await queryClient.invalidateQueries({
-          queryKey: [
-            "localbatch",
-            "batch",
-            "back inventory",
-            "setBatch",
-            "useOverviewProductList",
-            "products",
-          ],
+          queryKey: ["localbatch", "batch", "back inventory"],
         });
       } catch (error) {
         console.error("Error invalidating queries:", error);
@@ -1478,6 +1414,67 @@ export const useSetTransferQuantity = () => {
     },
   });
 };
+
+// this is from ABOVE:
+// // Fetch updated batches for the given product
+// const { data: updatedBatches, error: updatedBatchError } =
+//   await supabase
+//     .from("batch")
+//     .select("*")
+//     .eq("id_products", data.id_products);
+
+// if (updatedBatchError) {
+//   throw new Error("Error fetching updated batches");
+// }
+
+// console.log("updated batches", updatedBatches);
+
+// let remainingQuantity = data.quantity;
+// console.log("Remaining quantity:", remainingQuantity);
+
+// // Transfer remaining quantity from batch to localbatch
+// const localBatchPromises = updatedBatches.map(async (batch) => {
+//   if (remainingQuantity <= 0) return;
+
+//   const transferQuantity = Math.min(batch.quantity, remainingQuantity);
+//   console.log("Transfer Quantity:", transferQuantity);
+
+//   const { data: updatedLocalBatch, error: updateError } = await supabase
+//     .from("localbatch")
+//     .insert({
+//       id_branch: data.id_branch,
+//       id_products: data.id_products,
+//       id_batch: batch.id_batch,
+//       quantity: transferQuantity,
+//     })
+//     .single();
+
+//   if (updateError) {
+//     throw new Error(
+//       `Error inserting into localbatch table: ${updateError.message}`
+//     );
+//   }
+
+//   console.log("updatedLocalBatch:", updatedLocalBatch);
+
+//   const { data: updatedBatch, error: deductError } = await supabase
+//     .from("batch")
+//     .update({
+//       quantity: batch.quantity - transferQuantity,
+//     })
+//     .eq("id_batch", batch.id_batch)
+//     .single();
+
+//   if (deductError) {
+//     throw new Error(deductError.message);
+//   }
+
+//   console.log("updatedBatch:", updatedBatch);
+
+//   remainingQuantity -= transferQuantity;
+// });
+
+// await Promise.all(localBatchPromises);
 
 export const useUserTransferQuantity = () => {
   const queryClient = useQueryClient();
