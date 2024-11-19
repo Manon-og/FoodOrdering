@@ -11,6 +11,7 @@ import {
   useBranchData,
   useGetPendingProductsDetails,
   useLocalBranchData,
+  useReturnedBatch,
   useTransferReturnedBatch,
 } from "@/src/api/products";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -54,9 +55,15 @@ const Index = () => {
   );
 
   const transferReturnedBatch = useTransferReturnedBatch();
+  const returnBackInventory = useReturnedBatch();
 
   const { id_branch: branchID } = useLocalSearchParams();
   console.log("Branch ID:", branchID);
+
+  const handleReturn = () => {
+    returnBackInventory.mutate({ newId_branch: Number(branchID) });
+    router.push("/(admin)/returned");
+  };
 
   const onSelectBranch = (
     id_branch: number,
@@ -87,7 +94,10 @@ const Index = () => {
           style={styles.button}
           onPress={() => setModalVisible(true)}
         >
-          <Text style={styles.buttonText}>TRANSFER</Text>
+          <Text style={styles.buttonText}>Transfer</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleReturn}>
+          <Text style={styles.buttonText}>Return Back Inventory</Text>
         </TouchableOpacity>
       </View>
       <ReturnBranchOptionsModal

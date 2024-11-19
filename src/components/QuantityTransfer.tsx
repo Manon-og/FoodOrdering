@@ -16,12 +16,14 @@ interface TransferQuantityParams {
   id_products: number;
   quantity: number;
   date: string;
+  currentDate: string;
 }
 
 interface ProductionHistoryParams {
   id_products: string;
   quantity: number;
   location: string;
+
   // branchName: string;
 }
 
@@ -65,10 +67,14 @@ const QuantityTransfer: React.FC<QuantityTransferProps> = ({
     return `${year}-${month}-${day}`;
   };
 
+  const currentDate = new Date().toLocaleDateString();
+  console.log("currentDate UP HEREE:", currentDate);
+
   const transferQuantitiesWithDate = () => {
-    const dateString = formatDateToLocalString(selectedDate); // Convert Date to local string
+    const dateString = formatDateToLocalString(selectedDate);
     Object.entries(productQuantities).forEach(([id_products, quantity]) => {
       transferQuantity({
+        currentDate: currentDate,
         id_branch: Number(id_branch),
         id_products: Number(id_products),
         quantity: quantity,
@@ -85,6 +91,9 @@ const QuantityTransfer: React.FC<QuantityTransferProps> = ({
     Alert.alert(
       "Changes Confirmed",
       "You have successfully added the products"
+    );
+    router.push(
+      `/(admin)/locations?id_branch=${id_branch}&branchName=${branchName}`
     );
   };
 

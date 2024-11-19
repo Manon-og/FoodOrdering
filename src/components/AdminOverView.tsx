@@ -26,13 +26,46 @@ const AdminOverView: React.FC<GroupedSalesTransactionItemProps> = ({
   console.log("LINK:", name);
   console.log("LINK:", totalQuantity);
 
+  let totalPlaces = 0;
+
+  if (overview) {
+    const item = overview[0]; // Assuming you're working with the first item.
+
+    const countUniquePlaces = (property: any) => {
+      if (property && Array.isArray(property)) {
+        const uniquePlaces = new Set(property.map((item: any) => item.place));
+        return uniquePlaces.size;
+      }
+      return 0;
+    };
+
+    // Check for each property
+    if (item.localBatch && item.localBatch.length > 0) {
+      totalPlaces += countUniquePlaces(item.localBatch);
+    }
+
+    if (item.confirmedProduct && Array.isArray(item.confirmedProduct)) {
+      totalPlaces += countUniquePlaces(item.confirmedProduct);
+    }
+
+    if (item.pendingLocalBatch && item.pendingLocalBatch.place) {
+      totalPlaces += 1; // Single object with "place"
+    }
+
+    if (item.batch && item.batch.quantity > 0) {
+      totalPlaces += 1; // Count as a place if quantity > 0
+    }
+  }
+
+  console.log(`Total Places: ${totalPlaces}`);
+
   return (
     <>
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         <View style={styles.itemContainer}>
           <Text style={styles.itemLeft}>{name}</Text>
           <Text style={styles.itemText}>{totalQuantity}</Text>
-          <Text style={styles.itemRight}>{numberOfPlaces} areas</Text>
+          <Text style={styles.itemRight}>{totalPlaces} areas</Text>
         </View>
       </TouchableOpacity>
       <OverViewModal

@@ -32,7 +32,7 @@ const OverViewModal = ({
 //   currentDate,
 //   currentDay,
 VoidedTransactionModalProps) => {
-  console.log("DATA:", Data);
+  console.log("DATA FAUCUJCKCK:", Data);
 
   const renderPlaceItem = ({ item }: { item: any }) => {
     return (
@@ -44,7 +44,8 @@ VoidedTransactionModalProps) => {
   };
 
   const renderVoidedItem = ({ item }: { item: any }) => {
-    const places = [];
+    let places = [];
+
     if (
       item.batch !== undefined &&
       item.batch !== null &&
@@ -65,13 +66,35 @@ VoidedTransactionModalProps) => {
     if (
       item.localBatch !== undefined &&
       item.localBatch !== null &&
-      item.localBatch.quantity > 0
+      Array.isArray(item.localBatch)
     ) {
+      item.localBatch.forEach((batchItem: any) => {
+        if (places.some((place) => place.place === batchItem.place)) {
+          const foundPlace = places.find(
+            (place) => place.place === batchItem.place
+          );
+          if (foundPlace) {
+            foundPlace.quantity += batchItem.quantity;
+          }
+        } else {
+          places.push({
+            place: batchItem.place,
+            quantity: batchItem.quantity,
+          });
+        }
+      });
+    } else if (
+      item.localBatch !== undefined &&
+      item.localBatch !== null &&
+      typeof item.localBatch === "object"
+    ) {
+      // If localBatch is an object
       places.push({
         place: item.localBatch.place,
         quantity: item.localBatch.quantity,
       });
     }
+
     if (
       item.pendingLocalBatch !== undefined &&
       item.pendingLocalBatch !== null &&

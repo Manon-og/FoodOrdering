@@ -6,8 +6,10 @@ import {
   getUserEmail,
   getUserFullName,
   getEmployeeUUID,
+  useAuthenticationLevel,
 } from "@/api/products"; // Import handleLogout and getUserEmail functions
 import { useBranchName } from "@/components/branchParams";
+import { useAuth } from "@/providers/AuthProvider";
 import { useBranchStore } from "@/store/branch";
 import { useUUIDStore } from "@/store/user";
 import Colors from "@/constants/Colors";
@@ -16,6 +18,16 @@ export default function UserProfile() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
   const [fullName, setFullName] = useState<string | null>(null);
+  const { session, loading } = useAuth();
+  const idAuth = session?.user.id ?? "";
+  const { data: user } = useAuthenticationLevel(idAuth);
+
+  console.log(
+    "profile",
+    user?.map((user) => user.id_roles)
+  );
+
+  const role = user?.map((user) => user.id_roles);
 
   const { id_branch, branchName } = useBranchStore();
   console.log("PROFILEE:", id_branch);
@@ -104,6 +116,16 @@ export default function UserProfile() {
             </View>
           </Pressable>
         </Link>
+        {role && role[0] === 1 && (
+          <Link href="/(admin)/category" asChild>
+            <Pressable style={styles.menuButton}>
+              <View style={styles.menuTextContainer}>
+                <Text style={styles.menuText}>Admin View</Text>
+                <Text style={styles.arrow}>→</Text>
+              </View>
+            </Pressable>
+          </Link>
+        )}
         {/* <Link href="/(user)/return" asChild>
           <Pressable style={styles.menuButton}>
             <View style={styles.menuTextContainer}>

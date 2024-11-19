@@ -1,4 +1,12 @@
-import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  Pressable,
+  Platform,
+} from "react-native";
 import Button from "@/src/components/Button";
 import React, { useEffect, useState } from "react";
 import RNPickerSelect from "react-native-picker-select";
@@ -24,6 +32,7 @@ const CreateProductScreen = () => {
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [image, setImage] = useState<string | null>(null);
+  const [expiry, setExpiry] = useState("");
 
   const { id: idString } = useLocalSearchParams();
   const { id_archive } = useArchivedParams();
@@ -53,16 +62,18 @@ const CreateProductScreen = () => {
       setPrice(updatingProduct.id_price.amount.toString());
       setDescription(updatingProduct.description || "");
       setImage(updatingProduct.image);
+      setExpiry(updatingProduct.expiry || "");
     }
   }, [updatingProduct]);
 
   const validate = () => {
     setError("");
-    if (!name || !price || !description) {
+    if (!name || !price || !description || !expiry) {
       setError("Please fill all fields");
       return false;
     }
     const parsedPrice = parseFloat(price);
+    const parsedExpiry = parseFloat(expiry);
     if (isNaN(parsedPrice) || parsedPrice < 0) {
       setPrice("0");
       setError("Price cannot be negative.");
@@ -72,6 +83,16 @@ const CreateProductScreen = () => {
       setError("Please enter a  price");
       return false;
     }
+    if (isNaN(parsedExpiry) || parsedExpiry < 0) {
+      setExpiry("0");
+      setError("Shelf Life cannot be negative.");
+      return false;
+    }
+    if (parsedExpiry === 0) {
+      setError("Please enter a  shelf life");
+      return false;
+    }
+
     setError("");
     return true;
   };
@@ -80,6 +101,7 @@ const CreateProductScreen = () => {
     setNames("");
     setPrice("");
     setDescription("");
+    setExpiry("");
   };
 
   const onSubmit = () => {
@@ -97,7 +119,13 @@ const CreateProductScreen = () => {
       return;
     }
     insertProduct(
-      { name, description, image, id_price: { amount: parseFloat(price) } },
+      {
+        name,
+        description,
+        image,
+        id_price: { amount: parseFloat(price) },
+        expiry,
+      },
       {
         onSuccess: () => {
           console.log("Product inserted successfully");
@@ -123,7 +151,14 @@ const CreateProductScreen = () => {
     }
     console.log("Updating product");
     updateProduct(
-      { id, name, id_price: { amount: parseFloat(price) }, description, image },
+      {
+        id,
+        name,
+        id_price: { amount: parseFloat(price) },
+        description,
+        image,
+        expiry,
+      },
       {
         onSuccess: () => {
           console.log("Product updated successfully");
@@ -143,9 +178,9 @@ const CreateProductScreen = () => {
       updatingProduct.batch?.quantity || 0,
       updatingProduct.localBatch?.quantity || 0,
       updatingProduct.confirmedProduct?.quantity || 0,
-      updatingProduct.pendingLocalBatch?.quantity || 0
+      updatingProduct.pendingLocalBatch?.quantity || 0,
     ].reduce((acc, quantity) => acc + quantity, 0);
-  
+
     if (totalQuantity > 0) {
       alert("The product still has some batches remaining.");
     } else {
@@ -162,20 +197,20 @@ const CreateProductScreen = () => {
       ]);
     }
   };
-  
+
   const onDelete = () => {
     const totalQuantity = [
       updatingProduct.batch?.quantity || 0,
       updatingProduct.localBatch?.quantity || 0,
       updatingProduct.confirmedProduct?.quantity || 0,
-      updatingProduct.pendingLocalBatch?.quantity || 0
+      updatingProduct.pendingLocalBatch?.quantity || 0,
     ].reduce((acc, quantity) => acc + quantity, 0);
-  
+
     if (totalQuantity > 0) {
       alert("The product still has some batches remaining.");
       return;
     }
-  
+
     console.log("Archiving product");
     archiveProduct(id, {
       onSuccess: () => {
@@ -245,6 +280,14 @@ const CreateProductScreen = () => {
         value={description}
         onChangeText={setDescription}
         placeholder="Description"
+        style={styles.input}
+        maxLength={255}
+      />
+      <Text style={styles.label}>Shelf Life</Text>
+      <TextInput
+        value={expiry}
+        onChangeText={setExpiry}
+        placeholder="Number of Days"
         style={styles.input}
         maxLength={255}
       />

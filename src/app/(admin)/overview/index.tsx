@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { Dropdown } from "react-native-element-dropdown"; // Import the dropdown component
 import {
   useGroupedSalesTransactionADMIN,
@@ -16,27 +23,37 @@ type OverviewItem = {
   pendingLocalBatch: { place: any; quantity: any } | null;
   id_products: any;
   name: any;
-  category: string; 
+  category: string;
 };
 
 const Index = () => {
   const { id_branch, branchName } = useBranchStoreAdmin();
   const { data: groupedSales } = useGroupedSalesTransactionADMIN();
-  const { data: overview } = useOverviewProductList() as unknown as { data: OverviewItem[] };
+  const { data: overview } = useOverviewProductList() as unknown as {
+    data: OverviewItem[];
+  };
+  console.log("HERE@", overview);
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [sortOrder, setSortOrder] = useState<"default" | "asc" | "desc">("default");
+  const [sortOrder, setSortOrder] = useState<"default" | "asc" | "desc">(
+    "default"
+  );
 
-  let filteredOverview = overview?.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    (selectedCategory === "" || item.category === selectedCategory)
+  let filteredOverview = overview?.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (selectedCategory === "" || item.category === selectedCategory)
   );
 
   if (sortOrder === "asc") {
-    filteredOverview = filteredOverview?.sort((a, b) => a.totalQuantity - b.totalQuantity);
+    filteredOverview = filteredOverview?.sort(
+      (a, b) => a.totalQuantity - b.totalQuantity
+    );
   } else if (sortOrder === "desc") {
-    filteredOverview = filteredOverview?.sort((a, b) => b.totalQuantity - a.totalQuantity);
+    filteredOverview = filteredOverview?.sort(
+      (a, b) => b.totalQuantity - a.totalQuantity
+    );
   }
 
   const overallQuantity = filteredOverview?.reduce(
@@ -45,8 +62,13 @@ const Index = () => {
   );
 
   const renderItem = ({ item }: { item: any }) => {
-    const totalLocation = ["batch", "confirmedProduct", "localBatch", "pendingLocalBatch"]
-      .map((key) => item[key]?.quantity > 0 ? 1 : 0)
+    const totalLocation = [
+      "batch",
+      "confirmedProduct",
+      "localBatch",
+      "pendingLocalBatch",
+    ]
+      .map((key) => (item[key]?.quantity > 0 ? 1 : 0))
       .reduce<number>((acc, curr) => acc + curr, 0);
 
     return (
@@ -80,7 +102,9 @@ const Index = () => {
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
         <TouchableOpacity onPress={handleSortOrder}>
-          <Text style={[styles.headerText, styles.statusMiddle]}>Total Qty</Text>
+          <Text style={[styles.headerText, styles.statusMiddle]}>
+            Total Qty
+          </Text>
         </TouchableOpacity>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
           Available In
@@ -94,7 +118,9 @@ const Index = () => {
       />
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Overall Quantity: {overallQuantity}</Text>
+        <Text style={styles.footerText}>
+          Overall Quantity: {overallQuantity}
+        </Text>
       </View>
     </View>
   );

@@ -18,6 +18,7 @@ import {
   useInsertProductionHistory,
   useProductList,
   useTransferBackInventoryProductList,
+  useAllProductList,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 
@@ -32,11 +33,14 @@ const Index = () => {
   const router = useRouter();
 
   const { data: products, error, isLoading } = useProductList(selectedCategory);
+  const { data: allProducts } = useAllProductList();
+
   const { data: availQuantity } = useTransferBackInventoryProductList();
   const { mutate: insertBatch } = useInsertBatch();
   const { mutate: insertProductionHistory } = useInsertProductionHistory();
-  console.log("asjhdbaksh:", products);
+  console.log("CATEGORY PRODUCTS:", products);
   console.log("Selected Category:", selectedCategory);
+  console.log("ALL PRODUCTS:", allProducts);
 
   const handleOpenModal = (productId: string) => {
     setCurrentProductId(productId);
@@ -92,10 +96,13 @@ const Index = () => {
     }
 
     console.log("Products:", products); // Log the products array
+    console.log("All Products:", allProducts); // Log all products array
 
-    const filteredProducts = combinedProducts?.filter(
+    const filteredProducts = allProducts?.filter(
       (product) => productQuantities[product.id_products] > 0
     );
+
+    console.log("Filtered Products:", filteredProducts);
 
     const summary = filteredProducts
       ?.map((product) => {
@@ -129,7 +136,7 @@ const Index = () => {
                 });
               }
             );
-          router.push("/(admin)/category");
+          router.push("/(admin)");
           Alert.alert(
             "Changes Confirmed",
             "You have successfully added the products"

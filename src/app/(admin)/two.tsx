@@ -63,6 +63,7 @@ const Index = () => {
 
   return (
     <View style={styles.container}>
+      {/* <Stack.Screen options={{ title: "Sales Invoice Transaction" }} /> */}
       <View>
         <Dropdown
           data={filter}

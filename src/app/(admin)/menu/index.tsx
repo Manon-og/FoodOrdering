@@ -55,6 +55,10 @@ export default function MenuScreen() {
   );
   console.log("MERONG unsettedProductsByBranch:", unsettedProductsByBranch);
 
+  // useEffect(() => {
+  //   settedProductsByBranch;
+  // }, [settedProductsByBranch]);
+
   const productsByBranch = id_branch
     ? settedProductsByBranch
     : unsettedProductsByBranch;
@@ -63,6 +67,12 @@ export default function MenuScreen() {
 
   const { data: productsByBackInventory } =
     useBackInventoryProductList(category);
+
+  console.log("MERONG POTANGINANG********", productsByBackInventory);
+
+  useEffect(() => {
+    productsByBackInventory;
+  }, [productsByBackInventory]);
 
   const { data: products, error, isLoading } = useProductList(category);
 
