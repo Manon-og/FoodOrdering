@@ -45,6 +45,7 @@ const ItemExpireDetailsReturn = ({
   }
 
   console.log("OUTSIDEE", expire);
+  console.log("BEFORE", item.before);
   let warningDisplayed = false;
 
   return (
@@ -79,7 +80,7 @@ const ItemExpireDetailsReturn = ({
             </Text>
           </Text>
 
-          <Text style={styles.itemBefore}> {item.quantity}</Text>
+          <Text style={styles.itemBefore}> {item.before}</Text>
           <Text style={styles.itemAfter}> {item.quantity}</Text>
         </View>
       </TouchableOpacity>

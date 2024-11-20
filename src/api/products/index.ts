@@ -391,11 +391,13 @@ export const useBranchAllProductList = (idB: string) => {
           acc[productId] = {
             ...item.id_products,
             quantity: 0,
+            before: 0,
             id_batch: item.id_localbranch,
             expiry_date: item.id_batch.expire_date,
           };
         }
         acc[productId].quantity += item.quantity;
+        acc[productId].before += item.before;
         return acc;
       }, {});
 
