@@ -16,12 +16,13 @@ const statusOptions = [
 const Index = () => {
   const { data: branch } = useBranchData();
   const { data: localBranch } = useLocalBranchData();
-  
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null); 
+
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredBranch, setFilteredBranch] = useState<any[]>([]);
   const [isFocus, setIsFocus] = useState(false);
 
+  console.log("------", branch);
   useEffect(() => {
     if (branch) {
       let filtered = branch;
@@ -47,16 +48,22 @@ const Index = () => {
     weekday: "long",
   });
 
+  console.log("++++++???", filteredBranch);
+
   const renderItem = ({ item }: any) => {
     const isLocalBranch = localBranch?.some(
       (localItem) => localItem.id_branch === item.id_branch
     );
+
+    // console.log("++++++", item.id_archives);
     const statusColor =
       item.status === "active"
         ? styles.greenCircle
         : item.status === "inactive"
         ? styles.grayCircle
         : null;
+
+    console.log("++++++", statusColor);
     return (
       <View style={styles.listItem}>
         {statusColor && <View style={[styles.statusCircle, statusColor]} />}
@@ -89,11 +96,11 @@ const Index = () => {
           data={statusOptions}
           labelField="label"
           valueField="value"
-          placeholder="Filter by Status" 
-          value={selectedFilter} 
+          placeholder="Filter by Status"
+          value={selectedFilter}
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
-          onChange={item => {
+          onChange={(item) => {
             setSelectedFilter(item.value);
             setIsFocus(false);
           }}
@@ -103,7 +110,9 @@ const Index = () => {
       {/* Header */}
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Status</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>More Info</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>
+          More Info
+        </Text>
       </View>
 
       {/* Branch List */}
@@ -153,16 +162,16 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     height: 40,
-    flex: 1, 
+    flex: 1,
     borderColor: "gray",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginRight: 10, 
+    marginRight: 10,
   },
   dropdown: {
     height: 40,
-    width: 150, 
+    width: 150,
     borderColor: "gray",
     borderWidth: 0.5,
     borderRadius: 5,
@@ -170,7 +179,7 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: 16,
-    color: "gray", 
+    color: "gray",
   },
   selectedTextStyle: {
     fontSize: 16,
