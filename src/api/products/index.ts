@@ -313,7 +313,7 @@ export const useSettedBranchProductList = (
 
 export const useBackInventoryProductList = (id: string) => {
   return useQuery({
-    queryKey: ["back inventory", id],
+    queryKey: ["backInventory", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("batch")
@@ -326,6 +326,7 @@ export const useBackInventoryProductList = (id: string) => {
 
       const groupedData = data.reduce((acc, item) => {
         const productId = item.id_products.id_products;
+        console.log("IM HIR RIGHT NOW)))", productId);
         if (!acc[productId]) {
           acc[productId] = { ...item.id_products, quantity: 0 };
         }
@@ -343,7 +344,7 @@ export const useBackInventoryProductList = (id: string) => {
 
 export const useTransferBackInventoryProductList = () => {
   return useQuery({
-    queryKey: ["back inventory"],
+    queryKey: ["backInventory"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("batch")
@@ -377,9 +378,9 @@ export const useBranchAllProductList = (idB: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("localbatch")
-        .select(`*, id_products(*, category(*))`)
+        .select(`*, id_products(*, category(*)), id_batch(*)`)
         .eq("id_branch", idB)
-        .not("id_products", "is", null);
+        .neq("quantity", 0);
       if (error) {
         throw new Error(error.message);
       }
@@ -387,7 +388,12 @@ export const useBranchAllProductList = (idB: string) => {
       const groupedData = data.reduce((acc, item) => {
         const productId = item.id_products.id_products;
         if (!acc[productId]) {
-          acc[productId] = { ...item.id_products, quantity: 0 };
+          acc[productId] = {
+            ...item.id_products,
+            quantity: 0,
+            id_batch: item.id_localbranch,
+            expiry_date: item.id_batch.expire_date,
+          };
         }
         acc[productId].quantity += item.quantity;
         return acc;
@@ -397,6 +403,29 @@ export const useBranchAllProductList = (idB: string) => {
 
       return Object.values(groupedData);
       // return data;
+    },
+  });
+};
+
+export const useProductForReturnedProducts = (
+  id_branch: number,
+  id_products: number
+) => {
+  console.log("ID BRANCH|||", id_branch);
+  return useQuery({
+    queryKey: ["products", id_branch, id_products],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("localbatch")
+        .select("*, id_products(*, name), id_batch(*, expire_date)")
+        .eq("id_branch", id_branch)
+        .eq("id_products", id_products)
+        .neq("quantity", 0);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
   });
 };
@@ -685,7 +714,7 @@ export const useInsertBatch = () => {
       await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
       await queryClient.invalidateQueries({ queryKey: ["id_products"] });
       await queryClient.invalidateQueries({ queryKey: ["products"] });
-      await queryClient.invalidateQueries({ queryKey: ["back inventory"] });
+      await queryClient.invalidateQueries({ queryKey: ["backInventory"] });
       await queryClient.invalidateQueries({ queryKey: ["setBatch"] });
     },
   });
@@ -697,7 +726,7 @@ export const useInsertBatch = () => {
 //   await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
 //   await queryClient.invalidateQueries({ queryKey: ["id_products"] });
 //   await queryClient.invalidateQueries({ queryKey: ["products"] });
-//   await queryClient.invalidateQueries({ queryKey: ["back inventory"] });
+//   await queryClient.invalidateQueries({ queryKey: ["backInventory"] });
 //   await queryClient.invalidateQueries({ queryKey: ["setBatch"] });
 // },
 
@@ -1295,7 +1324,8 @@ export const useSetTransferQuantity = () => {
         const { data: batches, error: batchError } = await supabase
           .from("batch")
           .select("*")
-          .eq("id_products", data.id_products);
+          .eq("id_products", data.id_products)
+          .gt("quantity", 0);
 
         if (batchError) {
           throw new Error("Error fetching batches");
@@ -1375,6 +1405,7 @@ export const useSetTransferQuantity = () => {
               id_branch: batch.id_branch,
               id_batch: batch.id_batch,
               quantity: batch.quantity,
+              before: batch.quantity,
               id_products: batch.id_products,
             })
           );
@@ -1406,7 +1437,7 @@ export const useSetTransferQuantity = () => {
     onSuccess: async () => {
       try {
         await queryClient.invalidateQueries({
-          queryKey: ["localbatch", "batch", "back inventory"],
+          queryKey: ["localbatch", "batch", "backInventory"],
         });
       } catch (error) {
         console.error("Error invalidating queries:", error);
@@ -2410,8 +2441,9 @@ export const useDeleteLocalBatch = () => {
     },
     onSuccess: async (data) => {
       console.log("Inserted IDs:", data);
-      await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
-      await queryClient.invalidateQueries({ queryKey: ["pendingproducts"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["localbatch", "pendingproducts", "transaferPendingProducts"],
+      });
     },
   });
 };

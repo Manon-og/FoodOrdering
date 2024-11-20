@@ -29,7 +29,7 @@ const AdminOverView: React.FC<GroupedSalesTransactionItemProps> = ({
   let totalPlaces = 0;
 
   if (overview) {
-    const item = overview[0]; // Assuming you're working with the first item.
+    const item = overview[0];
 
     const countUniquePlaces = (property: any) => {
       if (property && Array.isArray(property)) {
@@ -39,7 +39,6 @@ const AdminOverView: React.FC<GroupedSalesTransactionItemProps> = ({
       return 0;
     };
 
-    // Check for each property
     if (item.localBatch && item.localBatch.length > 0) {
       totalPlaces += countUniquePlaces(item.localBatch);
     }
@@ -49,11 +48,11 @@ const AdminOverView: React.FC<GroupedSalesTransactionItemProps> = ({
     }
 
     if (item.pendingLocalBatch && item.pendingLocalBatch.place) {
-      totalPlaces += 1; // Single object with "place"
+      totalPlaces += 1;
     }
 
     if (item.batch && item.batch.quantity > 0) {
-      totalPlaces += 1; // Count as a place if quantity > 0
+      totalPlaces += 1;
     }
   }
 
@@ -74,7 +73,6 @@ const AdminOverView: React.FC<GroupedSalesTransactionItemProps> = ({
         Data={overview}
         totalQuantity={totalQuantity}
         name={name}
-        // Pass any additional props required by OverViewModal here
       />
     </>
   );

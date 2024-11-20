@@ -18,16 +18,18 @@ import {
   useGetCashCount,
   useGetVoidedTransaction,
   useGroupedSalesReport,
-} from "@/src/api/products"; 
+} from "@/src/api/products";
 
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
-import ItemDetailsReturn from "@/components/ItemsDetailsReturn";
+
 import Colors from "@/constants/Colors";
 import { useCashStore } from "@/store/cashcountAdmin";
 import { useSalesStore } from "@/store/totalSalesAdmin";
 import { useVoidedSalesStore } from "@/store/totalVoidedSalesAdmin";
 import { useUUIDStore } from "@/store/user";
 import { useIdGroupStore } from "@/store/idgroup";
+import ItemDetailsReturn from "@/components/ItemsDetailsReturn";
+import ItemExpireDetailsReturn from "@/components/ItemsDetailsReturn";
 
 const Details = ({ ddd }: any) => {
   const { id_branch, branchName } = useBranchStoreAdmin();
@@ -35,6 +37,8 @@ const Details = ({ ddd }: any) => {
   const { data: products } = useBranchAllProductList(
     id_branch?.toString() ?? ""
   );
+
+  console.log("LEMEE SEEE", products);
   const { data: branch } = useBranchName(Number(id_branch));
 
   let name = "";
@@ -85,7 +89,22 @@ const Details = ({ ddd }: any) => {
   );
 
   const renderItem = ({ item }: any) => {
-    return <ItemDetailsReturn item={item} />;
+    console.log("EXPIRE", item.expiry_date);
+    const date = new Date(item.expiry_date);
+    date.setDate(date.getDate() - 1);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const newDateString = `${year}-${month}-${day}`;
+    console.log("NEW EXPIRE", newDateString);
+    return (
+      <ItemExpireDetailsReturn
+        item={item}
+        expiry={newDateString}
+        id_batch={item.id_batch}
+        id_branch={id_branch}
+      />
+    );
   };
 
   const router = useRouter();
@@ -128,7 +147,7 @@ const Details = ({ ddd }: any) => {
         },
         onError: (error) => {
           console.error("Error inserting pending products:", error);
-          setIsButtonDisabled(false); 
+          setIsButtonDisabled(false);
         },
       }
     );
@@ -139,8 +158,18 @@ const Details = ({ ddd }: any) => {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <TouchableOpacity onPress={handleInsertPendingProducts} disabled={isButtonDisabled}>
-              <Text style={[styles.confirmText, isButtonDisabled && styles.disabledText]}>Accept</Text>
+            <TouchableOpacity
+              onPress={handleInsertPendingProducts}
+              disabled={isButtonDisabled}
+            >
+              <Text
+                style={[
+                  styles.confirmText,
+                  isButtonDisabled && styles.disabledText,
+                ]}
+              >
+                Accept
+              </Text>
             </TouchableOpacity>
           ),
         }}
@@ -281,6 +310,7 @@ const styles = StyleSheet.create({
   statusHeader: {
     textAlign: "left",
     flex: 2,
+    paddingLeft: "5%",
   },
   placeHeader: {
     textAlign: "left",
@@ -289,17 +319,18 @@ const styles = StyleSheet.create({
   moreInfoHeader: {
     textAlign: "right",
     flex: 1.5,
-    color: "gray",
+    color: "black",
   },
   moreInfoHeaderAfter: {
     textAlign: "right",
     flex: 0.5,
+    color: "gray",
     // paddingLeft: 10,
   },
   moreInfoHeaderBefore: {
     textAlign: "right",
     flex: 0.5,
-    color: "black",
+    color: "gray",
   },
   itemContainer: {
     flexDirection: "row",
@@ -375,7 +406,7 @@ const styles = StyleSheet.create({
   },
   border: {
     borderStyle: "solid",
-    borderWidth: 2,
+    borderWidth: 0, //2 just change it back to see the color
     borderColor: Colors.light.tint,
     borderRadius: 5,
     padding: 10,
