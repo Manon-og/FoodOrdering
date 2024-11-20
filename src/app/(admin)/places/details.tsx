@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import {
+  useArchiveLocation,
   useBranchAllProductList,
   useBranchName,
   useFindPendingProducts,
@@ -25,7 +26,10 @@ const Details = () => {
   const { data: branch } = useBranchName(Number(id_branch));
   console.log("HERE****", id_branch);
   console.log("HERE****?", products);
-  console.log("WTFDUDE", branch);
+  console.log(
+    "WTFDUDE",
+    branch?.map((b: any) => b.id_archives)
+  );
   let name = "";
 
   const branchId = Array.isArray(id_branch) ? id_branch[0] : id_branch;
@@ -67,6 +71,20 @@ const Details = () => {
     router.push("/(admin)/return");
   };
 
+  const archiveLocation = useArchiveLocation();
+
+  const handlePress = () => {
+    if (products?.length === 0) {
+      archiveLocation.mutate(Number(id_branch));
+      router.push("/(admin)/places");
+      Alert.alert("Button Pressed", "You pressed the Archive button!");
+    } else {
+      Alert.alert("Error", "Cannot archive location with products");
+    }
+  };
+
+  console.log("DETAILS", products?.length === 0 ? "Unarchive" : "Archive");
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "Location" }} />
@@ -74,14 +92,16 @@ const Details = () => {
         options={{
           title: `${name}`,
           headerRight: () => (
-            <Pressable>
+            <Pressable onPress={handlePress}>
               {({ pressed }) => (
                 <FontAwesome
                   size={16}
                   color={"darkred"}
                   style={{ opacity: pressed ? 0.5 : 1 }}
                 >
-                  Archive
+                  {(branch?.map((b: any) => b.id_archives) ?? []).includes(1)
+                    ? "Unarchive"
+                    : "Archive"}
                 </FontAwesome>
               )}
             </Pressable>

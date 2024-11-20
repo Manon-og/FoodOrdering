@@ -1,168 +1,114 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
-import { supabase } from "@/src/lib/supabase";
-import { Stack } from "expo-router";
-import { Colors } from "react-native/Libraries/NewAppScreen";
+import { View, Text, StyleSheet, TextInput, Alert } from "react-native";
 import Button from "@/src/components/Button";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import MapView, { Marker } from "react-native-maps";
-import "react-native-get-random-values";
-import { v4 as uuidv4 } from "uuid";
+import React, { useState } from "react";
+import Colors from "@/src/constants/Colors";
+import { Stack, useRouter } from "expo-router";
+import { useInsertBranch } from "@/src/api/products";
 
-const GOOGLE_API_KEY = "AIzaSyA1bZXmsZDIxkysBNLdCpHLhfCVZIVP0RE";
+const CreateBranchScreen = () => {
+  const [place, setPlace] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [postal, setPostal] = useState("");
+  const [country, setCountry] = useState("");
+  const [error, setError] = useState("");
 
-interface FormData {
-  id: string;
-  place: string;
-  street: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  latitude: number | null;
-  longitude: number | null;
-}
+  const { mutate: insertLocation } = useInsertBranch();
+  const router = useRouter();
 
-const SubmissionForm = () => {
-  const [formData, setFormData] = useState<FormData>({
-    id: uuidv4(),
-    place: "",
-    street: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    latitude: null,
-    longitude: null,
-  });
-
-  const handleChange = (name: string, value: string | number | null) => {
-    setFormData({ ...formData, [name]: value });
+  const validate = () => {
+    setError("");
+    if (!place || !street || !city || !postal || !country) {
+      setError("Please fill all fields");
+      return false;
+    }
+    return true;
   };
 
-  const handleSubmit = async () => {
-    const { place, street, city, postalCode, country, latitude, longitude } =
-      formData;
+  const resetFields = () => {
+    setPlace("");
+    setStreet("");
+    setCity("");
+    setPostal("");
+    setCountry("");
+  };
 
-    if (
-      !place ||
-      !street ||
-      !city ||
-      !postalCode ||
-      !country ||
-      latitude === null ||
-      longitude === null
-    ) {
-      Alert.alert("Error", "Please fill out all fields.");
+  const onCreate = () => {
+    if (!validate()) {
       return;
     }
-
-    const { error } = await supabase.from("branch").insert([
+    insertLocation(
       {
-        id: formData.id,
         place,
         street,
         city,
-        postal_code: postalCode,
+        postal_code: Number(postal),
         country,
-        latitude,
-        longitude,
       },
-    ]);
-
-    if (error) {
-      Alert.alert("Error", error.message);
-    } else {
-      Alert.alert("Success", "Branch added successfully!");
-      setFormData({
-        id: uuidv4(),
-        place: "",
-        street: "",
-        city: "",
-        postalCode: "",
-        country: "",
-        latitude: null,
-        longitude: null,
-      });
-    }
+      {
+        onSuccess: () => {
+          resetFields();
+          router.back();
+          Alert.alert("Success", `${place} location has been added!`);
+        },
+        onError: (error) => {
+          console.error("Insert Branch Error:", error);
+          Alert.alert("Error", "Failed to add the branch.");
+        },
+      }
+    );
   };
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: "Create Location" }} />
-      <Text style={styles.label}>Place</Text>
-      <GooglePlacesAutocomplete
-        placeholder="Search for a place"
-        onPress={(data, details) => {
-          const { lat, lng }: any = details?.geometry.location;
-          setFormData({
-            ...formData,
-            place: data.description,
-            latitude: lat,
-            longitude: lng,
-          });
-        }}
-        query={{
-          key: GOOGLE_API_KEY,
-          language: "en",
-        }}
-        fetchDetails={true}
-        styles={{
-          textInput: styles.input,
-        }}
-      />
+      <Stack.Screen options={{ title: "Add Location" }} />
 
+      <Text style={styles.label}>Place</Text>
+      <TextInput
+        value={place}
+        onChangeText={setPlace}
+        placeholder="Place"
+        style={styles.input}
+        maxLength={30}
+      />
       <Text style={styles.label}>Street</Text>
       <TextInput
-        style={styles.input}
+        value={street}
+        onChangeText={setStreet}
         placeholder="Street"
-        value={formData.street}
-        onChangeText={(value) => handleChange("street", value)}
+        style={styles.input}
       />
 
       <Text style={styles.label}>City</Text>
       <TextInput
-        style={styles.input}
+        value={city}
+        onChangeText={setCity}
         placeholder="City"
-        value={formData.city}
-        onChangeText={(value) => handleChange("city", value)}
+        style={styles.input}
+        maxLength={255}
       />
 
       <Text style={styles.label}>Postal Code</Text>
       <TextInput
-        style={styles.input}
+        value={postal}
+        onChangeText={setPostal}
         placeholder="Postal Code"
-        value={formData.postalCode}
-        onChangeText={(value) => handleChange("postalCode", value)}
+        style={styles.input}
+        maxLength={255}
       />
 
       <Text style={styles.label}>Country</Text>
       <TextInput
-        style={styles.input}
+        value={country}
+        onChangeText={setCountry}
         placeholder="Country"
-        value={formData.country}
-        onChangeText={(value) => handleChange("country", value)}
+        style={styles.lastInput}
+        maxLength={255}
       />
 
-      {formData.latitude && formData.longitude && (
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: formData.latitude,
-            longitude: formData.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-        >
-          <Marker
-            coordinate={{
-              latitude: formData.latitude,
-              longitude: formData.longitude,
-            }}
-            title={formData.place}
-          />
-        </MapView>
-      )}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Button text="Submit" onPress={handleSubmit} />
+      <Button onPress={onCreate} text={"Create"} />
     </View>
   );
 };
@@ -173,22 +119,33 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: "center",
   },
+  lastInput: {
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 5,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginTop: 5,
+    marginBottom: "40%",
+  },
   input: {
     backgroundColor: "white",
     padding: 10,
     borderRadius: 5,
     marginTop: 5,
+    borderColor: "gray",
+    borderWidth: 1,
     marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    color: "black",
+    color: "gray",
   },
-  map: {
-    width: "100%",
-    height: 200,
-    marginTop: 20,
+  error: {
+    color: "red",
+    marginBottom: 20,
+    textAlign: "center",
   },
 });
 
-export default SubmissionForm;
+export default CreateBranchScreen;
