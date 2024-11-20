@@ -957,24 +957,38 @@ export const useBranch = () => {
 //   });
 // }
 
-export const useInsertBranch = (place: string) => {
+export const useInsertBranch = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: {
+      place: string;
+      street: string;
+      city: string;
+      postal_code: number;
+      country: string;
+    }) => {
       try {
         const { data: newBranch, error } = await supabase
           .from("branch")
           .insert({
             place: data.place,
+            street: data.street,
+            city: data.city,
+            postal_code: data.postal_code,
+            country: data.country,
+            id_archives: 2,
           });
+        if (error) {
+          throw error;
+        }
         return newBranch;
       } catch (error) {
         console.error("Error inserting branch:", error);
         throw error;
       }
     },
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["branch"] });
     },
   });
@@ -1657,7 +1671,7 @@ export const useBranchName = (id: number) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("branch")
-        .select(`place`)
+        .select(`place, id_archives`)
         .eq("id_branch", id);
       if (error) {
         throw new Error(error.message);
@@ -3242,6 +3256,47 @@ export const useGetProductionHistoryDetails = (
       }, {});
 
       return Object.values(groupedData);
+    },
+  });
+};
+
+export const useArchiveLocation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn(id_branch: number) {
+      const { data: confirmStatus, error: errorStatus } = await supabase
+        .from("branch")
+        .select("*")
+        .eq("id_branch", id_branch)
+        .single();
+
+      if (confirmStatus?.id_archives === 2) {
+        const { data, error } = await supabase
+          .from("branch")
+          .update({ id_archives: 1 })
+          .eq("id_branch", id_branch);
+
+        console.log("id_branch", id_branch);
+        if (error) {
+          throw new Error(error.message);
+        }
+      }
+
+      if (confirmStatus?.id_archives === 1) {
+        const { data, error } = await supabase
+          .from("branch")
+          .update({ id_archives: 2 })
+          .eq("id_branch", id_branch);
+
+        console.log("id_branch", id_branch);
+        if (error) {
+          throw new Error(error.message);
+        }
+      }
+    },
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: ["branch", "all"] });
     },
   });
 };
