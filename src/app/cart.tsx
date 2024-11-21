@@ -18,7 +18,8 @@ import { useRouter } from "expo-router";
 import { useBranchName } from "@/components/branchParams";
 import { getUserFullName, useUserTransferQuantity } from "@/src/api/products";
 import { FontAwesome } from "@expo/vector-icons";
-import { v4 as uuidv4 } from "uuid";
+
+import uuid from "react-native-uuid";
 import { useBranchStore } from "@/src/store/branch";
 
 const CartScreen = () => {
@@ -36,7 +37,7 @@ const CartScreen = () => {
   const { id_branch, branchName } = useBranchStore();
 
   const roundedTotal = parseFloat(total.toFixed(2));
-  const transactionId = uuidv4();
+  const transactionId = uuid.v4();
 
   const [name, setName] = useState<string | null>(null);
   const [isPaymentModalVisible, setPaymentModalVisible] = useState(false);
@@ -123,7 +124,7 @@ const CartScreen = () => {
     <View style={styles.container}>
       <FlatList
         data={[...items, { id: "add-more", type: "placeholder" }]}
-        renderItem={({ item }) => {
+        renderItem={({ item }: any) => {
           if (item.type === "placeholder") {
             return (
               <Pressable
