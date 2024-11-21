@@ -682,10 +682,8 @@ export const useInsertBatch = () => {
 
         expireDate.push(newBatch);
 
-        // Push new batches (this happens multiple times in your case)
-        expireDate.push(newBatch); // Assuming newBatch is an array
+        expireDate.push(newBatch);
 
-        // Extract all id_batch values
         const allIdBatches = expireDate.flatMap((batchArray: any[]) =>
           batchArray.map((batch) => batch.id_batch)
         );
@@ -2582,12 +2580,14 @@ export const useTransferReturnedBatch = () => {
         const { data: pendingproducts, error: pendingproductsError } =
           await supabase
             .from("confirmedproducts")
-            .select("*")
+            .select("*, id_batch(expire_date)")
             .eq("id_branch", data.newId_branch);
 
         if (pendingproductsError) {
           throw new Error("Error fetching transactions");
         }
+
+        const newDate = new Date().toISOString().split("T")[0];
 
         console.log("Pending products:", pendingproducts);
 
@@ -2596,12 +2596,9 @@ export const useTransferReturnedBatch = () => {
             id_products: pendingproduct.id_products,
             id_batch: pendingproduct.id_batch,
             quantity: pendingproduct.quantity,
-            // id_user: pendingproduct.id_user,
             id_branch: data.id_branch,
-            // id_group: pendingproduct.id_group,
           };
 
-          // Insert into confirmedproducts table
           const { data: insertedProduct, error: insertConfirmedError } =
             await supabase
               .from("localbatch")
@@ -2615,15 +2612,10 @@ export const useTransferReturnedBatch = () => {
             );
           }
 
-          // Delete from pendingproducts and localbatch tables in parallel
           const deletePendingPromise = supabase
             .from("confirmedproducts")
             .delete()
             .eq("id_group", pendingproduct.id_group);
-          // .eq("id_localbranch", pendingproduct.id_localbranch)
-          // .eq("id_products", pendingproduct.id_products)
-          // .eq("id_batch", pendingproduct.id_batch)
-          // .eq("quantity", pendingproduct.quantity);
 
           await Promise.all([deletePendingPromise]);
 
