@@ -18,24 +18,27 @@ type VoidedTransactionModalProps = {
   Data: any;
   totalQuantity: number;
   name: string;
+  exp: any;
 };
 
-const ReturnedViewModal = ({
+const ReturnedViewProductModal = ({
   modalVisible,
   setModalVisible,
   Data,
   name,
   totalQuantity,
+  exp,
 }: VoidedTransactionModalProps) => {
   const renderByProductsBatch = ({ item }: { item: any }) => {
     console.log("EXPUR?:", item.id_batch.expire_date);
+    console.log("EXPire:", item.expire_date);
 
     return (
       <AdminViewBatchToAccept
         expiry={item.id_batch.expire_date}
         places={item.id_products.name}
         totalQuantity={item.quantity}
-        totalQty={totalQuantity}
+        totalQty={item.quantity}
       />
     );
   };
@@ -48,14 +51,15 @@ const ReturnedViewModal = ({
 
   console.log("Current Date DISPLAY:", currentDate);
 
-  console.log("LOOKING FOR ME?", Data);
+  // console.log("DATA FOR EXPIRE@@", Data);
 
   const expire: any = [];
   const expired: any = [];
+  console.log("DATA foreal??", Data);
 
   if (Data && Data.length > 0) {
     Data.forEach((item: any) => {
-      console.log("Expire Date!!!!!:", item.id_batch.expire_date);
+      console.log("Expire Date????:", item.id_batch.expire_date);
       const date = new Date(item.id_batch.expire_date);
       date.setDate(date.getDate() - 1);
       const year = date.getFullYear();
@@ -69,7 +73,7 @@ const ReturnedViewModal = ({
     console.log("No data available");
   }
 
-  console.log("Expire Date!!!!!+:", expire);
+  console.log("Expire Date||||:", expire);
   let warningDisplayed = false;
   let warningDisplayed2 = false;
 
@@ -98,7 +102,7 @@ const ReturnedViewModal = ({
 
           <FlatList
             data={Data}
-            keyExtractor={(item) => item.id_localbranch.toString()}
+            // keyExtractor={(item) => item.id_localbranch.toString()}
             renderItem={renderByProductsBatch}
           />
 
@@ -320,4 +324,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ReturnedViewModal;
+export default ReturnedViewProductModal;

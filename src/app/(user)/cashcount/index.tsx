@@ -1,17 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, Alert, ScrollView, Modal, FlatList } from "react-native";
-import { useAllLocalBranchData, useInsertCashCount, useInsertPendingProducts, useSalesTransaction } from "@/src/api/products";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  ScrollView,
+  Modal,
+  FlatList,
+} from "react-native";
+import {
+  useAllLocalBranchData,
+  useInsertCashCount,
+  useInsertPendingProducts,
+  useSalesTransaction,
+} from "@/src/api/products";
 import Button from "@/src/components/Button";
 import { useBranchStore } from "@/store/branch";
 import { useUUIDStore } from "@/store/user";
 import { useRouter } from "expo-router";
 import ReturnProducts from "@/components/ReturnProducts";
 import { v4 as uuidv4 } from "uuid";
+import uuid from "react-native-uuid";
 
 const EndDay = () => {
   const router = useRouter();
   const numbers = [1, 5, 10, 20, 50, 100, 200, 500, 1000];
-  const [inputValues, setInputValues] = useState<number[]>(Array(numbers.length).fill(0));
+  const [inputValues, setInputValues] = useState<number[]>(
+    Array(numbers.length).fill(0)
+  );
   const [showReturnProducts, setShowReturnProducts] = useState(false);
   const [showFinalModal, setShowFinalModal] = useState(false);
   const [cashCountTotal, setCashCountTotal] = useState(0);
@@ -22,7 +39,8 @@ const EndDay = () => {
   const { data: returnProducts } = useAllLocalBranchData(id_branch ?? "");
   const { data: totalTransactionsData } = useSalesTransaction();
 
-  const transactionId = uuidv4();
+  const transactionId = uuid.v4();
+  console.log("Transaction ID:", transactionId);
   const insertPendingProducts = useInsertPendingProducts();
   const mutation = useInsertCashCount();
 
@@ -60,7 +78,12 @@ const EndDay = () => {
         setShowReturnProducts(true);
 
         // Set the total sales value to be shown in the modal (from system data)
-        setTotalSales(totalTransactionsData?.reduce((acc, transaction) => acc + transaction.amount, 0) || 0);
+        setTotalSales(
+          totalTransactionsData?.reduce(
+            (acc, transaction) => acc + transaction.amount,
+            0
+          ) || 0
+        );
       },
     });
   };
@@ -129,8 +152,12 @@ const EndDay = () => {
             <Text style={styles.dayText}>Cash Count</Text>
           </View>
           <View style={styles.headerContainer}>
-            <Text style={[styles.headerText, styles.statusHeader]}>Peso Bill</Text>
-            <Text style={[styles.headerText, styles.moreInfoHeader]}>Number of Bills</Text>
+            <Text style={[styles.headerText, styles.statusHeader]}>
+              Peso Bill
+            </Text>
+            <Text style={[styles.headerText, styles.moreInfoHeader]}>
+              Number of Bills
+            </Text>
           </View>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             {numbers.map((number, index) => (
@@ -150,7 +177,11 @@ const EndDay = () => {
             <Text style={styles.totalText}>TOTAL</Text>
             <Text style={styles.totalValue}>₱ {total}</Text>
           </View>
-          <Button text={"Confirm"} onPress={confirmSubmitCashCount} style={styles.confirmBtn} />
+          <Button
+            text={"Confirm"}
+            onPress={confirmSubmitCashCount}
+            style={styles.confirmBtn}
+          />
         </>
       ) : (
         <>
@@ -158,13 +189,17 @@ const EndDay = () => {
             <Text style={styles.dayText}>Return Products</Text>
           </View>
           <View style={styles.headerContainer}>
-            <Text style={[styles.headerText, styles.statusHeader]}>Products</Text>
-            <Text style={[styles.headerText, styles.moreInfoHeader]}>Total Quantity</Text>
+            <Text style={[styles.headerText, styles.statusHeader]}>
+              Products
+            </Text>
+            <Text style={[styles.headerText, styles.moreInfoHeader]}>
+              Total Quantity
+            </Text>
           </View>
           <FlatList
             data={returnProducts}
             keyExtractor={(item: any) => item.id_products.toString()}
-            renderItem={({ item }) => (
+            renderItem={({ item }: any) => (
               <ReturnProducts name={item.name} quantity={item.quantity} />
             )}
           />
@@ -177,9 +212,16 @@ const EndDay = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>End of Day Summary</Text>
-            <Text style={styles.modalText}>Cash Count Total: ₱{cashCountTotal.toLocaleString()}</Text>
-            <Text style={styles.modalText}>Total Sales: ₱{totalSales.toLocaleString()}</Text>
-            <Button text={"Close"} onPress={() => router.push("/(user)/profile")} />
+            <Text style={styles.modalText}>
+              Cash Count Total: ₱{cashCountTotal.toLocaleString()}
+            </Text>
+            <Text style={styles.modalText}>
+              Total Sales: ₱{totalSales.toLocaleString()}
+            </Text>
+            <Button
+              text={"Close"}
+              onPress={() => router.push("/(user)/profile")}
+            />
           </View>
         </View>
       </Modal>

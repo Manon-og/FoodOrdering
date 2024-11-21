@@ -432,6 +432,29 @@ export const useProductForReturnedProducts = (
   });
 };
 
+export const useProductByIdForReturnedProducts = (
+  id_branch: number,
+  id_products: number
+) => {
+  console.log("ID BRANCH|||", id_branch);
+  return useQuery({
+    queryKey: ["products", id_branch, id_products],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("confirmedproducts")
+        .select("*, id_products(*, name), id_batch(*, expire_date)")
+        .eq("id_branch", id_branch)
+        .eq("id_products", id_products)
+        .neq("quantity", 0);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
 export const useProduct = (id: number) => {
   return useQuery({
     queryKey: ["products", id],
@@ -2495,23 +2518,27 @@ export const useGetPendingProducts = () => {
   });
 };
 
-export const useGetPendingProductsDetails = () => {
+export const useGetPendingProductsDetails = (id_branch: string) => {
   return useQuery({
-    queryKey: ["transaferPendingProductss"],
+    queryKey: ["transaferPendingProductss", id_branch],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("confirmedproducts")
-        .select(`*, id_branch(place), id_products(*)`);
+        .select(`*, id_branch(*), id_products(*), id_batch(expire_date)`)
+        .eq("id_branch", id_branch);
       if (error) {
         throw new Error(error.message);
       }
 
       const combinedData = data.reduce((acc, item) => {
         const key = `${item.id_products.id_products}`;
+        console.log("keyRETURNED", key);
         if (!acc[key]) {
           acc[key] = {
             id_products: item.id_products,
             quantity: 0,
+            expire_date: item.id_batch.expire_date,
+            id_branch: item.id_branch,
           };
         }
         acc[key].quantity += item.quantity;
@@ -2519,6 +2546,27 @@ export const useGetPendingProductsDetails = () => {
       }, {});
 
       return Object.values(combinedData);
+    },
+  });
+};
+
+export const useGetPendingProductsDetailsById = (
+  id_branch: string,
+  id_products: number
+) => {
+  return useQuery({
+    queryKey: ["transaferPendingProductss", id_branch, id_products],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("confirmedproducts")
+        .select(`*, id_branch(place), id_products(name), id_batch(expire_date)`)
+        .eq("id_branch", id_branch)
+        .eq("id_products", id_products);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
     },
   });
 };
@@ -3297,6 +3345,24 @@ export const useArchiveLocation = () => {
     },
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: ["branch", "all"] });
+    },
+  });
+};
+
+export const useWarningByBranch = (id_branch: number) => {
+  console.log("ID BRANCH|||", id_branch);
+  return useQuery({
+    queryKey: ["useWarningByBranch", id_branch],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("confirmedproducts")
+        .select("quantity, id_products( name), id_batch( expire_date)")
+        .eq("id_branch", id_branch)
+        .neq("quantity", 0);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
   });
 };
