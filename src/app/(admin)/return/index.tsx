@@ -64,6 +64,8 @@ const Details = ({ ddd }: any) => {
   console.log("RETURN salesReport:", salesReport);
   const created_by = salesReport?.map((item: any) => item.created_by);
 
+  console.log("RETURN created_by:", created_by[0]);
+
   const totalSales =
     salesReport?.reduce(
       (acc: any, item: { amount_by_product: any }) =>
@@ -226,7 +228,7 @@ const Details = ({ ddd }: any) => {
                 </View>
                 <View style={styles.totalQuantitiesContainer}>
                   <Text style={styles.totalQuantities}>Created By</Text>
-                  <Text style={styles.created_by}>{created_by}</Text>
+                  <Text style={styles.created_by}>{created_by[0]}</Text>
                 </View>
               </View>
               <View style={styles.buttonRow}>

@@ -18,6 +18,7 @@ import GroupedReturnedItemDetails from "@/components/AdminReturnReturnedProductD
 import Colors from "@/constants/Colors";
 import VoidedTransactionModal from "@/modals/voidedTransactionModals";
 import VoidedTransactionModalADMIN from "@/modals/voidedTransactionModalsADMIN";
+import SalesTransactionDetails from "@/components/AdminSalesTransactionDetails";
 
 const Index = () => {
   const { data: branch } = useBranchData();
@@ -57,8 +58,8 @@ const Index = () => {
 
   const renderItem = ({ item }: { item: any }) => {
     return (
-      <GroupedReturnedItemDetails
-        id_products={item.id_products.name}
+      <SalesTransactionDetails
+        name={item.id_products.name}
         quantity={item.quantity}
       />
     );

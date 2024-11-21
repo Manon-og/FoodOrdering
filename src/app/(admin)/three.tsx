@@ -1,6 +1,8 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import {
+  useExpiredProductsHistoru,
+  useGetProductionHistory,
   useGroupedSalesTransaction,
   useGroupedSalesTransactionADMIN,
 } from "@/src/api/products";
@@ -8,7 +10,8 @@ import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransacti
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import AdminViewTransaction from "@/components/AdminViewTransaction";
 import DropdownComponent from "@/components/DropDown";
-import { Stack } from "expo-router";
+import AdminViewProduction from "@/components/AdminViewProduction";
+import AdminViewExpiredHistory from "@/components/AdminViewExpiredHistory";
 
 const Index = () => {
   const filter = [
@@ -16,50 +19,52 @@ const Index = () => {
     { label: "Production", value: "Production" },
     { label: "Expired Products", value: "Expired Products" },
   ];
-  const { id_branch, branchName } = useBranchStoreAdmin();
-  console.log("ADMIN TRANSACTION:", id_branch);
-  console.log("ADMIN TRANSACTION:", branchName);
-  const currentDate = new Date().toLocaleDateString();
-  const currentDay = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-  });
+  //   const { id_branch, branchName } = useBranchStoreAdmin();
+  //   console.log("ADMIN TRANSACTION:", id_branch);
+  //   console.log("ADMIN TRANSACTION:", branchName);
+  //   const currentDate = new Date().toLocaleDateString();
+  //   const currentDay = new Date().toLocaleDateString("en-US", {
+  //     weekday: "long",
+  //   });
 
-  const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
-  console.log("GROUPED SALESs:", groupedSales);
+  //   const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
+  //   const { data: groupedProduction }: any = useGetProductionHistory();
+
+  const { data: expiredProducts } = useExpiredProductsHistoru();
+
+  //   console.log("GROUPED SALESs:", groupedSales);
+  //   console.log("GROUPED PRODUCTION:", groupedProduction);
 
   const renderItem = ({ item }: { item: any }) => {
     return (
-      <AdminViewTransaction
-        place={item.id_branch.place}
-        id_branch={item.id_branch.id_branch}
-        created_at={item.created_at}
-        amount_by_product={item.amount_by_product}
-        created_by={item.created_by}
+      <AdminViewExpiredHistory
+        productName={item.id_products.name}
+        quantity={item.quantity}
+        potential_sales={item.potential_sales}
       />
     );
   };
 
   const keyExtractor = (item: any) => {
-    const date = new Date(item.created_at).toISOString().split("T")[0];
-    return `${item.id_branch.id_branch}_${date}`;
+    // const date = new Date(item.created_at).toISOString().split("T")[0];
+    // return `${item.location}_${date}`;
   };
 
   return (
     <View style={styles.container}>
-      {/* <Stack.Screen options={{ title: "Sales Invoice Transaction" }} /> */}
       <View>
         <DropdownComponent data={filter} />
       </View>
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
-        <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
+        <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
+        <Text style={[styles.headerText, styles.statusMiddle]}>Quantity</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
-          Total Amount
+          Potential Sales
         </Text>
       </View>
       <FlatList
-        data={groupedSales}
-        keyExtractor={keyExtractor}
+        data={expiredProducts}
+        // keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
     </View>
@@ -109,6 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "left",
     flex: 1,
+    paddingLeft: 10,
   },
   statusMiddle: {
     fontSize: 15,
