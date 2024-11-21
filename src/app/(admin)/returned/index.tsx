@@ -36,6 +36,7 @@ const Index = () => {
     console.log("IDBRNch:", item.id_branch.id_branch);
     return (
       <GroupedReturnedItem
+        item={item}
         id_branch={item.id_branch.id_branch}
         id_branch_place={item.id_branch_place}
         created_at={createdAtDate}
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 20,
     color: "gray",
-    textAlign: "center", 
+    textAlign: "center",
   },
   dayText: {
     fontSize: 21,
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
   statusHeader: {
     textAlign: "left",
     flex: 0.5,
-    paddingLeft: 25,
+    paddingLeft: "13%",
   },
   placeHeader: {
     textAlign: "left",
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
   moreInfoHeader: {
     textAlign: "right",
     flex: 1,
-    paddingRight: 35,
+    paddingRight: 50,
   },
 });
 

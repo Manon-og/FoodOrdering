@@ -25,7 +25,9 @@ const Index = () => {
   const { data: branch } = useBranchData();
   const { data: localBranch } = useLocalBranchData();
 
-  console.log("Branch data:", branch);
+  const { id_branch } = useLocalSearchParams();
+  console.log("Branch data>>>>>>>>:", id_branch);
+
   console.log("Local branch data:", localBranch);
 
   const currentDate = new Date().toLocaleDateString();
@@ -33,14 +35,26 @@ const Index = () => {
     weekday: "long",
   });
 
-  const { data: pendingProductsDetails } = useGetPendingProductsDetails();
+  const { data: pendingProductsDetails } = useGetPendingProductsDetails(
+    id_branch.toString()
+  );
   console.log("Pending pr:", pendingProductsDetails);
 
   const renderItem = ({ item }: { item: any }) => {
+    console.log("Item ID:", item.id_products.id_products);
+    console.log("Item ID:", item.quantity);
+    console.log("Item ID:", item.expire_date);
+    console.log("Item ID:", item);
+    console.log("Item ID:", item.id_branch.id_branch);
     return (
       <GroupedReturnedItemDetails
-        id_products={item.id_products.name}
+        id_products={item.id_products.id_products}
+        name={item.id_products.name}
         quantity={item.quantity}
+        expire_date={item.expire_date}
+        data={pendingProductsDetails}
+        data_id={item}
+        id_branch={item.id_branch.id_branch}
       />
     );
   };
@@ -82,7 +96,7 @@ const Index = () => {
       <Stack.Screen options={{ title: "" }} />
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Products</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>Quantity</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>Qty</Text>
       </View>
       <FlatList
         data={pendingProductsDetails}
@@ -171,7 +185,7 @@ const styles = StyleSheet.create({
   statusHeader: {
     textAlign: "left",
     flex: 0.5,
-    paddingLeft: 20,
+    paddingLeft: 35,
   },
   placeHeader: {
     textAlign: "left",
@@ -180,7 +194,7 @@ const styles = StyleSheet.create({
   moreInfoHeader: {
     textAlign: "right",
     flex: 1,
-    paddingRight: 10,
+    paddingRight: "15%",
   },
 });
 
