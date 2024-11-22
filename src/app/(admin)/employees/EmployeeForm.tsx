@@ -89,6 +89,7 @@ const EmployeeForm = () => {
         id,
         fullName,
         email,
+        password,
         idRoles,
         formattedBirthDate,
         refreshEmployees,
@@ -163,15 +164,14 @@ const EmployeeForm = () => {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      {!isUpdating && (
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          style={styles.input}
-          secureTextEntry
-        />
-      )}
+
+      <TextInput
+        value={password}
+        onChangeText={setPassword}
+        placeholder="Password"
+        style={styles.input}
+        secureTextEntry
+      />
 
       <Pressable onPress={showDatePickerModal} style={styles.input}>
         <Text>
@@ -232,9 +232,9 @@ const EmployeeForm = () => {
             <Text style={styles.modalText}>
               Birth Date: {birthDate?.toDateString()}
             </Text>
-            {!isUpdating && (
-              <Text style={styles.modalText}>Password: {password}</Text>
-            )}
+
+            <Text style={styles.modalText}>Password: {password}</Text>
+
             <View style={styles.modalButtons}>
               <Text
                 onPress={() => setModalVisible(false)}

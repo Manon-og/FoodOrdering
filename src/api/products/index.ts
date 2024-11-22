@@ -1169,6 +1169,7 @@ export const handleUpdateEmployee = async (
   id: string,
   fullName: string,
   email: string,
+  password: string,
   idRoles: number,
   birthDate: string,
   refreshEmployees: () => void,
@@ -1180,6 +1181,10 @@ export const handleUpdateEmployee = async (
   if (!uuidRegex.test(id)) {
     throw new Error("Invalid UUID format for employee ID");
   }
+
+  // Update the user's email and password using the supabase.auth.admin.updateUserById method
+  const { data: userData, error: userError } =
+    await supabaseAdmin.auth.admin.updateUserById(id, { email, password });
 
   const { data, error } = await supabase
     .from("profiles")
@@ -1196,10 +1201,15 @@ export const handleUpdateEmployee = async (
     throw new Error(error.message);
   }
 
+  if (userError) {
+    console.error("Error updating employee email/password:", userError);
+    throw new Error(userError.message);
+  }
+
   refreshEmployees();
   router.push("/employees");
 
-  return data;
+  return { data, userData };
 };
 
 export const handleCreateEmployee = async (
