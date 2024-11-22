@@ -37,11 +37,12 @@ const QuantityModal: React.FC<QuantityModalProps> = ({
             value={inputQuantity}
             onChangeText={(text) => {
               const numericValue = text.replace(/[^0-9]/g, ""); // Only allow numbers
-              setInputQuantity(numericValue);
+              const limitedValue = Math.min(Number(numericValue), 100); // Limit to 100
+              setInputQuantity(limitedValue.toString());
             }}
             placeholder="99"
             keyboardType="numeric"
-            maxLength={5}
+            maxLength={3}
           />
           <View style={styles.modalButtons}>
             <Button title="Cancel" onPress={onClose} />

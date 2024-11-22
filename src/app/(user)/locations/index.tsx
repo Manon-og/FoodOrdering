@@ -66,7 +66,7 @@ const Index = () => {
           asChild
         >
           <Pressable style={styles.categoryCard}>
-            <Text style={styles.categoryText}>COOKIE</Text>
+            <Text style={styles.categoryText}>COOKIES</Text>
           </Pressable>
         </Link>
         <Link

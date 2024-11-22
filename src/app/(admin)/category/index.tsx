@@ -97,7 +97,7 @@ const Index = () => {
       <View style={styles.container}>
         <Link href={`/(admin)/menu?category=1`} asChild>
           <Pressable style={styles.categoryCard}>
-            <Text style={styles.categoryText}>COOKIE</Text>
+            <Text style={styles.categoryText}>COOKIES</Text>
           </Pressable>
         </Link>
         <Link href={`/(admin)/menu?category=2`} asChild>
