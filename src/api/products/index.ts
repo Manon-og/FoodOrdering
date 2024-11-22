@@ -1157,7 +1157,7 @@ export const getUserFullName = async () => {
 export const fetchEmployees = async (id: string) => {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, id_roles, birth_date");
+    .select("id, full_name, email, id_roles, birth_date, password");
   if (error) {
     console.error("Error fetching employees:", error);
     throw new Error(error.message);
@@ -1169,6 +1169,7 @@ export const handleUpdateEmployee = async (
   id: string,
   fullName: string,
   email: string,
+  password: string,
   idRoles: number,
   birthDate: string,
   refreshEmployees: () => void,
@@ -1181,6 +1182,10 @@ export const handleUpdateEmployee = async (
     throw new Error("Invalid UUID format for employee ID");
   }
 
+  // Update the user's email and password using the supabase.auth.admin.updateUserById method
+  const { data: userData, error: userError } =
+    await supabaseAdmin.auth.admin.updateUserById(id, { email, password });
+
   const { data, error } = await supabase
     .from("profiles")
     .update({
@@ -1188,6 +1193,7 @@ export const handleUpdateEmployee = async (
       email,
       id_roles: idRoles,
       birth_date: birthDate,
+      password: password,
     })
     .eq("id", id);
 
@@ -1196,10 +1202,15 @@ export const handleUpdateEmployee = async (
     throw new Error(error.message);
   }
 
+  if (userError) {
+    console.error("Error updating employee email/password:", userError);
+    throw new Error(userError.message);
+  }
+
   refreshEmployees();
   router.push("/employees");
 
-  return data;
+  return { data, userData };
 };
 
 export const handleCreateEmployee = async (
@@ -1231,6 +1242,7 @@ export const handleCreateEmployee = async (
             email,
             id_roles: idRoles,
             birth_date: birthDate,
+            password: password,
           },
         ]);
 

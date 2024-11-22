@@ -61,24 +61,24 @@ const EmployeeDetail = () => {
 
   const handleDelete = () => {
     Alert.alert(
-      "Delete Employee",
-      "Are you sure you want to delete this employee?",
+      "Archive Employee",
+      "Are you sure you want to archive this employee?",
       [
         {
           text: "Cancel",
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: "Archive",
           onPress: () => {
             deleteEmployee(id)
               .then(() => {
                 router.push("/employees");
-                Alert.alert("Success", "Employee deleted successfully");
+                Alert.alert("Success", "Employee archived successfully");
               })
               .catch((error) => {
-                console.error("Error deleting employee:", error);
-                Alert.alert("Error", "Failed to delete employee");
+                console.error("Error archiving employee:", error);
+                Alert.alert("Error", "Failed to archive employee");
               });
           },
           style: "destructive",
