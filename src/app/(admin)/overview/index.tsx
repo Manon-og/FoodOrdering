@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TextInput, Pressable, Button } from "react-native";
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Button } from "react-native";
 import { Dropdown } from "react-native-element-dropdown"; // Import the dropdown component
 import {
   useGroupedSalesTransactionADMIN,
@@ -35,15 +35,15 @@ const Index = () => {
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
     (selectedCategory === "" || item.category === selectedCategory) &&
     item.id_archive !== 1 // Filter out archived products
-  );
+  ) || [];
 
   if (sortOrder === "asc") {
-    filteredOverview = filteredOverview?.sort((a, b) => a.totalQuantity - b.totalQuantity);
+    filteredOverview = filteredOverview.sort((a, b) => a.totalQuantity - b.totalQuantity);
   } else if (sortOrder === "desc") {
-    filteredOverview = filteredOverview?.sort((a, b) => b.totalQuantity - a.totalQuantity);
+    filteredOverview = filteredOverview.sort((a, b) => b.totalQuantity - a.totalQuantity);
   }
 
-  const overallQuantity = filteredOverview?.reduce(
+  const overallQuantity = filteredOverview.reduce(
     (acc, item) => acc + item.totalQuantity,
     0
   );
@@ -106,9 +106,9 @@ const Index = () => {
       </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
-        <Pressable onPress={handleSortOrder}>
+        <TouchableOpacity onPress={handleSortOrder}>
           <Text style={[styles.headerText, styles.statusMiddle]}>Total Qty</Text>
-        </Pressable>
+        </TouchableOpacity>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
           Available In
         </Text>
