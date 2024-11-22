@@ -56,6 +56,23 @@ export const useAllProductList = () => {
   });
 };
 
+export const useFetchCategoryById = (id: number) => {
+  return useQuery({
+    queryKey: ["category", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("category")
+        .select("*")
+        .eq("id_category", id)
+        .single();
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
 // export const useCombinedProductList = (id: string) => {
 //   const { data: productList, error: productListError } = useProductList(id);
 //   const { data: batchList, error: batchListError } =
@@ -990,7 +1007,7 @@ export const useInsertBranch = () => {
       street: string;
       city: string;
       postal_code: number;
-      country: string;
+      // country: string;
     }) => {
       try {
         const { data: newBranch, error } = await supabase
@@ -1000,7 +1017,6 @@ export const useInsertBranch = () => {
             street: data.street,
             city: data.city,
             postal_code: data.postal_code,
-            country: data.country,
             id_archives: 2,
           });
         if (error) {
