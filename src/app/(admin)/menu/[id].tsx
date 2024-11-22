@@ -34,7 +34,12 @@ function ProductDetailScreen() {
 
   const renderItemByBatch = ({ item }: { item: any }) => {
     console.log("LL", item);
-    return <MemoizedQuantityListItemByBatch batch={item} style={styles.roundedItem} />;
+    return (
+      <MemoizedQuantityListItemByBatch
+        batch={item}
+        style={styles.roundedItem}
+      />
+    );
   };
 
   if (isLoading) {
@@ -80,6 +85,9 @@ function ProductDetailScreen() {
 
       <Text style={styles.title}>{product.name}</Text>
       <Text style={styles.price}>₱ {product.id_price.amount}.00</Text>
+      <Text style={styles.shelf_life}>
+        Shelf Life: {product.shelf_life} days
+      </Text>
       <Text style={styles.description}>{product.description}</Text>
 
       <FlatList
@@ -107,6 +115,13 @@ const styles = StyleSheet.create({
   price: {
     paddingTop: 5,
     fontSize: 20,
+    color: "black",
+    textAlign: "center",
+  },
+  shelf_life: {
+    paddingTop: 5,
+    fontSize: 18,
+    fontWeight: "bold",
     color: "black",
     textAlign: "center",
   },

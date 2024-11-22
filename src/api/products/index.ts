@@ -55,6 +55,23 @@ export const useAllProductList = () => {
   });
 };
 
+export const useFetchCategoryById = (id: number) => {
+  return useQuery({
+    queryKey: ["category", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("category")
+        .select("*")
+        .eq("id_category", id)
+        .single();
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
 // export const useCombinedProductList = (id: string) => {
 //   const { data: productList, error: productListError } = useProductList(id);
 //   const { data: batchList, error: batchListError } =
