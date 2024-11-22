@@ -19,6 +19,7 @@ export const useProductList = (id: string) => {
     },
   });
 };
+
 export const useAllProductList = () => {
   return useQuery({
     queryKey: ["products"],
@@ -681,8 +682,10 @@ export const useInsertBatch = () => {
         }
 
         expireDate.push(newBatch);
+        console.log("expireDate 1", expireDate);
 
-        expireDate.push(newBatch);
+        // expireDate.push(newBatch);
+        // console.log("expireDate 2", expireDate);
 
         const allIdBatches = expireDate.flatMap((batchArray: any[]) =>
           batchArray.map((batch) => batch.id_batch)
@@ -2030,6 +2033,37 @@ export const useUserVoid = () => {
           if (updateError) {
             throw new Error(
               `Error updating localbatch table: ${updateError.message}`
+            );
+          }
+
+          const { data: productsData, error: productsDataError } =
+            await supabase
+              .from("products")
+              .select("*")
+              .eq("id_products", transaction.id_products)
+              .single();
+
+          if (productsDataError) {
+            throw new Error(
+              `Error fetching localbatch: ${productsDataError.message}`
+            );
+          }
+
+          const newProductQuantity =
+            productsData.quantity + transaction.quantity;
+          const {
+            data: updatedProductQuantity,
+            error: updatedProductQuantityError,
+          } = await supabase
+            .from("products")
+            .update({ quantity: newQuantity })
+            .eq("id_products", transaction.id_products)
+            .single();
+          console.log("updatedProductQuantity", updatedProductQuantity);
+
+          if (updatedProductQuantityError) {
+            throw new Error(
+              `Error updating localbatch table: ${updatedProductQuantityError.message}`
             );
           }
 
@@ -3520,6 +3554,19 @@ export const useExpiredProductsHistoru = () => {
       const { data, error } = await supabase
         .from("expiredproducts")
         .select("*, id_products(name))");
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useProductsQuantity = () => {
+  return useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("products").select("*");
       if (error) {
         throw new Error(error.message);
       }

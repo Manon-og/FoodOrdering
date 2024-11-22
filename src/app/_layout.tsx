@@ -16,6 +16,7 @@ import { BranchProvider } from "../providers/BranchProvider";
 import AuthProvider from "../providers/AuthProvider";
 import ArchiveProductsScreen from "./(admin)/archive";
 import { EmployeeProvider } from "@/providers/EmployeeProvider";
+import { ProductQuantityProvider } from "@/providers/ProductQuantityProvider";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -64,6 +65,7 @@ function RootLayoutNav() {
           <QueryProvider>
             <CartProvider>
               <EmployeeProvider>
+                {/* <ProductQuantityProvider> */}
                 <Stack>
                   <Stack.Screen
                     name="(admin)"
@@ -84,6 +86,7 @@ function RootLayoutNav() {
 
                   {/* <Stack.Screen name="archive" options={{ headerShown: false }} /> Add the archive screen */}
                 </Stack>
+                {/* </ProductQuantityProvider> */}
               </EmployeeProvider>
             </CartProvider>
           </QueryProvider>
