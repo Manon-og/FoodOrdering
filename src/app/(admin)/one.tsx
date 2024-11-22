@@ -1,15 +1,12 @@
-import React, { memo } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import {
   useGetProductionHistory,
-  useGroupedSalesTransaction,
   useGroupedSalesTransactionADMIN,
 } from "@/src/api/products";
-import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
-import { useBranchStoreAdmin } from "@/store/branchAdmin";
-import AdminViewTransaction from "@/components/AdminViewTransaction";
-import DropdownComponent from "@/components/DropDown";
 import AdminViewProduction from "@/components/AdminViewProduction";
+import { useBranchStoreAdmin } from "@/store/branchAdmin";
+import { Dropdown } from "react-native-element-dropdown"; // Import the dropdown component
 
 const Index = () => {
   const filter = [
@@ -30,6 +27,8 @@ const Index = () => {
   console.log("GROUPED SALESs:", groupedSales);
   console.log("GROUPED PRODUCTION:", groupedProduction);
 
+  const [selectedFilter, setSelectedFilter] = useState<string>("");
+
   const renderItem = ({ item }: { item: any }) => {
     return (
       <AdminViewProduction
@@ -48,7 +47,17 @@ const Index = () => {
   return (
     <View style={styles.container}>
       <View>
-        <DropdownComponent data={filter} />
+        <Dropdown
+          data={filter}
+          labelField="label"
+          valueField="value"
+          placeholder="Select Transaction Type"
+          value={selectedFilter}
+          onChange={(item) => setSelectedFilter(item.value)}
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderText}
+          selectedTextStyle={styles.selectedText}
+        />
       </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
@@ -72,23 +81,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    // paddingTop: "20%",
   },
-  dateContainer: {
-    position: "absolute",
-    top: 50,
+  dropdown: {
+    width: 300,
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
   },
-  dateText: {
-    fontSize: 20,
-    fontWeight: "bold",
+  placeholderText: {
     color: "gray",
-    paddingLeft: 13,
+    fontSize: 16,
   },
-  dayText: {
-    fontSize: 25,
-    fontWeight: "bold",
-    paddingLeft: 13,
-    color: "green",
+  selectedText: {
+    color: "black",
+    fontSize: 16,
   },
   headerContainer: {
     flexDirection: "row",

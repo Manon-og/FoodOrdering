@@ -39,14 +39,7 @@ const DropdownComponent: React.FC<DropdownComponentProps> = ({
     return (
       <View style={styles.item}>
         <Text style={styles.textItem}>{item.label}</Text>
-        {item.value === value && (
-          <AntDesign
-            style={styles.icon}
-            color="black"
-            name="Safety"
-            size={20}
-          />
-        )}
+        {item.value === value}
       </View>
     );
   };
@@ -69,9 +62,6 @@ const DropdownComponent: React.FC<DropdownComponentProps> = ({
       onChange={(item: DropdownItem) => {
         setValue(item.value);
       }}
-      renderLeftIcon={() => (
-        <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
-      )}
       renderItem={renderItem}
     />
   );
