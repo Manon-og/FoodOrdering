@@ -29,6 +29,9 @@ const DropdownComponent: React.FC<DropdownComponentProps> = ({
     } else if (value === "Sales Transaction") {
       router.push("/(admin)/two");
       setValue(null);
+    } else if (value === "Expired Products") {
+      router.push("/(admin)/three");
+      setValue(null);
     }
   }, [value, router]);
 

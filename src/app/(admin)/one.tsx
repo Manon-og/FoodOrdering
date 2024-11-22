@@ -11,7 +11,8 @@ import { Dropdown } from "react-native-element-dropdown"; // Import the dropdown
 const Index = () => {
   const filter = [
     { label: "Sales Transaction", value: "Sales Transaction" },
-    { label: "Production Transaction", value: "Production" },
+    { label: "Production", value: "Production" },
+    { label: "Expired Products", value: "Expired Products" },
   ];
   const { id_branch, branchName } = useBranchStoreAdmin();
   console.log("ADMIN TRANSACTION:", id_branch);

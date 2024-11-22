@@ -164,6 +164,14 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="three"
+        options={{
+          title: "Expired Products History",
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
         name="productionreport"
         options={{
           headerShown: false,

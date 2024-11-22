@@ -987,7 +987,7 @@ export const useInsertBranch = () => {
       street: string;
       city: string;
       postal_code: number;
-      country: string;
+      // country: string;
     }) => {
       try {
         const { data: newBranch, error } = await supabase
@@ -997,7 +997,6 @@ export const useInsertBranch = () => {
             street: data.street,
             city: data.city,
             postal_code: data.postal_code,
-            country: data.country,
             id_archives: 2,
           });
         if (error) {
@@ -1157,7 +1156,7 @@ export const getUserFullName = async () => {
 export const fetchEmployees = async (id: string) => {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, id_roles, birth_date");
+    .select("id, full_name, email, id_roles, birth_date, password");
   if (error) {
     console.error("Error fetching employees:", error);
     throw new Error(error.message);
@@ -1169,6 +1168,7 @@ export const handleUpdateEmployee = async (
   id: string,
   fullName: string,
   email: string,
+  password: string,
   idRoles: number,
   birthDate: string,
   refreshEmployees: () => void,
@@ -1181,6 +1181,10 @@ export const handleUpdateEmployee = async (
     throw new Error("Invalid UUID format for employee ID");
   }
 
+  // Update the user's email and password using the supabase.auth.admin.updateUserById method
+  const { data: userData, error: userError } =
+    await supabaseAdmin.auth.admin.updateUserById(id, { email, password });
+
   const { data, error } = await supabase
     .from("profiles")
     .update({
@@ -1188,6 +1192,7 @@ export const handleUpdateEmployee = async (
       email,
       id_roles: idRoles,
       birth_date: birthDate,
+      password: password,
     })
     .eq("id", id);
 
@@ -1196,10 +1201,15 @@ export const handleUpdateEmployee = async (
     throw new Error(error.message);
   }
 
+  if (userError) {
+    console.error("Error updating employee email/password:", userError);
+    throw new Error(userError.message);
+  }
+
   refreshEmployees();
   router.push("/employees");
 
-  return data;
+  return { data, userData };
 };
 
 export const handleCreateEmployee = async (
@@ -1231,6 +1241,7 @@ export const handleCreateEmployee = async (
             email,
             id_roles: idRoles,
             birth_date: birthDate,
+            password: password,
           },
         ]);
 
@@ -1616,6 +1627,26 @@ export const useUserTransferQuantity = () => {
             throw new Error(deductError.message);
           }
 
+          const { data: ProductTable, error: ProductTableError } =
+            await supabase
+              .from("products")
+              .select("*")
+              .eq("id_products", batch.id_products)
+              .single();
+
+          const { data: updatedProductTable, error: deductProductTableError } =
+            await supabase
+              .from("products")
+              .update({
+                quantity: ProductTable.quantity - transferQuantity,
+              })
+              .eq("id_products", batch.id_products)
+              .single();
+
+          if (deductProductTableError) {
+            throw new Error(deductProductTableError.message);
+          }
+
           remainingQuantity -= transferQuantity;
         }
 
@@ -1627,7 +1658,14 @@ export const useUserTransferQuantity = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["localbatch", "batch"],
+        queryKey: [
+          "localbatch",
+          "batch",
+          "backInventory",
+          "sales",
+          "groupedSalesTransaction",
+          "products",
+        ],
       });
     },
   });
@@ -1751,7 +1789,7 @@ export const useGroupedSalesTransaction = (id_branch: string) => {
         const date = new Date(item.created_at).toISOString().split("T")[0];
         console.log("date HERE", date);
         console.log("itemSSS", item.id_branch.id_branch);
-        const key = `${item.id_branch.id_branch}_${date}`;
+        const key = `${date}_${item.id_group}`;
         if (!acc[key]) {
           acc[key] = {
             id_group: item.id_group,
@@ -2574,24 +2612,81 @@ export const useTransferReturnedBatch = () => {
 
   return useMutation({
     mutationFn: async (data: { id_branch: number; newId_branch: number }) => {
-      console.log("dataHEREE", data.id_branch);
-      console.log("dataHEREE", data.newId_branch);
+      console.log("PLSSSS||||", data.newId_branch);
       try {
         const { data: pendingproducts, error: pendingproductsError } =
           await supabase
             .from("confirmedproducts")
-            .select("*, id_batch(expire_date)")
+            .select("*, id_batch(*), id_products(*, id_price(amount))")
             .eq("id_branch", data.newId_branch);
 
         if (pendingproductsError) {
           throw new Error("Error fetching transactions");
         }
 
-        const newDate = new Date().toISOString().split("T")[0];
-
         console.log("Pending products:", pendingproducts);
 
+        const dateNow = new Date();
+        const yearNOW = dateNow.getFullYear();
+        const monthNOW = String(dateNow.getMonth() + 1).padStart(2, "0");
+        const dayNOW = String(dateNow.getDate()).padStart(2, "0");
+        const currentDate = `${yearNOW}-${monthNOW}-${dayNOW}`;
+        console.log("Current Date!!", currentDate);
+
         const promises = pendingproducts.map(async (pendingproduct) => {
+          const expireDate = pendingproduct.id_batch.expire_date;
+
+          if (expireDate === currentDate) {
+            const expiredIdBranch = pendingproduct.id_batch;
+            const potentialSales =
+              pendingproduct.quantity *
+              pendingproduct.id_products.id_price.amount;
+            const totalQuantity = pendingproduct.quantity;
+            const currentProduct = pendingproduct.id_products.id_products;
+
+            const expiredProduct = {
+              id_products: pendingproduct.id_products.id_products,
+              quantity: pendingproduct.quantity,
+              expire_date: expireDate,
+              potential_sales: potentialSales,
+            };
+
+            const { data: insertedExpiredProduct, error: insertExpiredError } =
+              await supabase
+                .from("expiredproducts")
+                .insert(expiredProduct)
+                .select("id_products")
+                .single();
+
+            if (insertExpiredError) {
+              throw new Error(
+                `Error inserting into expireTransaction table: ${insertExpiredError.message}`
+              );
+            }
+
+            const { data: productsData, error: productsDataError } =
+              await supabase
+                .from("products")
+                .select("*")
+                .eq("id_products", currentProduct)
+                .single();
+
+            const { data: updateProductsData, error: updateProductsDataError } =
+              await supabase
+                .from("products")
+                .update({ quantity: productsData.quantity - totalQuantity })
+                .eq("id_products", currentProduct)
+                .single();
+
+            const deletePending = supabase
+              .from("confirmedproducts")
+              .delete()
+              .eq("id_batch", expiredIdBranch);
+            await Promise.all([deletePending]);
+
+            return insertedExpiredProduct.id_products.id_products;
+          }
+
           const confirmedProduct = {
             id_products: pendingproduct.id_products,
             id_batch: pendingproduct.id_batch,
@@ -2601,8 +2696,9 @@ export const useTransferReturnedBatch = () => {
 
           const { data: insertedProduct, error: insertConfirmedError } =
             await supabase
-              .from("localbatch")
+              .from("batch")
               .insert(confirmedProduct)
+              .eq("id_batch", pendingproduct.id_batch)
               .select("id_products")
               .single();
 
@@ -2616,10 +2712,9 @@ export const useTransferReturnedBatch = () => {
             .from("confirmedproducts")
             .delete()
             .eq("id_group", pendingproduct.id_group);
-
           await Promise.all([deletePendingPromise]);
 
-          return insertedProduct.id_products;
+          return insertedProduct.id_products.id_products;
         });
 
         const insertedIds = await Promise.all(promises);
@@ -2651,7 +2746,7 @@ export const useReturnedBatch = () => {
         const { data: pendingproducts, error: pendingproductsError } =
           await supabase
             .from("confirmedproducts")
-            .select("*")
+            .select("*, id_batch(*), id_products(*, id_price(amount))")
             .eq("id_branch", data.newId_branch);
 
         if (pendingproductsError) {
@@ -2660,12 +2755,70 @@ export const useReturnedBatch = () => {
 
         console.log("Pending products:", pendingproducts);
 
-        const promises = pendingproducts.map(async (pendingproduct) => {
-          const confirmedProduct = {
-            id_products: pendingproduct.id_products,
+        const dateNow = new Date();
+        const yearNOW = dateNow.getFullYear();
+        const monthNOW = String(dateNow.getMonth() + 1).padStart(2, "0");
+        const dayNOW = String(dateNow.getDate()).padStart(2, "0");
+        const currentDate = `${yearNOW}-${monthNOW}-${dayNOW}`;
+        console.log("Current Date!!", currentDate);
 
+        const promises = pendingproducts.map(async (pendingproduct) => {
+          const expireDate = pendingproduct.id_batch.expire_date;
+
+          if (expireDate === currentDate) {
+            const expiredIdBranch = pendingproduct.id_batch;
+            const potentialSales =
+              pendingproduct.quantity *
+              pendingproduct.id_products.id_price.amount;
+            const totalQuantity = pendingproduct.quantity;
+            const currentProduct = pendingproduct.id_products.id_products;
+
+            const expiredProduct = {
+              id_products: pendingproduct.id_products.id_products,
+              quantity: pendingproduct.quantity,
+              expire_date: expireDate,
+              potential_sales: potentialSales,
+            };
+
+            const { data: insertedExpiredProduct, error: insertExpiredError } =
+              await supabase
+                .from("expiredproducts")
+                .insert(expiredProduct)
+                .select("id_products")
+                .single();
+
+            if (insertExpiredError) {
+              throw new Error(
+                `Error inserting into expireTransaction table: ${insertExpiredError.message}`
+              );
+            }
+
+            const { data: productsData, error: productsDataError } =
+              await supabase
+                .from("products")
+                .select("*")
+                .eq("id_products", currentProduct)
+                .single();
+
+            const { data: updateProductsData, error: updateProductsDataError } =
+              await supabase
+                .from("products")
+                .update({ quantity: productsData.quantity - totalQuantity })
+                .eq("id_products", currentProduct)
+                .single();
+
+            const deletePending = supabase
+              .from("confirmedproducts")
+              .delete()
+              .eq("id_batch", expiredIdBranch);
+            await Promise.all([deletePending]);
+
+            return insertedExpiredProduct.id_products.id_products;
+          }
+
+          const confirmedProduct = {
+            id_products: pendingproduct.id_products.id_products,
             quantity: pendingproduct.quantity,
-            // id_branch: data.id_branch,
           };
 
           const { data: insertedProduct, error: insertConfirmedError } =
@@ -2688,7 +2841,7 @@ export const useReturnedBatch = () => {
             .eq("id_group", pendingproduct.id_group);
           await Promise.all([deletePendingPromise]);
 
-          return insertedProduct.id_products;
+          return insertedProduct.id_products.id_products;
         });
 
         const insertedIds = await Promise.all(promises);
@@ -3351,6 +3504,21 @@ export const useWarningByBranch = (id_branch: number) => {
         .select("quantity, id_products( name), id_batch( expire_date)")
         .eq("id_branch", id_branch)
         .neq("quantity", 0);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useExpiredProductsHistoru = () => {
+  return useQuery({
+    queryKey: ["useExpiredProductsHistoru"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("expiredproducts")
+        .select("*, id_products(name))");
       if (error) {
         throw new Error(error.message);
       }
