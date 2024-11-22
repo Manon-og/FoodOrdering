@@ -10,7 +10,7 @@ const CreateBranchScreen = () => {
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
   const [postal, setPostal] = useState("");
-  const [country, setCountry] = useState("");
+  // const [country, setCountry] = useState("");
   const [error, setError] = useState("");
 
   const { mutate: insertLocation } = useInsertBranch();
@@ -18,7 +18,7 @@ const CreateBranchScreen = () => {
 
   const validate = () => {
     setError("");
-    if (!place || !street || !city || !postal || !country) {
+    if (!place || !street || !city || !postal) {
       setError("Please fill all fields");
       return false;
     }
@@ -30,7 +30,6 @@ const CreateBranchScreen = () => {
     setStreet("");
     setCity("");
     setPostal("");
-    setCountry("");
   };
 
   const onCreate = () => {
@@ -43,7 +42,6 @@ const CreateBranchScreen = () => {
         street,
         city,
         postal_code: Number(postal),
-        country,
       },
       {
         onSuccess: () => {
@@ -94,15 +92,6 @@ const CreateBranchScreen = () => {
         onChangeText={setPostal}
         placeholder="Postal Code"
         style={styles.input}
-        maxLength={255}
-      />
-
-      <Text style={styles.label}>Country</Text>
-      <TextInput
-        value={country}
-        onChangeText={setCountry}
-        placeholder="Country"
-        style={styles.lastInput}
         maxLength={255}
       />
 
