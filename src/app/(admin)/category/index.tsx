@@ -5,22 +5,25 @@ import {
   TouchableOpacity,
   Pressable,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useRouter } from "expo-router";
 import { useBranch } from "@/src/api/products";
 import { Dropdown } from "react-native-element-dropdown";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Index = () => {
   const router = useRouter();
   const { data: branch } = useBranch();
   console.log("branches:", branch);
 
-  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(null);
+  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(
+    null
+  );
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
 
   const handleSelectBranch = (id_branch: string, branchName: string) => {
     setSelectedBranchName(branchName); // Store selected branch name
-    setSelectedBranchId(id_branch);   // Store selected branch ID
+    setSelectedBranchId(id_branch); // Store selected branch ID
     router.push({
       pathname: "/(admin)/locations",
       params: { id_branch, branchName },
@@ -36,15 +39,27 @@ const Index = () => {
   };
 
   // Branches dropdown options
-  const branchOptions = branch?.map((item) => ({
-    label: item.place,
-    value: item.id_branch,
-  })) || [];
+  const branchOptions =
+    branch?.map((item) => ({
+      label: item.place,
+      value: item.id_branch,
+    })) || [];
+
+  // Reset selectedBranchId and selectedBranchName when the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedBranchId(null);
+      setSelectedBranchName(null);
+    }, [])
+  );
 
   return (
     <View style={styles.background}>
       <View style={styles.menuItems}>
-        <TouchableOpacity style={styles.menuButton} onPress={handleNavigateStockIn}>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={handleNavigateStockIn}
+        >
           <View style={styles.menuTextContainer}>
             <Text style={styles.menuText}>Stock In Products</Text>
           </View>
@@ -58,8 +73,8 @@ const Index = () => {
             valueField="value"
             value={selectedBranchId}
             onChange={(item) => handleSelectBranch(item.value, item.label)}
-            placeholder={selectedBranchId ? selectedBranchName ?? undefined : "Transfer Products"}
-            placeholderStyle={styles.placeholderText}  // White color for placeholder
+            placeholder="Transfer Products"
+            placeholderStyle={styles.placeholderText} // White color for placeholder
             style={styles.dropdown}
             renderItem={(item) => (
               <View style={styles.dropdownItem}>
@@ -69,7 +84,10 @@ const Index = () => {
             selectedTextStyle={selectedBranchId ? styles.selectedText : null} // Make selected text white
           />
         </View>
-        <TouchableOpacity style={styles.menuButton} onPress={handleNavigateReturn}>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={handleNavigateReturn}
+        >
           <View style={styles.menuTextContainer}>
             <Text style={styles.menuText}>Returned Products</Text>
           </View>
@@ -179,13 +197,13 @@ const styles = StyleSheet.create({
     color: "#000000", // Black color for dropdown items when not selected
   },
   placeholderText: {
-    color: "#FFFFFF",  // White color for the placeholder
+    color: "#FFFFFF", // White color for the placeholder
     fontSize: 16,
     fontWeight: "bold",
     paddingLeft: "1%",
   },
   selectedText: {
-    color: "#FFFFFF",  // White for selected item text
+    color: "#FFFFFF", // White for selected item text
     fontSize: 16,
     fontWeight: "bold",
     paddingLeft: "1%",
