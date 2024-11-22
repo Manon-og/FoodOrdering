@@ -1157,7 +1157,7 @@ export const getUserFullName = async () => {
 export const fetchEmployees = async (id: string) => {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, id_roles, birth_date");
+    .select("id, full_name, email, id_roles, birth_date, password");
   if (error) {
     console.error("Error fetching employees:", error);
     throw new Error(error.message);
@@ -1193,6 +1193,7 @@ export const handleUpdateEmployee = async (
       email,
       id_roles: idRoles,
       birth_date: birthDate,
+      password: password,
     })
     .eq("id", id);
 
@@ -1241,6 +1242,7 @@ export const handleCreateEmployee = async (
             email,
             id_roles: idRoles,
             birth_date: birthDate,
+            password: password,
           },
         ]);
 

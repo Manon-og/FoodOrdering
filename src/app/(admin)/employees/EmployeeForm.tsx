@@ -45,7 +45,7 @@ const EmployeeForm = () => {
             setEmail(employee.email);
             setIdRoles(employee.id_roles); // Set id_roles
             setBirthDate(new Date(employee.birth_date)); // Set birth_date
-            setPassword("");
+            setPassword(employee.password);
             setIsUpdating(true);
           } else {
             console.error("Employee not found");
