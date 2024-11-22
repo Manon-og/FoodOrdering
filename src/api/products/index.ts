@@ -987,7 +987,7 @@ export const useInsertBranch = () => {
       street: string;
       city: string;
       postal_code: number;
-      country: string;
+      // country: string;
     }) => {
       try {
         const { data: newBranch, error } = await supabase
@@ -997,7 +997,6 @@ export const useInsertBranch = () => {
             street: data.street,
             city: data.city,
             postal_code: data.postal_code,
-            country: data.country,
             id_archives: 2,
           });
         if (error) {
