@@ -284,13 +284,17 @@ const CreateProductScreen = () => {
         maxLength={255}
       />
       <Text style={styles.label}>Shelf Life</Text>
-      <TextInput
-        value={expiry}
-        onChangeText={setExpiry}
-        placeholder="Number of Days"
-        style={styles.input}
-        maxLength={255}
-      />
+      <View style={styles.shelfLifeContainer}>
+        <TextInput
+          value={expiry}
+          onChangeText={setExpiry}
+          placeholder="Number of Days"
+          style={[styles.input, styles.shelfLifeInput]}
+          keyboardType="numeric"
+          maxLength={255}
+        />
+        <Text style={styles.unitText}>days</Text>
+      </View>
 
       {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
       <Button onPress={onSubmit} text={isUpdating ? "Update" : "Create"} />
@@ -339,6 +343,20 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     fontWeight: "bold",
     marginVertical: 10,
+  },
+
+  shelfLifeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  shelfLifeInput: {
+    flex: 1,
+  },
+
+  unitText: {
+    marginLeft: 8,
+    fontSize: 16,
   },
 });
 
