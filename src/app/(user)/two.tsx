@@ -39,6 +39,7 @@ const Index = () => {
     console.log("CREATED AT DATE:", createdAtDate);
 
     if (createdAtDate !== currentDate) {
+      console.log("ERROR HIRS>");
       return null;
     }
 

@@ -37,7 +37,13 @@ const EndDay = () => {
   const { id } = useUUIDStore();
   const { id_branch, branchName } = useBranchStore();
   const { data: returnProducts } = useAllLocalBranchData(id_branch ?? "");
-  const { data: totalTransactionsData } = useSalesTransaction();
+
+  const date = new Date().toISOString().split("T")[0];
+  console.log("001:", date);
+  const { data: totalTransactionsData } = useSalesTransaction(
+    id_branch?.toString() ?? "",
+    date
+  );
 
   const transactionId = uuid.v4();
   console.log("Transaction ID:", transactionId);
@@ -98,7 +104,7 @@ const EndDay = () => {
       {
         onSuccess: (data) => {
           console.log("Inserted IDs:", data);
-          Alert.alert("Success", "Request for return products sent");
+          // Alert.alert("Success", "Request for return products sent");
 
           // Show the final modal after returning products
           setShowFinalModal(true);
@@ -108,6 +114,11 @@ const EndDay = () => {
         },
       }
     );
+  };
+
+  const logoutMoments = () => {
+    setShowFinalModal(false);
+    router.push("/(user)/profile");
   };
 
   const confirmSubmitCashCount = () => {
@@ -218,10 +229,7 @@ const EndDay = () => {
             <Text style={styles.modalText}>
               Total Sales: ₱{totalSales.toLocaleString()}
             </Text>
-            <Button
-              text={"Close"}
-              onPress={() => router.push("/(user)/profile")}
-            />
+            <Button text={"Close"} onPress={() => logoutMoments()} />
           </View>
         </View>
       </Modal>

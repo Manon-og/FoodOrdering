@@ -28,7 +28,8 @@ const Index = () => {
   console.log("GROUPED SALESs:", groupedSales);
   console.log("GROUPED PRODUCTION:", groupedProduction);
 
-  const [selectedFilter, setSelectedFilter] = useState<string>("Sales Transaction");
+  const [selectedFilter, setSelectedFilter] =
+    useState<string>("Sales Transaction");
 
   const renderItem = ({ item }: { item: any }) => {
     if (selectedFilter === "Sales Transaction") {
@@ -82,7 +83,9 @@ const Index = () => {
         <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
-          {selectedFilter === "Sales Transaction" ? "Total Amount" : "Total Quantity"}
+          {selectedFilter === "Sales Transaction"
+            ? "Total Amount"
+            : "Total Quantity"}
         </Text>
       </View>
       <FlatList

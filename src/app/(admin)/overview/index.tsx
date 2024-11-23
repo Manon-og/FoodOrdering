@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TextInput, Pressable, Button } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  Pressable,
+  Button,
+} from "react-native";
 import { Dropdown } from "react-native-element-dropdown"; // Import the dropdown component
 import {
   useGroupedSalesTransactionADMIN,
@@ -23,24 +31,33 @@ type OverviewItem = {
 const Index = () => {
   const { id_branch, branchName } = useBranchStoreAdmin();
   const { data: groupedSales } = useGroupedSalesTransactionADMIN();
-  const { data: overview } = useOverviewProductList() as unknown as { data: OverviewItem[] };
+  const { data: overview } = useOverviewProductList() as unknown as {
+    data: OverviewItem[];
+  };
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [sortOrder, setSortOrder] = useState<"default" | "asc" | "desc">("default");
+  const [sortOrder, setSortOrder] = useState<"default" | "asc" | "desc">(
+    "default"
+  );
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10;
 
-  let filteredOverview = overview?.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    (selectedCategory === "" || item.category === selectedCategory) &&
-    item.id_archive !== 1 // Filter out archived products
+  let filteredOverview = overview?.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (selectedCategory === "" || item.category === selectedCategory) &&
+      item.id_archive !== 1 // Filter out archived products
   );
 
   if (sortOrder === "asc") {
-    filteredOverview = filteredOverview?.sort((a, b) => a.totalQuantity - b.totalQuantity);
+    filteredOverview = filteredOverview?.sort(
+      (a, b) => a.totalQuantity - b.totalQuantity
+    );
   } else if (sortOrder === "desc") {
-    filteredOverview = filteredOverview?.sort((a, b) => b.totalQuantity - a.totalQuantity);
+    filteredOverview = filteredOverview?.sort(
+      (a, b) => b.totalQuantity - a.totalQuantity
+    );
   }
 
   const overallQuantity = filteredOverview?.reduce(
@@ -49,14 +66,22 @@ const Index = () => {
   );
 
   const totalPages = Math.ceil(filteredOverview.length / itemsPerPage);
-  const paginatedOverview = filteredOverview.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedOverview =
+    filteredOverview.length !== 0
+      ? filteredOverview.slice(
+          (currentPage - 1) * itemsPerPage,
+          currentPage * itemsPerPage
+        )
+      : [];
 
   const renderItem = ({ item }: { item: any }) => {
-    const totalLocation = ["batch", "confirmedProduct", "localBatch", "pendingLocalBatch"]
-      .map((key) => item[key]?.quantity > 0 ? 1 : 0)
+    const totalLocation = [
+      "batch",
+      "confirmedProduct",
+      "localBatch",
+      "pendingLocalBatch",
+    ]
+      .map((key) => (item[key]?.quantity > 0 ? 1 : 0))
       .reduce<number>((acc, curr) => acc + curr, 0);
 
     return (
@@ -99,15 +124,27 @@ const Index = () => {
           onChangeText={setSearchQuery}
         />
         <View style={styles.paginationContainer}>
-          <Button title="Previous" onPress={handlePreviousPage} disabled={currentPage === 1} />
-          <Text style={styles.pageNumber}>{currentPage} / {totalPages}</Text>
-          <Button title="Next" onPress={handleNextPage} disabled={currentPage === totalPages} />
+          <Button
+            title="Previous"
+            onPress={handlePreviousPage}
+            disabled={currentPage === 1}
+          />
+          <Text style={styles.pageNumber}>
+            {currentPage} / {totalPages}
+          </Text>
+          <Button
+            title="Next"
+            onPress={handleNextPage}
+            disabled={currentPage === totalPages}
+          />
         </View>
       </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
         <Pressable onPress={handleSortOrder}>
-          <Text style={[styles.headerText, styles.statusMiddle]}>Total Qty</Text>
+          <Text style={[styles.headerText, styles.statusMiddle]}>
+            Total Qty
+          </Text>
         </Pressable>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
           Available In
@@ -121,7 +158,9 @@ const Index = () => {
       />
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Overall Quantity: {overallQuantity}</Text>
+        <Text style={styles.footerText}>
+          Overall Quantity: {overallQuantity}
+        </Text>
       </View>
     </View>
   );

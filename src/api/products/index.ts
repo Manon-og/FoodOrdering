@@ -1411,7 +1411,7 @@ export const useSetTransferQuantity = () => {
             batch.quantity,
             remainingQuantityForPending
           );
-          console.log("Transfer Quantity:", transferQuantity);
+          console.log("Transfer Quantity:", remainingQuantityForPending);
 
           const { data: updatedPendingLocalBatch, error: updateError } =
             await supabase
@@ -1420,7 +1420,7 @@ export const useSetTransferQuantity = () => {
                 id_branch: data.id_branch,
                 id_products: data.id_products,
                 id_batch: batch.id_batch,
-                quantity: transferQuantity,
+                quantity: remainingQuantityForPending,
                 date: data.date,
               })
               .single();
@@ -1436,7 +1436,7 @@ export const useSetTransferQuantity = () => {
           const { data: updatedBatch, error: deductError } = await supabase
             .from("batch")
             .update({
-              quantity: batch.quantity - transferQuantity,
+              quantity: batch.quantity - remainingQuantityForPending,
             })
             .eq("id_batch", batch.id_batch)
             .single();
@@ -1447,7 +1447,7 @@ export const useSetTransferQuantity = () => {
 
           console.log("updatedBatch:", updatedBatch);
 
-          remainingQuantityForPending -= transferQuantity;
+          remainingQuantityForPending -= remainingQuantityForPending;
         });
 
         await Promise.all(pendingLocalBatchPromises);
@@ -1592,10 +1592,12 @@ export const useUserTransferQuantity = () => {
       try {
         // const transactionId = uuidv4();
         // console.log("transactionId", transactionId);
+        console.log("id_branch same??", data.id_branch);
         const { data: batches, error: batchError } = await supabase
           .from("localbatch")
           .select("*")
           .eq("id_products", data.id_products)
+          .eq("id_branch", data.id_branch)
           .neq("quantity", 0);
         console.log("batches", batches);
 
@@ -1760,17 +1762,47 @@ export const useBranchName = (id: number) => {
   });
 };
 
-export const useSalesTransaction = () => {
+export const useSalesTransaction = (id_branch: string, date: string) => {
   return useQuery({
-    queryKey: ["sales"],
+    queryKey: ["sales", id_branch, date],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("salestransaction")
-        .select(`*, id_products(name), id_branch(place)`);
+        .select(`*, id_products(name), id_branch(place)`)
+        .eq("id_branch", id_branch);
       if (error) {
         throw new Error(error.message);
       }
-      return data;
+
+      const salesDATE = data.map((item) => {
+        return new Date(item.created_at).toISOString().split("T")[0];
+      });
+
+      console.log("002", salesDATE);
+
+      const newSalesDate = salesDATE.filter((item, index) => {
+        return salesDATE.indexOf(item) === index;
+      });
+      console.log("newSalesDate", newSalesDate);
+
+      if (newSalesDate.includes(date)) {
+        console.log("IT MATCHES THE DATE AND SALESDATE", date);
+        const { data: saleOfTheDay, error: saleOfTheDayError } = await supabase
+          .from("salestransaction")
+          .select(`*, id_products(name), id_branch(place)`)
+          .eq("id_branch", id_branch)
+          .gte("created_at", `${date}T00:00:00.000Z`)
+          .lt("created_at", `${date}T23:59:59.999Z`);
+        if (saleOfTheDayError) {
+          throw new Error(saleOfTheDayError.message);
+        }
+
+        console.log("saleOfTheDay>", saleOfTheDay);
+
+        return saleOfTheDay;
+      }
+
+      return [];
     },
   });
 };
