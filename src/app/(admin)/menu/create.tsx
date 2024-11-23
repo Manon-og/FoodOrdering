@@ -56,16 +56,19 @@ const CreateProductScreen = () => {
   const { mutate: archiveProduct } = useArchiveProduct(id);
   const { data: updatingProduct } = useProduct(id);
   const { mutate: unarchiveProduct } = useUnarchiveProduct(id);
+  const { data: updatingCategoryData } = useFetchCategoryById(
+    updatingProduct.id_category
+  );
 
   const router = useRouter();
-
+  console.log("Updating Product:", updatingProduct);
   useEffect(() => {
     if (updatingProduct) {
       setNames(updatingProduct.name);
       setPrice(updatingProduct.id_price.amount.toString());
       setDescription(updatingProduct.description || "");
       setImage(updatingProduct.image);
-      setExpiry(updatingProduct.expiry || "");
+      setExpiry(updatingProduct.shelf_life.toString() || "");
     }
   }, [updatingProduct]);
 
@@ -251,12 +254,13 @@ const CreateProductScreen = () => {
     }
   };
 
+  console.log("Updating?:", isUpdating);
   return (
     <View style={styles.container}>
       <Stack.Screen
         options={{
           title: isUpdating
-            ? `Update ${categoryData?.categoryName} Product`
+            ? `Update ${updatingCategoryData.categoryName} Product`
             : `Create ${categoryData?.categoryName} Product`,
         }}
       />
