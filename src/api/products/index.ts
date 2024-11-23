@@ -3052,7 +3052,10 @@ export const useOverviewProductList = () => {
           { data: confirmedProductTable, error: confirmedProductTableError },
           { data: pendinglocalbatchTable, error: pendinglocalbatchTableError },
         ] = await Promise.all([
-          supabase.from("products").select(`id_products, name`),
+          supabase
+            .from("products")
+            .select(`id_products, name`)
+            .eq("id_archive", 2),
           supabase.from("batch").select(`id_products, quantity`),
           supabase
             .from("localbatch")
