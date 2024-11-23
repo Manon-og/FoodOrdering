@@ -43,12 +43,13 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 10;
 
-  let filteredOverview = overview?.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (selectedCategory === "" || item.category === selectedCategory) &&
-      item.id_archive !== 1 // Filter out archived products
-  );
+  let filteredOverview =
+    overview?.filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        (selectedCategory === "" || item.category === selectedCategory) &&
+        item.id_archive !== 1 // Filter out archived products
+    ) || [];
 
   if (sortOrder === "asc") {
     filteredOverview = filteredOverview?.sort(
@@ -60,7 +61,7 @@ const Index = () => {
     );
   }
 
-  const overallQuantity = filteredOverview?.reduce(
+  const overallQuantity = filteredOverview.reduce(
     (acc, item) => acc + item.totalQuantity,
     0
   );
