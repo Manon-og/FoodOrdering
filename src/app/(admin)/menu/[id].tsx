@@ -28,8 +28,9 @@ function ProductDetailScreen() {
   const { data: batch } = useBatchList(id_products.toString());
   console.log("SHIBAAAAAL", batch);
   const { data: product, error, isLoading } = useProduct(id_products);
+  console.log("PRICE PRODUCT", id_products);
   const { data: priceHistory } = usePriceHistory(id_products);
-
+  console.log("PRICE HISTORY", priceHistory);
   const [modalVisible, setModalVisible] = useState(false);
 
   const renderItemByBatch = ({ item }: { item: any }) => {
@@ -84,7 +85,7 @@ function ProductDetailScreen() {
       </View>
 
       <Text style={styles.title}>{product.name}</Text>
-      <Text style={styles.price}>₱ {product.id_price.amount}.00</Text>
+      <Text style={styles.price}>₱ {product.id_price.amount.toFixed(2)}</Text>
       <Text style={styles.shelf_life}>
         Shelf Life: {product.shelf_life} days
       </Text>

@@ -56,9 +56,9 @@ const CreateProductScreen = () => {
   const { mutate: archiveProduct } = useArchiveProduct(id);
   const { data: updatingProduct } = useProduct(id);
   const { mutate: unarchiveProduct } = useUnarchiveProduct(id);
-  const { data: updatingCategoryData } = useFetchCategoryById(
-    updatingProduct.id_category
-  );
+  // const { data: updatingCategoryData } = useFetchCategoryById(
+  //   updatingProduct.id_category
+  // );
 
   const router = useRouter();
   console.log("Updating Product:", updatingProduct);
@@ -260,7 +260,7 @@ const CreateProductScreen = () => {
       <Stack.Screen
         options={{
           title: isUpdating
-            ? `Update ${updatingCategoryData.categoryName} Product`
+            ? `Update ${categoryData?.categoryName} Product`
             : `Create ${categoryData?.categoryName} Product`,
         }}
       />

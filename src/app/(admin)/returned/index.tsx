@@ -57,7 +57,7 @@ const Index = () => {
       <FlatList
         data={pendingProducts}
         renderItem={renderItem}
-        // keyExtractor={(item) => item.created_at} pede bani??
+        // keyExtractor={(item) => item.returned_groupID} pede bani??
       />
     </View>
   );

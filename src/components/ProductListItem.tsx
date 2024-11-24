@@ -28,7 +28,8 @@ const ProductListItem = ({ product, productsByBackInventory }: any) => {
   const { id_branch, branchName } = useBranchName();
   console.log("ID BRANCH#######", id_branch);
   console.log("ID ARCHIVE??????????:", id_archive);
-  console.log("WHY?^^^^", productsByBackInventory);
+  console.log("productsByBackInventory", productsByBackInventory);
+  console.log("PRODUCTS,", product);
 
   useEffect(() => {
     productsByBackInventory;

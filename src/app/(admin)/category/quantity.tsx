@@ -21,6 +21,7 @@ import {
   useAllProductList,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
+import uuid from "react-native-uuid";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("1");
@@ -31,6 +32,7 @@ const Index = () => {
   const [currentProductId, setCurrentProductId] = useState<string | null>(null);
   const [inputQuantity, setInputQuantity] = useState<string>("");
   const router = useRouter();
+  const idGroup = uuid.v4();
 
   const { data: products, error, isLoading } = useProductList(selectedCategory);
   const { data: allProducts } = useAllProductList();
@@ -124,7 +126,11 @@ const Index = () => {
         onPress: () => {
           Object.entries(productQuantities).forEach(
             ([id_products, quantity]) => {
-              insertBatch({ id_products: Number(id_products), quantity });
+              insertBatch({
+                id_products: Number(id_products),
+                quantity,
+                idGroup,
+              });
             }
           ),
             Object.entries(productQuantities).forEach(

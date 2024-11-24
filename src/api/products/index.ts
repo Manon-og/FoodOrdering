@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
 import { Branch } from "@/src/types";
 import { v4 as uuidv4 } from "uuid";
+import uuid from "react-native-uuid";
 
 export const useProductList = (id: string) => {
   return useQuery({
@@ -685,12 +686,12 @@ export const useInsertBatch = () => {
         }
 
         const expireDate: any = [];
-
         const { data: newBatch, error: insertError } = await supabase
           .from("batch")
           .insert({
             quantity: data.quantity,
             id_products: data.id_products,
+            id_group: data.idGroup,
           })
           .select("*, id_products(*)");
 
@@ -781,6 +782,7 @@ export const useBatchList = (id: string) => {
         .from("batch")
         .select("*, id_products(*)")
         .eq("id_products", id)
+
         .gt("quantity", 0);
       if (batchError) {
         console.error("Supabase batch error:", batchError);
@@ -823,12 +825,20 @@ export const useBatchList = (id: string) => {
         throw new Error(pendingLocalBatchError.message);
       }
 
-      // Add a label to confirmedproducts data
       const labeledConfirmedProductsData = confirmedproductsData.map(
         (item) => ({
           ...item,
           label: "returned products",
         })
+      );
+      console.log(
+        "labeledConfirmedProductsData____",
+        labeledConfirmedProductsData
+      );
+
+      console.log(
+        "batchData_____",
+        batchData.map((item) => item.id_group)
       );
 
       const combinedData = [
@@ -838,24 +848,39 @@ export const useBatchList = (id: string) => {
         ...pendingLocalBatchData,
       ];
 
+      console.log("combinedData!____", combinedData);
+
       const groupedData = combinedData.reduce((acc, item) => {
         const productId = item.id_products.id_products;
         const branchId = item.id_branch?.id_branch || "batch";
         const batchId = item.id_batch.id_batch;
+        // const confirmedId = item.id_confirmpendingproducts;
+        // console.log("confirmedId____", confirmedId);
+        console.log(
+          "batchData_____",
+          batchData.map((item) => item.id_group)
+        );
+        const groupId =
+          item.id_group || item.id_batch?.id_group || item.id_batch?.id_group;
+        console.log("groupId____", groupId);
         const date = item.date || "batch";
         const localBatchId = item.id_localbatch?.id_localbatch || null;
         const pendingLocalBatchId =
           item.id_pendinglocalbatch?.id_pendinglocalbatch || null;
-        const compositeKey = `${branchId}_${batchId}_${productId}_${date}`;
+        const confirmedProductsId = item.id_confirmpendingproducts || null;
+        const compositeKey = `${branchId}_${batchId}_${productId}_${date}_${groupId}_${confirmedProductsId}`;
+        console.log("compositeKey___", compositeKey);
 
         if (!acc[compositeKey]) {
           acc[compositeKey] = {
             ...item.id_products,
             quantity: 0,
+            id_group: item.id_group,
             branch: item.id_branch,
             batch: item.id_batch,
             date: item.date,
             localBatchId: item.id_localbranch || null,
+            confirmedProductsId: item.id_confirmpendingproducts || null,
             pendingLocalBatchId: item.id_pendinglocalbranch || null,
             expire_date: item.expire_date,
             type: item.date ? "pending" : item.id_branch ? "local" : "batch",
@@ -1399,61 +1424,83 @@ export const useSetTransferQuantity = () => {
           throw new Error("Error fetching batches");
         }
 
-        console.log("batches", batches);
+        console.log("Fetched batches:", batches);
+        const groupedBatches = batches
+          .reduce((acc, batch) => {
+            if (!acc[batch.id_products]) {
+              acc[batch.id_products] = [];
+            }
+            acc[batch.id_products].push(batch);
+            return acc;
+          }, {})
+          [data.id_products]?.sort((a: any, b: any) => {
+            return (
+              new Date(a.expire_date).getTime() -
+              new Date(b.expire_date).getTime()
+            );
+          });
+        //for now lets just stick with this sort (yung sa taas)
+        if (!groupedBatches || groupedBatches.length === 0) {
+          throw new Error("No valid batches found for transfer");
+        }
 
         let remainingQuantityForPending = data.quantity;
-        console.log("Remaining quantity:", remainingQuantityForPending);
+        console.log("Initial remaining quantity:", remainingQuantityForPending);
 
-        const pendingLocalBatchPromises = batches.map(async (batch) => {
-          if (remainingQuantityForPending <= 0) return;
+        for (const batch of groupedBatches) {
+          if (remainingQuantityForPending <= 0) break;
 
           const transferQuantity = Math.min(
             batch.quantity,
             remainingQuantityForPending
           );
-          console.log("Transfer Quantity:", remainingQuantityForPending);
 
-          const { data: updatedPendingLocalBatch, error: updateError } =
-            await supabase
-              .from("pendinglocalbatch")
-              .insert({
-                id_branch: data.id_branch,
-                id_products: data.id_products,
-                id_batch: batch.id_batch,
-                quantity: remainingQuantityForPending,
-                date: data.date,
-              })
-              .single();
+          console.log(
+            `Transferring ${transferQuantity} from batch ${batch.id_batch}`
+          );
+
+          // Insert into pendinglocalbatch
+          const { error: updateError } = await supabase
+            .from("pendinglocalbatch")
+            .insert({
+              id_branch: data.id_branch,
+              id_products: data.id_products,
+              id_batch: batch.id_batch,
+              quantity: transferQuantity,
+              date: data.date,
+            })
+            .single();
 
           if (updateError) {
             throw new Error(
-              `Error inserting into pendinglocalbatch table: ${updateError.message}`
+              `Error inserting into pendinglocalbatch: ${updateError.message}`
             );
           }
 
-          console.log("updatedPendingLocalBatch", updatedPendingLocalBatch);
-
-          const { data: updatedBatch, error: deductError } = await supabase
+          // Update the quantity in the batch
+          const { error: deductError } = await supabase
             .from("batch")
             .update({
-              quantity: batch.quantity - remainingQuantityForPending,
+              quantity: batch.quantity - transferQuantity,
             })
             .eq("id_batch", batch.id_batch)
             .single();
 
           if (deductError) {
-            throw new Error(deductError.message);
+            throw new Error(
+              `Error updating batch quantity: ${deductError.message}`
+            );
           }
 
-          console.log("updatedBatch:", updatedBatch);
+          remainingQuantityForPending -= transferQuantity;
+        }
 
-          remainingQuantityForPending -= remainingQuantityForPending;
-        });
+        console.log(
+          "Remaining quantity after transfer:",
+          remainingQuantityForPending
+        );
 
-        await Promise.all(pendingLocalBatchPromises);
-
-        console.log("POTA GAGO?", data.currentDate);
-
+        // Process pendinglocalbatch to move to localbatch
         const { data: pendinglocalbatch, error: pendingError } = await supabase
           .from("pendinglocalbatch")
           .select("*")
@@ -1462,10 +1509,12 @@ export const useSetTransferQuantity = () => {
           .eq("date", data.currentDate);
 
         if (pendingError) {
-          throw new Error(pendingError.message);
+          throw new Error(
+            `Error fetching pendinglocalbatch: ${pendingError.message}`
+          );
         }
 
-        console.log("PENDING NICEEE!!!", pendinglocalbatch);
+        console.log("Pending local batches:", pendinglocalbatch);
 
         if (pendinglocalbatch && pendinglocalbatch.length > 0) {
           const insertPromises = pendinglocalbatch.map((batch) =>
@@ -1482,17 +1531,22 @@ export const useSetTransferQuantity = () => {
 
           insertResults.forEach(({ error: insertError }) => {
             if (insertError) {
-              throw new Error(insertError.message);
+              throw new Error(
+                `Error inserting into localbatch: ${insertError.message}`
+              );
             }
           });
 
+          // Delete from pendinglocalbatch
           const { error: deleteError } = await supabase
             .from("pendinglocalbatch")
             .delete()
             .eq("date", data.currentDate);
 
           if (deleteError) {
-            throw new Error(deleteError.message);
+            throw new Error(
+              `Error deleting from pendinglocalbatch: ${deleteError.message}`
+            );
           }
         }
 
@@ -2543,6 +2597,9 @@ export const useDeleteLocalBatch = () => {
 
         console.log("Pending products:", pendingproducts);
 
+        const newIDgroup = uuid.v4();
+        console.log("newIDgroup+++_)_", newIDgroup);
+
         const promises = pendingproducts.map(async (pendingproduct) => {
           const confirmedProduct = {
             id_products: pendingproduct.id_products,
@@ -2551,6 +2608,7 @@ export const useDeleteLocalBatch = () => {
             id_user: pendingproduct.id_user,
             id_branch: pendingproduct.id_branch,
             id_group: pendingproduct.id_group,
+            returned_groupID: newIDgroup,
           };
 
           // Insert into confirmedproducts table
@@ -2618,7 +2676,7 @@ export const useGetPendingProducts = () => {
       }
 
       const groupedData = data.reduce((acc, item) => {
-        const groupId = `${item.id_group}_${item.id_branch}`;
+        const groupId = `${item.returned_groupID}_${item.id_branch}`;
         if (!acc[groupId]) {
           acc[groupId] = {
             id_branch_place: item.id_branch.place,
@@ -2761,6 +2819,11 @@ export const useTransferReturnedBatch = () => {
                 .eq("id_products", currentProduct)
                 .single();
 
+            const deleteBatch = supabase
+              .from("batch")
+              .delete()
+              .eq("id_batch", expiredIdBranch);
+
             const deletePending = supabase
               .from("confirmedproducts")
               .delete()
@@ -2771,30 +2834,30 @@ export const useTransferReturnedBatch = () => {
           }
 
           const confirmedProduct = {
-            id_products: pendingproduct.id_products,
-            id_batch: pendingproduct.id_batch,
+            id_products: pendingproduct.id_products.id_products,
+            id_batch: pendingproduct.id_batch.id_batch,
             quantity: pendingproduct.quantity,
             id_branch: data.id_branch,
+            before: pendingproduct.quantity,
           };
 
           const { data: insertedProduct, error: insertConfirmedError } =
             await supabase
-              .from("batch")
+              .from("localbatch")
               .insert(confirmedProduct)
-              .eq("id_batch", pendingproduct.id_batch)
               .select("id_products")
               .single();
 
           if (insertConfirmedError) {
             throw new Error(
-              `Error inserting into confirmedproducts table: ${insertConfirmedError.message}`
+              `Error inserting into confirmedproducts table+: ${insertConfirmedError.message}`
             );
           }
 
           const deletePendingPromise = supabase
             .from("confirmedproducts")
             .delete()
-            .eq("id_group", pendingproduct.id_group);
+            .eq("returned_groupID", pendingproduct.returned_groupID);
           await Promise.all([deletePendingPromise]);
 
           return insertedProduct.id_products.id_products;
@@ -3622,6 +3685,125 @@ export const useProductsQuantity = () => {
         throw new Error(error.message);
       }
       return data;
+    },
+  });
+};
+
+export const useUpdateBatchQuantity = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      location,
+      quantity,
+      originalQuantity,
+      id_products,
+    }: {
+      id: string;
+      location: string;
+      quantity: number;
+      originalQuantity: number;
+      id_products: number;
+    }) => {
+      console.log("ID", id);
+      console.log("LOCATION", location);
+      console.log("QUANTITY", quantity);
+      console.log("ORIGINAL QUANTITY", originalQuantity);
+      console.log("ID PRODUCTS", id_products);
+
+      const dateNow = new Date();
+      const yearNOW = dateNow.getFullYear();
+      const monthNOW = String(dateNow.getMonth() + 1).padStart(2, "0");
+      const dayNOW = String(dateNow.getDate()).padStart(2, "0");
+      const dateExpired = `${yearNOW}-${monthNOW}-${dayNOW}`;
+      console.log("Current Date DISPLAY:", dateExpired);
+
+      const { data: productData, error: productDataError } = await supabase
+        .from("products")
+        .select("*, id_price(amount)")
+        .eq("id_products", id_products)
+        .single();
+
+      if (productDataError) {
+        throw new Error(productDataError.message);
+      }
+
+      console.log("productData----", productData);
+
+      const updateBatch = async () => {
+        if (location === "Back Inventory") {
+          const { data, error } = await supabase
+            .from("batch")
+            .update({ quantity })
+            .eq("id_batch", id);
+
+          if (error) {
+            throw new Error(error.message);
+          }
+          return data;
+        } else if (location === "Returned Products") {
+          const { data, error } = await supabase
+            .from("confirmedproducts")
+            .update({ quantity })
+            .eq("id_confirmpendingproducts", id);
+
+          if (error) {
+            throw new Error(error.message);
+          }
+          return data;
+        } else if (location === "Pending") {
+          const { data, error } = await supabase
+            .from("pendinglocalbatch")
+            .update({ quantity })
+            .eq("id_pendinglocalbranch", id);
+
+          if (error) {
+            throw new Error(error.message);
+          }
+          return data;
+        } else {
+          throw new Error("Invalid location specified");
+        }
+      };
+
+      const newQuantity = originalQuantity - quantity;
+      const insertExpiredProducts = async () => {
+        const { data, error } = await supabase.from("expiredproducts").insert({
+          id_products: id_products,
+          quantity: newQuantity,
+          expire_date: dateExpired,
+          potential_sales: newQuantity * productData.id_price.amount,
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+        return data;
+      };
+
+      const [updateResultData, expiredProductsData] = await Promise.all([
+        updateBatch(),
+        insertExpiredProducts(),
+      ]);
+
+      return updateResultData;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [
+          "branch",
+          "all",
+          "batch",
+          "batches",
+          "localbatch",
+          "id_products",
+          "products",
+          "backInventory",
+          "setBatch",
+          "useExpiredProductsHistoru",
+        ],
+      });
     },
   });
 };

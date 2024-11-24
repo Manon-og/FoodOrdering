@@ -16,6 +16,7 @@ const GroupedReturnedItem: React.FC<GroupedSalesTransactionItemProps> = ({
   id_branch,
   item,
 }) => {
+  console.log("ODASNJKDAS", id_branch);
   const { data: branch } = useWarningByBranch(id_branch);
 
   const dateNow = new Date();

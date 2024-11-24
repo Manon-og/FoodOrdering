@@ -1,64 +1,77 @@
-import { StyleSheet, Image, Pressable } from "react-native";
+import { StyleSheet, Image, Pressable, TouchableOpacity } from "react-native";
 import Colors from "../constants/Colors";
 import { Text, View } from "@/src/components/Themed";
-import { Product } from "@/src/types";
-import { Link, useSegments } from "expo-router";
-
-type ProductListItemProps = {
-  product: {
-    id: string;
-    name: string;
-    image: string;
-    price: {
-      amount: number;
-    };
-  };
-  amount: number;
-};
-
-export const DefaultPhoto =
-  "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
+import { useState } from "react";
+import AdjustBackInventoryQuantity from "@/modals/adjustBackInventoryQuantity";
 
 const QuantityListItem = ({ batch }: any) => {
-  const segments = useSegments();
+  const [modalVisible, setModalVisible] = useState(false);
 
-  // console.log("BATCH???????", batch);
+  console.log("BATCH??????!", batch);
+
+  let place = "";
+  if (batch.label === "returned products") {
+    place = "Returned Products";
+  } else if (batch.type === "pending") {
+    place = "Pending";
+  } else if (batch.branch) {
+    place = batch.branch.place;
+  } else {
+    place = "Back Inventory";
+  }
 
   return (
     <View>
       <View style={styles.contentContainer}>
         <View style={styles.itemContainer}>
-          <Text style={styles.title}>Quantity: {batch.quantity}</Text>
-          <Text style={styles.quantity}>
-            {batch.label === "returned products"
-              ? "Returned products"
-              : batch.type === "pending"
-              ? "Pending"
-              : batch.branch
-              ? batch.branch.place
-              : "Back Inventory"}
-          </Text>
-          {/* <Text style={styles.price}>
-            {batch.type === "pending"
-              ? `Pending Batch ID: ${batch.pendingLocalBatchId}`
-              : batch.type === "local"
-              ? `Local Batch ID: ${batch.localBatchId}`
-              : `Batch ID: ${batch.batch}`}
-          </Text>  NEED NI IPAKITA?? */}
-          {batch.type === "pending" && (
-            <Text style={styles.date}>Until: {batch.date}</Text>
+          {batch.branch && place === batch.branch.place ? (
+            <>
+              <Text style={styles.title}>Quantity: {batch.quantity}</Text>
+              <View style={styles.row}>
+                <Text style={styles.quantity}>{place}</Text>
+                <Text style={styles.view}>{batch.branch ? "" : "edit"}</Text>
+              </View>
+              {batch.type === "pending" && (
+                <Text style={styles.date}>Until: {batch.date}</Text>
+              )}
+              <Text style={styles.red}>
+                Expiry Date:{" "}
+                {batch.type === "pending"
+                  ? batch.batch.expire_date
+                  : batch.branch
+                  ? batch.batch.expire_date
+                  : batch.expire_date}
+              </Text>
+            </>
+          ) : (
+            <View>
+              <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <Text style={styles.title}>Quantity: {batch.quantity}</Text>
+                <View style={styles.row}>
+                  <Text style={styles.quantity}>{place}</Text>
+                  <Text style={styles.view}>edit</Text>
+                </View>
+                {batch.type === "pending" && (
+                  <Text style={styles.date}>Until: {batch.date}</Text>
+                )}
+                <Text style={styles.red}>
+                  Expiry Date:{" "}
+                  {batch.type === "pending"
+                    ? batch.batch.expire_date
+                    : batch.branch
+                    ? batch.batch.expire_date
+                    : batch.expire_date}
+                </Text>
+              </TouchableOpacity>
+              <AdjustBackInventoryQuantity
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                Data={batch.quantity}
+                Location={place}
+                MainData={batch}
+              />
+            </View>
           )}
-          <Text style={styles.red}>
-            Expiry Date:{" "}
-            {batch.type === "pending"
-              ? batch.batch.expire_date
-              : batch.branch
-              ? batch.batch.expire_date
-              : batch.expire_date}
-            {/* {batch.type === "local"
-              ? batch.batch.expire_date
-              : batch.batch.expire_date} */}
-          </Text>
         </View>
       </View>
     </View>
@@ -68,6 +81,15 @@ const QuantityListItem = ({ batch }: any) => {
 export default QuantityListItem;
 
 const styles = StyleSheet.create({
+  view: {
+    textAlign: "right",
+    flex: 1,
+    paddingRight: 20,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   contentContainer: {
     gap: 10,
     alignItems: "center",

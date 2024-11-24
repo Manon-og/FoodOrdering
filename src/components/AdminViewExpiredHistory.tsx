@@ -22,7 +22,7 @@ const AdminViewExpiredHistory: React.FC<GroupedSalesTransactionItemProps> = ({
     <View style={styles.itemContainer}>
       <Text style={styles.itemLeft}>{productName}</Text>
       <Text style={styles.itemText}>{quantity}</Text>
-      <Text style={styles.itemRight}>₱ {potential_sales}</Text>
+      <Text style={styles.itemRight}>₱ {potential_sales.toFixed(2)}</Text>
     </View>
     //   </Pressable>
     // </Link>
