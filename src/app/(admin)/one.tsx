@@ -14,8 +14,9 @@ import AdminViewProduction from "@/components/AdminViewProduction";
 const Index = () => {
   const filter = [
     { label: "Sales Transaction", value: "Sales Transaction" },
-    { label: "Production", value: "Production" },
-    { label: "Expired Products", value: "Expired Products" },
+    { label: "Transfer Transaction", value: "Transfer Transaction" },
+    { label: "Expired Transaction", value: "Expired Transaction" },
+    { label: "Production Transaction", value: "Production Transaction" },
   ];
   const { id_branch, branchName } = useBranchStoreAdmin();
   console.log("ADMIN TRANSACTION:", id_branch);
@@ -109,10 +110,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "left",
     flex: 1,
+    paddingLeft: 10,
   },
   statusMiddle: {
     fontSize: 15,
     flex: 1,
+    paddingRight: 15,
   },
   placeHeader: {
     textAlign: "left",

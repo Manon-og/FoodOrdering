@@ -16,8 +16,9 @@ import AdminViewExpiredHistory from "@/components/AdminViewExpiredHistory";
 const Index = () => {
   const filter = [
     { label: "Sales Transaction", value: "Sales Transaction" },
-    { label: "Production", value: "Production" },
-    { label: "Expired Products", value: "Expired Products" },
+    { label: "Transfer Transaction", value: "Transfer Transaction" },
+    { label: "Expired Transaction", value: "Expired Transaction" },
+    { label: "Production Transaction", value: "Production Transaction" },
   ];
   //   const { id_branch, branchName } = useBranchStoreAdmin();
   //   console.log("ADMIN TRANSACTION:", id_branch);

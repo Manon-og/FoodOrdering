@@ -23,14 +23,17 @@ const DropdownComponent: React.FC<DropdownComponentProps> = ({
   const router = useRouter();
 
   useEffect(() => {
-    if (value === "Production") {
-      router.push("/(admin)/one");
+    if (value === "Production Transaction") {
+      router.push("/(admin)/four");
       setValue(null);
     } else if (value === "Sales Transaction") {
       router.push("/(admin)/two");
       setValue(null);
-    } else if (value === "Expired Products") {
+    } else if (value === "Expired Transaction") {
       router.push("/(admin)/three");
+      setValue(null);
+    } else if (value === "Transfer Transaction") {
+      router.push("/(admin)/one");
       setValue(null);
     }
   }, [value, router]);

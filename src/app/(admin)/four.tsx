@@ -1,6 +1,8 @@
 import React, { memo } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import {
+  useGetProductionHistory,
+  useGetRealProductionHistoryDetails,
   useGroupedSalesTransaction,
   useGroupedSalesTransactionADMIN,
 } from "@/src/api/products";
@@ -8,7 +10,9 @@ import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransacti
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import AdminViewTransaction from "@/components/AdminViewTransaction";
 import DropdownComponent from "@/components/DropDown";
-import { Stack } from "expo-router";
+import AdminViewProduction from "@/components/AdminViewProduction";
+import AdminViewProductionDetails from "@/components/AdminViewProductionDetails";
+import AdminViewRealProductionDetails from "@/components/AdminViewRealProductionDetails";
 
 const Index = () => {
   const filter = [
@@ -17,50 +21,48 @@ const Index = () => {
     { label: "Expired Transaction", value: "Expired Transaction" },
     { label: "Production Transaction", value: "Production Transaction" },
   ];
-  const { id_branch, branchName } = useBranchStoreAdmin();
-  console.log("ADMIN TRANSACTION:", id_branch);
-  console.log("ADMIN TRANSACTION:", branchName);
-  const currentDate = new Date().toLocaleDateString();
-  const currentDay = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-  });
+  //   const { id_branch, branchName } = useBranchStoreAdmin();
+  //   console.log("ADMIN TRANSACTION:", id_branch);
+  //   console.log("ADMIN TRANSACTION:", branchName);
+  //   const currentDate = new Date().toLocaleDateString();
+  //   const currentDay = new Date().toLocaleDateString("en-US", {
+  //     weekday: "long",
+  //   });
+  const location = "Back Inventory";
+  const date = new Date().toISOString().split("T")[0];
+  const { data: production } = useGetRealProductionHistoryDetails(
+    location,
+    date
+  );
 
-  const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
-  console.log("GROUPED SALESs:", groupedSales);
+  console.log("Production History Details?:", production);
 
   const renderItem = ({ item }: { item: any }) => {
+    const date = new Date(item.created_at).toISOString().split("T")[0];
     return (
-      <AdminViewTransaction
-        place={item.id_branch.place}
-        id_branch={item.id_branch.id_branch}
-        created_at={item.created_at}
-        amount_by_product={item.amount_by_product}
-        created_by={item.created_by}
+      <AdminViewRealProductionDetails
+        name={item.id_products.name}
+        quantity={item.quantity}
+        date={date}
       />
     );
   };
 
-  const keyExtractor = (item: any) => {
-    const date = new Date(item.created_at).toISOString().split("T")[0];
-    return `${item.id_branch.id_branch}_${date}`;
-  };
-
   return (
     <View style={styles.container}>
-      {/* <Stack.Screen options={{ title: "Sales Invoice Transaction" }} /> */}
       <View>
         <DropdownComponent data={filter} />
       </View>
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
-        <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>
-          Total Amount
+        <Text style={[styles.headerText, styles.statusHeader]}>
+          Product Name{" "}
         </Text>
+        <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>Qty</Text>
       </View>
       <FlatList
-        data={groupedSales}
-        keyExtractor={keyExtractor}
+        data={production}
+        // keyExtractor={keyExtractor} hehe
         renderItem={renderItem}
       />
     </View>
@@ -110,10 +112,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "left",
     flex: 1,
+    paddingLeft: 10,
   },
   statusMiddle: {
     fontSize: 15,
     flex: 1,
+    paddingLeft: "10%",
   },
   placeHeader: {
     textAlign: "left",
@@ -123,6 +127,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "right",
     flex: 1,
+    paddingRight: 20,
   },
 });
 

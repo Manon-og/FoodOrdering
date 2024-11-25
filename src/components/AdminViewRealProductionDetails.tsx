@@ -3,30 +3,20 @@ import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 
 interface GroupedSalesTransactionItemProps {
-  created_at: string;
-  location: string;
-
+  name: string;
   quantity: number;
+  date: string;
 }
 
-const AdminViewProduction: React.FC<GroupedSalesTransactionItemProps> = ({
-  location,
-  created_at,
-  quantity,
-}) => {
-  const date = new Date(created_at).toISOString().split("T")[0];
-  console.log("Date HIRRRRRRR:", date);
-  const link: any = `/(admin)/productionreport?created_at=${created_at}&location=${location}`;
+const AdminViewRealProductionDetails: React.FC<
+  GroupedSalesTransactionItemProps
+> = ({ name, quantity, date }) => {
   return (
-    <Link href={link} asChild>
-      <Pressable>
-        <View style={styles.itemContainer}>
-          <Text style={styles.itemLeft}>{location}</Text>
-          <Text style={styles.itemText}>{date}</Text>
-          <Text style={styles.itemRight}>{quantity}</Text>
-        </View>
-      </Pressable>
-    </Link>
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemLeft}>{name}</Text>
+      <Text style={styles.itemMiddle}>{date}</Text>
+      <Text style={styles.itemRight}>{quantity}</Text>
+    </View>
   );
 };
 
@@ -48,7 +38,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     flex: 1,
-    paddingLeft: 30,
   },
   itemLeft: {
     fontSize: 16,
@@ -56,12 +45,19 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "left",
   },
+  itemMiddle: {
+    fontSize: 16,
+    // fontWeight: "bold",
+    flex: 1,
+    textAlign: "center",
+    paddingLeft: "18%",
+  },
   itemRight: {
     fontSize: 16,
     fontWeight: "bold",
     flex: 1,
     textAlign: "right",
-    paddingRight: 30,
+    paddingRight: 10,
   },
   transactionContainer: {
     paddingLeft: 10,
@@ -71,4 +67,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AdminViewProduction;
+export default AdminViewRealProductionDetails;

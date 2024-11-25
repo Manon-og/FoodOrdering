@@ -3490,6 +3490,10 @@ export const useGetProductionHistory = () => {
       }
 
       const groupedData = data.reduce((acc, item) => {
+        if (item.location === "Back Inventory") {
+          return acc;
+        }
+
         const date = new Date(item.created_at).toISOString().split("T")[0];
         const key = `${item.location}_${date}`;
         console.log("keyjsajjs", key);
@@ -3804,6 +3808,56 @@ export const useUpdateBatchQuantity = () => {
           "useExpiredProductsHistoru",
         ],
       });
+    },
+  });
+};
+
+export const useGetRealProductionHistoryDetails = (
+  location: string,
+  date: string
+) => {
+  return useQuery({
+    queryKey: ["groupedProductionHistory", location, date],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("stockmovement")
+        .select("*, id_products(name)")
+        .eq("location", location);
+
+      console.log("stockmovement", data);
+      console.log("stockmovement date", date);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.length === 0) {
+        return [];
+      }
+
+      const groupedData = data.reduce((acc, item) => {
+        const itemDate = new Date(item.created_at).toISOString().split("T")[0];
+        if (itemDate !== date) {
+          return acc;
+        }
+
+        const key = `${item.id_products.name}_${itemDate}`;
+
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
+            quantity: 0,
+            created_at: item.created_at,
+            transactions: [],
+          };
+        }
+        acc[key].quantity += item.quantity;
+        acc[key].transactions.push(item);
+
+        return acc;
+      }, {});
+
+      return Object.values(groupedData);
     },
   });
 };

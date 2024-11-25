@@ -158,7 +158,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="one"
         options={{
-          title: "Production Transaction",
+          title: "Transfering Products History",
           tabBarButton: () => null,
         }}
       />
@@ -167,6 +167,14 @@ export default function TabLayout() {
         name="three"
         options={{
           title: "Expired Products History",
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="four"
+        options={{
+          title: "Production History",
           tabBarButton: () => null,
         }}
       />
