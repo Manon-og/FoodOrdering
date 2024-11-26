@@ -5,6 +5,7 @@ import {
   useGetRealProductionHistoryDetails,
   useGroupedSalesTransaction,
   useGroupedSalesTransactionADMIN,
+  useReturnedProductHistory,
 } from "@/src/api/products";
 import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
@@ -13,6 +14,7 @@ import DropdownComponent from "@/components/DropDown";
 import AdminViewProduction from "@/components/AdminViewProduction";
 import AdminViewProductionDetails from "@/components/AdminViewProductionDetails";
 import AdminViewRealProductionDetails from "@/components/AdminViewRealProductionDetails";
+import AdminReturnReturnedProductsHistory from "@/components/AdminViewReturnedProductsHistory";
 
 const Index = () => {
   const filter = [
@@ -22,13 +24,7 @@ const Index = () => {
     { label: "Production", value: "Production" },
     { label: "Returned Products", value: "Returned Products" },
   ];
-  //   const { id_branch, branchName } = useBranchStoreAdmin();
-  //   console.log("ADMIN TRANSACTION:", id_branch);
-  //   console.log("ADMIN TRANSACTION:", branchName);
-  //   const currentDate = new Date().toLocaleDateString();
-  //   const currentDay = new Date().toLocaleDateString("en-US", {
-  //     weekday: "long",
-  //   });
+
   const location = "Back Inventory";
   const date = new Date().toISOString().split("T")[0];
   const { data: production } = useGetRealProductionHistoryDetails(
@@ -38,13 +34,16 @@ const Index = () => {
 
   console.log("Production History Details?:", production);
 
+  const { data: returnedHistory } = useReturnedProductHistory();
+  console.log("Returned History!:", returnedHistory);
+
   const renderItem = ({ item }: { item: any }) => {
-    const date = new Date(item.created_at).toISOString().split("T")[0];
     return (
-      <AdminViewRealProductionDetails
-        name={item.id_products.name}
+      <AdminReturnReturnedProductsHistory
+        from={item.from}
+        to={item.to}
         quantity={item.quantity}
-        date={date}
+        date={item.created_at}
       />
     );
   };
@@ -55,14 +54,12 @@ const Index = () => {
         <DropdownComponent data={filter} />
       </View>
       <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>
-          Product Name{" "}
-        </Text>
-        <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>Qty</Text>
+        <Text style={[styles.headerText, styles.statusHeader]}>From</Text>
+        <Text style={[styles.headerText, styles.statusMiddle]}>To</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>Date</Text>
       </View>
       <FlatList
-        data={production}
+        data={returnedHistory}
         // keyExtractor={keyExtractor} hehe
         renderItem={renderItem}
       />
@@ -113,12 +110,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "left",
     flex: 1,
-    paddingLeft: 10,
+    paddingLeft: "10%",
   },
   statusMiddle: {
     fontSize: 15,
     flex: 1,
-    paddingLeft: "10%",
+    paddingRight: "8%",
   },
   placeHeader: {
     textAlign: "left",
@@ -128,7 +125,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "right",
     flex: 1,
-    paddingRight: 20,
+    paddingRight: "13%",
   },
 });
 

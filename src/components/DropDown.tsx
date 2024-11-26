@@ -22,18 +22,27 @@ const DropdownComponent: React.FC<DropdownComponentProps> = ({
   const [value, setValue] = useState<string | null>(defaultValue || null);
   const router = useRouter();
 
+  //   { label: "Sales", value: "Sales" },
+  // { label: "Product Transfer", value: "Product Transfer" },
+  // { label: "Expired Products", value: "Expired Products" },
+  // { label: "Production", value: "Production" },
+  // { label: "Returned Products", value: "Returned Products" },
+
   useEffect(() => {
-    if (value === "Production Transaction") {
+    if (value === "Production") {
       router.push("/(admin)/four");
       setValue(null);
-    } else if (value === "Sales Transaction") {
+    } else if (value === "Sales") {
       router.push("/(admin)/two");
       setValue(null);
-    } else if (value === "Expired Transaction") {
+    } else if (value === "Expired Products") {
       router.push("/(admin)/three");
       setValue(null);
-    } else if (value === "Transfer Transaction") {
+    } else if (value === "Product Transfer") {
       router.push("/(admin)/one");
+      setValue(null);
+    } else if (value === "Returned Products") {
+      router.push("/(admin)/five");
       setValue(null);
     }
   }, [value, router]);
@@ -50,17 +59,17 @@ const DropdownComponent: React.FC<DropdownComponentProps> = ({
   return (
     <Dropdown
       style={styles.dropdown}
-      placeholderStyle={styles.placeholderStyle}
-      selectedTextStyle={styles.selectedTextStyle}
-      inputSearchStyle={styles.inputSearchStyle}
+      // placeholderStyle={styles.placeholderStyle}
+      // selectedTextStyle={styles.selectedTextStyle}
+      // inputSearchStyle={styles.inputSearchStyle}
       iconStyle={styles.iconStyle}
       data={data}
-      search
+      // search
       maxHeight={300}
       labelField="label"
       valueField="value"
       placeholder="Select item"
-      searchPlaceholder="Search..."
+      // searchPlaceholder="Search..."
       value={value}
       onChange={(item: DropdownItem) => {
         setValue(item.value);

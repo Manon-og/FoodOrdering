@@ -13,10 +13,11 @@ import AdminViewProduction from "@/components/AdminViewProduction";
 
 const Index = () => {
   const filter = [
-    { label: "Sales Transaction", value: "Sales Transaction" },
-    { label: "Transfer Transaction", value: "Transfer Transaction" },
-    { label: "Expired Transaction", value: "Expired Transaction" },
-    { label: "Production Transaction", value: "Production Transaction" },
+    { label: "Sales", value: "Sales" },
+    { label: "Product Transfer", value: "Product Transfer" },
+    { label: "Expired Products", value: "Expired Products" },
+    { label: "Production", value: "Production" },
+    { label: "Returned Products", value: "Returned Products" },
   ];
   const { id_branch, branchName } = useBranchStoreAdmin();
   console.log("ADMIN TRANSACTION:", id_branch);

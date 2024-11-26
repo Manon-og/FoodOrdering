@@ -2418,18 +2418,39 @@ export const useFindPendingProducts = (id_branch: string) => {
   });
 };
 
-export const useGetCashCount = (id_branch: string) => {
+export const useGetCashCount = (id_branch: string, date: string) => {
   return useQuery({
-    queryKey: ["cashcount", id_branch],
+    queryKey: ["cashcount", id_branch, date],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cashcount")
-        .select(`*`)
-        .eq("id_branch", id_branch);
+      const { data, error } = await supabase.from("cashcount").select(`*`);
       if (error) {
         throw new Error(error.message);
       }
-      return data;
+
+      const cashCountDate = data.map((item) => {
+        return new Date(item.created_at).toISOString().split("T")[0];
+      });
+
+      console.log("RETURN date2?", cashCountDate);
+
+      if (cashCountDate?.includes(date)) {
+        console.log("IT MATCHES THE DATE AND CASHCOUNTDATE", date);
+        //2024-11-25
+        const { data: cashCountOfTheDay, error: cashCountOfTheDayError } =
+          await supabase
+            .from("cashcount")
+            .select(`*`)
+            .eq("id_branch", id_branch)
+            .gte("created_at", `${date}T00:00:00.000Z`)
+            .lt("created_at", `${date}T23:59:59.999Z`);
+        if (cashCountOfTheDayError) {
+          throw new Error(cashCountOfTheDayError.message);
+        }
+
+        const DATA = cashCountOfTheDay !== undefined ? cashCountOfTheDay : [];
+
+        return cashCountOfTheDay;
+      }
     },
   });
 };
@@ -2758,7 +2779,9 @@ export const useTransferReturnedBatch = () => {
         const { data: pendingproducts, error: pendingproductsError } =
           await supabase
             .from("confirmedproducts")
-            .select("*, id_batch(*), id_products(*, id_price(amount))")
+            .select(
+              "*,id_branch(place) ,id_batch(*), id_products(*, id_price(amount))"
+            )
             .eq("id_branch", data.newId_branch);
 
         if (pendingproductsError) {
@@ -2841,6 +2864,35 @@ export const useTransferReturnedBatch = () => {
             before: pendingproduct.quantity,
           };
 
+          const { data: branch } = await supabase
+            .from("branch")
+            .select("place")
+            .eq("id_branch", data.id_branch);
+
+          console.log("EYYEOW?", branch);
+          const place = branch?.[0]?.place;
+
+          const returnedProduct = {
+            id_products: pendingproduct.id_products.id_products,
+            from: pendingproduct.id_branch.place,
+            to: place,
+            quantity: pendingproduct.quantity,
+          };
+
+          const {
+            data: transferReturnedHistory,
+            error: transferReturnedHistoryError,
+          } = await supabase
+            .from("returnedproductstransaction")
+            .insert(returnedProduct)
+            .single();
+
+          if (transferReturnedHistoryError) {
+            throw new Error(
+              `Error inserting into confirmedproducts table: ${transferReturnedHistoryError.message}`
+            );
+          }
+
           const { data: insertedProduct, error: insertConfirmedError } =
             await supabase
               .from("localbatch")
@@ -2892,7 +2944,9 @@ export const useReturnedBatch = () => {
         const { data: pendingproducts, error: pendingproductsError } =
           await supabase
             .from("confirmedproducts")
-            .select("*, id_batch(*), id_products(*, id_price(amount))")
+            .select(
+              "*,id_branch(place), id_batch(*), id_products(*, id_price(amount))"
+            )
             .eq("id_branch", data.newId_branch);
 
         if (pendingproductsError) {
@@ -2967,33 +3021,126 @@ export const useReturnedBatch = () => {
             quantity: pendingproduct.quantity,
           };
 
-          const { data: insertedProduct, error: insertConfirmedError } =
-            await supabase
-              .from("batch")
-              .insert(confirmedProduct)
-              .eq("id_batch", pendingproduct.id_batch)
-              .select("id_products")
-              .single();
+          const returnedProduct = {
+            id_products: pendingproduct.id_products.id_products,
+            from: pendingproduct.id_branch.place,
+            to: "Back Inventory",
+            quantity: pendingproduct.quantity,
+          };
 
-          if (insertConfirmedError) {
+          const {
+            data: transferReturnedHistory,
+            error: transferReturnedHistoryError,
+          } = await supabase
+            .from("returnedproductstransaction")
+            .insert(returnedProduct)
+            .single();
+
+          if (transferReturnedHistoryError) {
             throw new Error(
-              `Error inserting into confirmedproducts table: ${insertConfirmedError.message}`
+              `Error inserting into returnedproductstransaction table: ${transferReturnedHistoryError.message}`
             );
           }
 
-          const deletePendingPromise = supabase
-            .from("confirmedproducts")
-            .delete()
-            .eq("id_group", pendingproduct.id_group);
-          await Promise.all([deletePendingPromise]);
+          console.log("YWODSJ", pendingproduct.id_batch);
+          console.log("YWODSJs", pendingproduct.quantity);
 
-          return insertedProduct.id_products.id_products;
+          if (typeof pendingproduct.quantity === "object") {
+            for (const key in pendingproduct.quantity) {
+              if (pendingproduct.quantity.hasOwnProperty(key)) {
+                const quantityValue = pendingproduct.quantity[key];
+                console.log("YWODSJ", pendingproduct.id_batch);
+                console.log("YWODSJs", quantityValue);
+
+                const { data: batchQuantityData, error: batchQuantityError } =
+                  await supabase
+                    .from("batch")
+                    .select("*")
+                    .eq("id_batch", pendingproduct.id_batch.id_batch)
+                    .single();
+
+                console.log("batchQuantityData QUANIRYT", batchQuantityData);
+                if (batchQuantityError) {
+                  throw new Error(
+                    `Error fetching from batch table: ${batchQuantityError.message}`
+                  );
+                }
+
+                const { data: updatedBatch, error: updateBatchError } =
+                  await supabase
+                    .from("batch")
+                    .update({
+                      quantity: batchQuantityData.quantity + quantityValue,
+                    })
+                    .eq("id_batch", pendingproduct.id_batch.id_batch)
+                    .select("id_products")
+                    .single();
+
+                if (updateBatchError) {
+                  throw new Error(
+                    `Error updating batch table: ${updateBatchError.message}`
+                  );
+                }
+
+                console.log("Updated Batch", updatedBatch);
+
+                const deletePendingPromise = supabase
+                  .from("confirmedproducts")
+                  .delete()
+                  .eq("id_group", pendingproduct.id_group);
+                await Promise.all([deletePendingPromise]);
+
+                return updatedBatch.id_products.id_products;
+              }
+            }
+          } else {
+            const { data: batchQuantityData, error: batchQuantityError } =
+              await supabase
+                .from("batch")
+                .select("*")
+                .eq("id_batch", pendingproduct.id_batch.id_batch)
+                .single();
+
+            console.log("batchQuantityData QUANIRYT", batchQuantityData);
+            if (batchQuantityError) {
+              throw new Error(
+                `Error fetching from batch table: ${batchQuantityError.message}`
+              );
+            }
+
+            const { data: updatedBatch, error: updateBatchError } =
+              await supabase
+                .from("batch")
+                .update({
+                  quantity:
+                    batchQuantityData.quantity + pendingproduct.quantity,
+                })
+                .eq("id_batch", pendingproduct.id_batch.id_batch)
+                .select("id_products")
+                .single();
+
+            if (updateBatchError) {
+              throw new Error(
+                `Error updating batch table: ${updateBatchError.message}`
+              );
+            }
+
+            console.log("Updated Batch", updatedBatch);
+
+            const deletePendingPromise = supabase
+              .from("confirmedproducts")
+              .delete()
+              .eq("id_group", pendingproduct.id_group);
+            await Promise.all([deletePendingPromise]);
+
+            return updatedBatch.id_products.id_products;
+          }
         });
 
         const insertedIds = await Promise.all(promises);
         return insertedIds;
       } catch (error) {
-        console.error("Error processing pending productss:", error);
+        console.error("Error processing pending products:", error);
         throw error;
       }
     },
@@ -3854,6 +4001,122 @@ export const useGetRealProductionHistoryDetails = (
         acc[key].quantity += item.quantity;
         acc[key].transactions.push(item);
 
+        return acc;
+      }, {});
+
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useInsertInitialCashBalance = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      cash: number;
+      id_branch: string | string[];
+    }) => {
+      try {
+        const { data: insertCashBalance, error: insertCashBalanceError } =
+          await supabase.from("initialcashcount").insert({
+            cash: data.cash,
+            id_branch: data.id_branch,
+          });
+        // .single();
+
+        if (insertCashBalanceError) {
+          throw new Error(
+            `Error inserting into initialcashcount table: ${insertCashBalanceError.message}`
+          );
+        }
+
+        return insertCashBalance;
+      } catch (error) {
+        console.error("Error inserting product:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const useGetInitialCashCount = () => {
+  return useQuery({
+    queryKey: ["initialcashcount"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("initialcashcount")
+        .select("*");
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useReturnedProductHistory = () => {
+  return useQuery({
+    queryKey: ["returnedProductHistory"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("returnedproductstransaction")
+        .select("*");
+
+      const groupedData = data?.reduce((acc, item) => {
+        const itemDate = new Date(item.created_at).toISOString().split("T")[0];
+        const key = `${item.from}_${itemDate}`;
+        console.log("keyjsajjs", key);
+
+        if (!acc[key]) {
+          acc[key] = {
+            from: item.from,
+            to: item.to,
+            quantity: 0,
+            transactions: [],
+            created_at: itemDate,
+          };
+        }
+        acc[key].quantity += item.quantity;
+        acc[key].transactions.push(item);
+
+        return acc;
+      }, {});
+
+      return Object.values(groupedData);
+    },
+  });
+};
+
+export const useReturnedProductHistoryDetails = (
+  from: string | string[],
+  date: string
+) => {
+  return useQuery({
+    queryKey: ["returnedProductHistory", from, date],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("returnedproductstransaction")
+        .select("*, id_products(name)");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const filteredData = data?.filter((item) => {
+        const itemDate = new Date(item.created_at).toISOString().split("T")[0];
+        return itemDate === date && item.from === from;
+      });
+
+      const groupedData = filteredData.reduce((acc, item) => {
+        const key = `${item.id_products}`;
+        if (!acc[key]) {
+          acc[key] = {
+            id_products: item.id_products,
+            quantity: 0,
+          };
+        }
+        acc[key].quantity += item.quantity;
         return acc;
       }, {});
 

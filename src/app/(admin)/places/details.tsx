@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,16 +14,21 @@ import {
   useBranchAllProductList,
   useBranchName,
   useFindPendingProducts,
+  useGetInitialCashCount,
 } from "@/src/api/products"; // Adjust the import path accordingly
 import ItemDetails from "@/components/ItemsDetails";
 import Button from "@/components/Button";
 import { useBranchStore } from "@/store/branch";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
+import SetInitialCashBalance from "@/modals/setInitialCashCount";
 
 const Details = () => {
+  const [modalVisible, setModalVisible] = useState(false);
   const { id_branch, branchName } = useLocalSearchParams();
   const { data: products } = useBranchAllProductList(id_branch.toString());
   const { data: branch } = useBranchName(Number(id_branch));
+  const [button, setButton] = useState(true);
+
   console.log("HERE****", id_branch);
   console.log("HERE****?", products);
   console.log(
@@ -51,7 +56,50 @@ const Details = () => {
     name = b.place;
   });
 
-  const currentDate = new Date().toLocaleDateString();
+  const { data: dateOfInitialCashCount } = useGetInitialCashCount();
+  const currentInitialCashCount1 = dateOfInitialCashCount?.map(
+    (item: any) => item.created_at
+  );
+  console.log("DATE OF INITIAL CASH COUNT", currentInitialCashCount1);
+
+  const currentInitialCashCount2 = dateOfInitialCashCount?.map(
+    (item: any) => item.id_branch
+  );
+  console.log("ID OF INITIAL CASH COUNT", currentInitialCashCount2);
+  console.log("ID BRANCH", id_branch);
+
+  const formattedInitialCashCount = currentInitialCashCount1?.map(
+    (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toISOString().split("T")[0];
+    }
+  );
+  console.log("FORMATTED DATE", formattedInitialCashCount);
+
+  const currentDate = new Date().toISOString().split("T")[0];
+  console.log("CURRENT DATE", currentDate);
+
+  useEffect(() => {
+    setButton(true);
+    const isDateMatched1 = formattedInitialCashCount?.some(
+      (item: string) => item === currentDate
+    );
+
+    const isDateMatched2 = currentInitialCashCount2?.some(
+      (item: string) => item.toString() === id_branch.toString()
+    );
+
+    console.log("IS DATE MATCHED 1", isDateMatched1);
+    console.log("IS DATE MATCHED 2", isDateMatched2);
+
+    if (isDateMatched1 === isDateMatched2) {
+      setButton(false);
+      console.log("BUTTON OFF", button);
+    }
+  }, [formattedInitialCashCount, currentDate]);
+
+  console.log("BUTTON", button);
+
   const currentDay = new Date().toLocaleDateString("en-US", {
     weekday: "long",
   });
@@ -69,6 +117,10 @@ const Details = () => {
 
   const handleAcceptReturn = () => {
     router.push("/(admin)/return");
+  };
+
+  const handleCash = () => {
+    setModalVisible(true);
   };
 
   const archiveLocation = useArchiveLocation();
@@ -133,6 +185,9 @@ const Details = () => {
               <Text style={styles.totalQuantitiesText}>
                 Total Quantities: {totalQuantity}
               </Text>
+              {button === true ? (
+                <Button text={"Set Cash Balance"} onPress={handleCash} />
+              ) : null}
             </View>
             <View>
               {pendingProducts && pendingProducts.length > 0 && (
@@ -146,6 +201,11 @@ const Details = () => {
           <Text style={styles.offlineText}>OFFLINE</Text>
         </View>
       )}
+      <SetInitialCashBalance
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        id_branch={id_branch}
+      />
     </View>
   );
 };

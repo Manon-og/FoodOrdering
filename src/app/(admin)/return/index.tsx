@@ -16,6 +16,7 @@ import {
   useBranchName,
   useDeleteLocalBatch,
   useGetCashCount,
+  useGetInitialCashCount,
   useGetVoidedTransaction,
   useGroupedSalesReport,
 } from "@/src/api/products";
@@ -47,19 +48,63 @@ const Details = ({ ddd }: any) => {
     name = b.place;
   });
 
-  const { data: cashcount } = useGetCashCount(
-    id_branch ? id_branch.toString() : ""
-  );
-
-  const cashCountData = cashcount && cashcount.length > 0 ? cashcount[0] : {};
-  const cashCount = cashCountData.total;
-
   const date = new Date();
+  console.log("RETURN date:", date);
 
   const { data: salesReport }: any = useGroupedSalesReport(
     id_branch?.toString(),
     date
   );
+
+  const date2 = new Date().toISOString().split("T")[0];
+  console.log("RETURN date2:", date2);
+
+  const { data: cashcount } = useGetCashCount(
+    id_branch ? id_branch.toString() : "",
+    date2.toString()
+  );
+
+  console.log("RETURN cashcount++:", cashcount);
+
+  const TOTALCASHCOUNT = cashcount?.map((item: any) => item.total);
+  console.log("RETURN TOTALCASHCOUNT:", TOTALCASHCOUNT);
+
+  // const cashCountData = cashcount && cashcount.length > 0 ? cashcount[0] : {};
+  // const cashCount = cashcount?.total;
+
+  const { data: dateOfInitialCashCount } = useGetInitialCashCount();
+  console.log("dateOfInitialCashCount", dateOfInitialCashCount);
+
+  const currentInitialCashCount1 = dateOfInitialCashCount?.map(
+    (item: any) => item.created_at
+  );
+  console.log("DATE OF INITIAL CASH COUNT", currentInitialCashCount1);
+
+  const formattedInitialCashCount = currentInitialCashCount1?.map(
+    (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toISOString().split("T")[0];
+    }
+  );
+  console.log("FORMATTED DATE", formattedInitialCashCount);
+
+  const currentDate = new Date().toISOString().split("T")[0];
+  console.log("CURRENT DATE", currentDate);
+
+  const isDateMatched1 = formattedInitialCashCount?.some(
+    (item: string) => item === currentDate
+  );
+  console.log("TRUE?", isDateMatched1);
+
+  let cashValue = 0;
+  if (isDateMatched1) {
+    const matchingItem = dateOfInitialCashCount?.find(
+      (item: any) =>
+        new Date(item.created_at).toISOString().split("T")[0] === currentDate
+    );
+    cashValue = matchingItem?.cash;
+  }
+  console.log("CASH VALUE_", cashValue);
 
   console.log("RETURN salesReport:", salesReport);
   const created_by = salesReport?.map((item: any) => item.created_by);
@@ -214,8 +259,17 @@ const Details = ({ ddd }: any) => {
                 </View>
                 <View style={styles.totalQuantitiesContainer}>
                   <Text style={styles.totalQuantities}>Total Cash Return</Text>
-                  <Text style={styles.totalQuantitiesText}>₱ {cashCount}</Text>
+                  <Text style={styles.totalQuantitiesText}>
+                    ₱ {TOTALCASHCOUNT}
+                  </Text>
                 </View>
+                <View style={styles.totalQuantitiesContainer}>
+                  <Text style={styles.totalQuantities}>
+                    Beginning Cash Balance
+                  </Text>
+                  <Text style={styles.totalQuantitiesText}>₱ {cashValue}</Text>
+                </View>
+
                 <View style={styles.totalQuantitiesContainer}>
                   <Text style={styles.totalQuantities}>Total Sales</Text>
                   <Text style={styles.totalQuantitiesText}>₱ {totalSales}</Text>

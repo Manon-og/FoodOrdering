@@ -54,11 +54,11 @@ const Index = () => {
         <Text style={[styles.headerText, styles.statusHeader]}>From</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>Date</Text>
       </View>
-      <FlatList
+      {/* <FlatLists
         data={pendingProducts}
         renderItem={renderItem}
         // keyExtractor={(item) => item.returned_groupID} pede bani??
-      />
+      /> */}
     </View>
   );
 };
