@@ -17,6 +17,7 @@ import {
   useTransferBackInventoryProductList,
   useInsertProductionHistory,
   useAllProductList,
+  useCategoryForProductTransfer,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 import { useBranchName } from "@/components/branchParams";
@@ -159,6 +160,14 @@ const Index = () => {
     </Pressable>
   );
 
+  const { data: productTransfer } = useCategoryForProductTransfer();
+  console.log("productTransfer:", productTransfer);
+
+  const newData = productTransfer?.map((item: any) => {
+    return item.id_products.id_category;
+  });
+  console.log("productTransferss:", newData);
+
   return (
     <View style={styles.screenContainer}>
       <Stack.Screen options={{ title: "Update Quantity" }} />
@@ -180,30 +189,62 @@ const Index = () => {
         }}
       />
       <View style={styles.categoryContainer}>
-        <Pressable
+        {newData?.includes(1) ? (
+          <Pressable
+            style={styles.pressable}
+            onPress={() => setSelectedCategory("1")}
+          >
+            <Text style={styles.pressableText}>COOKIE</Text>
+          </Pressable>
+        ) : null}
+        {/* <Pressable
           style={styles.pressable}
           onPress={() => setSelectedCategory("1")}
         >
           <Text style={styles.pressableText}>COOKIE</Text>
-        </Pressable>
-        <Pressable
+        </Pressable> */}
+        {newData?.includes(2) ? (
+          <Pressable
+            style={styles.pressable}
+            onPress={() => setSelectedCategory("2")}
+          >
+            <Text style={styles.pressableText}>BREADS</Text>
+          </Pressable>
+        ) : null}
+        {/* <Pressable
           style={styles.pressable}
           onPress={() => setSelectedCategory("2")}
         >
           <Text style={styles.pressableText}>BREADS</Text>
-        </Pressable>
-        <Pressable
+        </Pressable> */}
+        {newData?.includes(3) ? (
+          <Pressable
+            style={styles.pressable}
+            onPress={() => setSelectedCategory("3")}
+          >
+            <Text style={styles.pressableText}>CAKES</Text>
+          </Pressable>
+        ) : null}
+        {/* <Pressable
           style={styles.pressable}
           onPress={() => setSelectedCategory("3")}
         >
           <Text style={styles.pressableText}>CAKES</Text>
-        </Pressable>
-        <Pressable
+        </Pressable> */}
+        {newData?.includes(4) ? (
+          <Pressable
+            style={styles.pressable}
+            onPress={() => setSelectedCategory("4")}
+          >
+            <Text style={styles.pressableText}>BENTO CAKES</Text>
+          </Pressable>
+        ) : null}
+        {/* <Pressable
           style={styles.pressable}
           onPress={() => setSelectedCategory("4")}
         >
           <Text style={styles.pressableText}>BENTO CAKES</Text>
-        </Pressable>
+        </Pressable> */}
       </View>
       <FlatList
         data={filteredProductList}

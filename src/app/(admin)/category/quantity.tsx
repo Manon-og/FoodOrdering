@@ -19,6 +19,7 @@ import {
   useProductList,
   useTransferBackInventoryProductList,
   useAllProductList,
+  useCategory,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 import uuid from "react-native-uuid";
@@ -43,6 +44,13 @@ const Index = () => {
   console.log("CATEGORY PRODUCTS:", products);
   console.log("Selected Category:", selectedCategory);
   console.log("ALL PRODUCTS:", allProducts);
+
+  const { data } = useCategory();
+  console.log("CATEGORYsad:", data);
+  const newData = data?.map((item) => {
+    return item.id_category;
+  });
+  console.log("CATEGORYsde:", newData);
 
   const handleOpenModal = (productId: string) => {
     setCurrentProductId(productId);
@@ -208,30 +216,60 @@ const Index = () => {
         }}
       />
       <View style={styles.categoryContainer}>
-        <Pressable
-          style={styles.pressable}
-          onPress={() => setSelectedCategory("1")}
-        >
-          <Text style={styles.pressableText}>COOKIE</Text>
-        </Pressable>
-        <Pressable
+        {newData?.includes(1) ? (
+          <Pressable
+            style={styles.pressable}
+            onPress={() => setSelectedCategory("1")}
+          >
+            <Text style={styles.pressableText}>COOKIE</Text>
+          </Pressable>
+        ) : null}
+
+        {newData?.includes(2) ? (
+          <Pressable
+            style={styles.pressable}
+            onPress={() => setSelectedCategory("2")}
+          >
+            <Text style={styles.pressableText}>BREADS</Text>
+          </Pressable>
+        ) : null}
+
+        {/* <Pressable
           style={styles.pressable}
           onPress={() => setSelectedCategory("2")}
         >
           <Text style={styles.pressableText}>BREADS</Text>
-        </Pressable>
-        <Pressable
+        </Pressable> */}
+
+        {newData?.includes(3) ? (
+          <Pressable
+            style={styles.pressable}
+            onPress={() => setSelectedCategory("3")}
+          >
+            <Text style={styles.pressableText}>CAKES</Text>
+          </Pressable>
+        ) : null}
+        {/* <Pressable
           style={styles.pressable}
           onPress={() => setSelectedCategory("3")}
         >
           <Text style={styles.pressableText}>CAKES</Text>
-        </Pressable>
-        <Pressable
+        </Pressable> */}
+
+        {newData?.includes(4) ? (
+          <Pressable
+            style={styles.pressable}
+            onPress={() => setSelectedCategory("4")}
+          >
+            <Text style={styles.pressableText}>BENTO CAKES</Text>
+          </Pressable>
+        ) : null}
+        {/* <Pressable
           style={styles.pressable}
           onPress={() => setSelectedCategory("4")}
         >
           <Text style={styles.pressableText}>BENTO CAKES</Text>
-        </Pressable>
+        </Pressable> */}
       </View>
       <FlatList
         data={filteredProductList}

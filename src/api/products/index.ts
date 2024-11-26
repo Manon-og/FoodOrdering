@@ -4124,3 +4124,33 @@ export const useReturnedProductHistoryDetails = (
     },
   });
 };
+
+export const useCategory = () => {
+  return useQuery({
+    queryKey: ["useCategory"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id_category");
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
+
+export const useCategoryForProductTransfer = () => {
+  return useQuery({
+    queryKey: ["useCategoryForProductTransfer"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("batch")
+        .select("id_products(id_category)");
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
