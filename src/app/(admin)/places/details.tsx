@@ -92,7 +92,7 @@ const Details = () => {
     console.log("IS DATE MATCHED 1", isDateMatched1);
     console.log("IS DATE MATCHED 2", isDateMatched2);
 
-    if (isDateMatched1 === isDateMatched2) {
+    if (isDateMatched1 && isDateMatched2) {
       setButton(false);
       console.log("BUTTON OFF", button);
     }
