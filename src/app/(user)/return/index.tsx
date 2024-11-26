@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import {
   useAllLocalBranchData,
+  useInsertNotification,
   useInsertPendingProducts,
 } from "@/src/api/products";
 import { useBranchStore } from "@/src/store/branch";
@@ -44,6 +45,7 @@ const Index = () => {
     return <ReturnProducts name={item.name} quantity={item.quantity} />;
   };
 
+  const notification = useInsertNotification();
   const insertPendingProducts = useInsertPendingProducts();
   console.log("RETURN asdas:", {
     id_branch: Number(id_branch),
@@ -51,12 +53,28 @@ const Index = () => {
     id_group: transactionId,
   });
   const handleInsertPendingProducts = () => {
+    notification.mutate(
+      {
+        title: `${branchName} - Return Products`,
+        body: `Return products request from ${branchName}`,
+      },
+
+      {
+        onSuccess: (data) => {
+          console.log("NOTIFICATION", data);
+        },
+        onError: (error) => {
+          console.error("Error NOTIFICATION", error);
+        },
+      }
+    );
     insertPendingProducts.mutate(
       {
         id_branch: Number(id_branch),
         id_user: id?.toString() ?? "",
         id_group: transactionId,
       },
+
       {
         onSuccess: (data) => {
           console.log("Inserted IDs:", data);

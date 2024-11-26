@@ -202,6 +202,14 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+
+      <Tabs.Screen
+        name="notification"
+        options={{
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 }

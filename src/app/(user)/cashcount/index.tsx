@@ -12,6 +12,7 @@ import {
 import {
   useAllLocalBranchData,
   useInsertCashCount,
+  useInsertNotification,
   useInsertPendingProducts,
   useSalesTransaction,
 } from "@/src/api/products";
@@ -48,6 +49,7 @@ const EndDay = () => {
   const transactionId = uuid.v4();
   console.log("Transaction ID:", transactionId);
   const insertPendingProducts = useInsertPendingProducts();
+  const notification = useInsertNotification();
   const mutation = useInsertCashCount();
 
   const handleInputChange = (value: string, index: number) => {
@@ -95,6 +97,21 @@ const EndDay = () => {
   };
 
   const handleInsertPendingProducts = () => {
+    notification.mutate(
+      {
+        title: `Return Products`,
+        body: `Return products request from ${branchName}`,
+      },
+
+      {
+        onSuccess: (data) => {
+          console.log("NOTIFICATION", data);
+        },
+        onError: (error) => {
+          console.error("Error NOTIFICATION", error);
+        },
+      }
+    );
     insertPendingProducts.mutate(
       {
         id_branch: Number(id_branch),

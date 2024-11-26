@@ -4154,3 +4154,45 @@ export const useCategoryForProductTransfer = () => {
     },
   });
 };
+
+export const useInsertNotification = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { title: string; body: string }) => {
+      try {
+        const { data: insertNotification, error: insertNotificationError } =
+          await supabase.from("notification").insert({
+            title: data.title,
+            body: data.body,
+            isRead: false,
+          });
+        // .single();
+
+        if (insertNotificationError) {
+          throw new Error(
+            `Error inserting into initialcashcount table: ${insertNotificationError.message}`
+          );
+        }
+
+        return insertNotification;
+      } catch (error) {
+        console.error("Error inserting product:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const useGetNotification = () => {
+  return useQuery({
+    queryKey: ["useGetNotification"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("notification").select("*");
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
