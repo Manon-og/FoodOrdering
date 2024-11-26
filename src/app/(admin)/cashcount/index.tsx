@@ -33,6 +33,8 @@ const Index = () => {
     (acc, curr, index) => acc + curr * numbers[index],
     0
   );
+  const date2 = new Date().toISOString().split("T")[0];
+  console.log("RETURN date2:", date2);
 
   const mutation = useInsertCashCount();
 
@@ -68,7 +70,8 @@ const Index = () => {
   console.log("CASHCOUNT:", branchName);
 
   const { data: cashcount } = useGetCashCount(
-    id_branch ? id_branch.toString() : ""
+    id_branch ? id_branch.toString() : "",
+    date2
   );
   console.log("ADMIN CASHCOUNT", cashcount);
   const cashCountData = cashcount && cashcount.length > 0 ? cashcount[0] : {};

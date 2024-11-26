@@ -121,10 +121,11 @@ const EndDay = () => {
       {
         onSuccess: (data) => {
           console.log("Inserted IDs:", data);
+          router.push("/(user)/salesreport");
           // Alert.alert("Success", "Request for return products sent");
 
           // Show the final modal after returning products
-          setShowFinalModal(true);
+          // setShowFinalModal(true);
         },
         onError: (error) => {
           console.error("Error inserting pending products:", error);

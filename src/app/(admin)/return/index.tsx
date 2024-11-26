@@ -16,6 +16,7 @@ import {
   useBranchName,
   useDeleteLocalBatch,
   useGetCashCount,
+  useGetComment,
   useGetInitialCashCount,
   useGetVoidedTransaction,
   useGroupedSalesReport,
@@ -31,9 +32,11 @@ import { useUUIDStore } from "@/store/user";
 import { useIdGroupStore } from "@/store/idgroup";
 import ItemDetailsReturn from "@/components/ItemsDetailsReturn";
 import ItemExpireDetailsReturn from "@/components/ItemsDetailsReturn";
+import ViewCommentModal from "@/modals/viewCommentModals";
 
 const Details = ({ ddd }: any) => {
   const { id_branch, branchName } = useBranchStoreAdmin();
+  const [modalVisible, setModalVisible] = useState(false);
 
   const { data: products } = useBranchAllProductList(
     id_branch?.toString() ?? ""
@@ -71,6 +74,10 @@ const Details = ({ ddd }: any) => {
 
   // const cashCountData = cashcount && cashcount.length > 0 ? cashcount[0] : {};
   // const cashCount = cashcount?.total;
+
+  const { data: comments } = useGetComment(id_branch?.toString(), date2);
+  console.log("RETURN comments:", comments);
+  const realComment = comments?.map((item: any) => item.comment);
 
   const { data: dateOfInitialCashCount } = useGetInitialCashCount();
   console.log("dateOfInitialCashCount", dateOfInitialCashCount);
@@ -290,13 +297,24 @@ const Details = ({ ddd }: any) => {
                   style={styles.button}
                   onPress={handleTransaction}
                 >
-                  <Text style={styles.buttonText}>SALES </Text>
+                  <Text style={styles.buttonText}>View Sales </Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setModalVisible(true)}
+                >
+                  <Text style={styles.buttonText}>View Comment </Text>
+                </TouchableOpacity>
+                <ViewCommentModal
+                  modalVisible={modalVisible}
+                  setModalVisible={setModalVisible}
+                  comment={realComment}
+                />
                 <TouchableOpacity
                   style={styles.button}
                   onPress={handleCashCount}
                 >
-                  <Text style={styles.buttonText}>CASH COUNT</Text>
+                  <Text style={styles.buttonText}>View Cash Count</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -313,18 +331,18 @@ const Details = ({ ddd }: any) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: Colors.light.tint,
-    paddingVertical: 15,
-    paddingHorizontal: 25,
-    borderRadius: 100,
-    marginVertical: 10,
-    marginHorizontal: 10,
+    backgroundColor: "gray",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    alignItems: "center",
+    marginHorizontal: 5,
+    marginBottom: 20,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 16,
+    color: "white",
+    fontSize: 12,
     fontWeight: "bold",
-    textAlign: "center",
   },
   container: {
     flex: 1,
@@ -510,7 +528,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    aspectRatio: 5.5,
+    marginTop: 10,
   },
   confirmText: {
     color: Colors.light.tint,

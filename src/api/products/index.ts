@@ -4196,3 +4196,52 @@ export const useGetNotification = () => {
     },
   });
 };
+
+export const useInsertComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { id_branch: string; comment: string }) => {
+      console.log("DATACOmnet", data);
+      try {
+        const { data: insertComment, error: insertCommentError } =
+          await supabase.from("comment").insert({
+            id_branch: data.id_branch,
+            comment: data.comment,
+          });
+
+        if (insertCommentError) {
+          throw new Error(
+            `Error inserting into comment table: ${insertCommentError.message}`
+          );
+        }
+
+        return insertComment;
+      } catch (error) {
+        console.error("Error inserting product:", error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const useGetComment = (id_branch: string, date: string) => {
+  return useQuery({
+    queryKey: ["useGetComment", id_branch, date],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("comment")
+        .select("*")
+        .eq("id_branch", id_branch);
+
+      const filteredData = data?.filter((item) => {
+        const itemDate = new Date(item.created_at).toISOString().split("T")[0];
+        return itemDate === date;
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+      return filteredData;
+    },
+  });
+};

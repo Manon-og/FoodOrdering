@@ -31,11 +31,8 @@ const SignInScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: "Sign in" }} />
-      <Image
-        source={imageLogo}
-        style={styles.image}
-      />
+      <Stack.Screen options={{ headerShown: false }} />
+      <Image source={imageLogo} style={styles.image} />
       <Text style={styles.label}>Email</Text>
       <TextInput
         value={email}

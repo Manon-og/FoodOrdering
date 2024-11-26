@@ -21,7 +21,7 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { session } = useAuth();
   const { id_branch, branchName } = useBranchStore();
-  const segments = useSegments(); // get the current route segments
+  const segments: string[] = useSegments(); // get the current route segments
 
   console.log("MENU BUTTON:", id_branch);
   console.log("Curr Segmentz:", segments);
@@ -36,6 +36,7 @@ export default function TabLayout() {
 
   // Determine if the tab bar should be hidden
   const hide = segments.includes("category");
+  const hide2 = segments.includes("salesreport");
 
   return (
     <Tabs
@@ -45,7 +46,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: "#D6D5D5",
         tabBarStyle: {
           backgroundColor: "#0E1432",
-          display: hide ? "none" : "flex", // hide magic tab
+          display: hide || hide2 ? "none" : "flex", // hide magic tab
         },
       }}
     >
@@ -134,6 +135,15 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="cashcount"
+        options={{
+          title: "nothing",
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="salesreport"
         options={{
           title: "nothing",
           headerShown: false,
