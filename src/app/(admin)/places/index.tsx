@@ -17,31 +17,43 @@ const Index = () => {
   const { data: branch } = useBranchData();
   const { data: localBranch } = useLocalBranchData();
 
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredBranch, setFilteredBranch] = useState<any[]>([]);
   const [isFocus, setIsFocus] = useState(false);
 
-  console.log("------", branch);
+  console.log("---s--", branch);
+
   useEffect(() => {
     if (branch) {
       let filtered = branch;
 
       if (selectedFilter && selectedFilter !== "all") {
-        filtered = filtered.filter(
-          (item: any) => item.status?.toLowerCase() === selectedFilter
-        );
+        filtered = filtered.filter((item: any) => {
+          const isLocalBranch1 = localBranch?.some(
+            (localItem) => localItem.id_branch === item.id_branch
+          );
+
+          if (selectedFilter === "active") {
+            return isLocalBranch1;
+          } else if (selectedFilter === "inactive") {
+            return !isLocalBranch1 && item.id_archives !== 1;
+          } else if (selectedFilter === "archived") {
+            return item.id_archives === 1;
+          }
+          return true;
+        });
       }
 
       if (searchQuery !== "") {
         filtered = filtered.filter((item: any) =>
-          item.name?.toLowerCase().includes(searchQuery.toLowerCase())
+          item.place.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
 
       setFilteredBranch(filtered);
     }
-  }, [branch, selectedFilter, searchQuery]);
+  }, [branch, localBranch, selectedFilter, searchQuery]);
 
   const currentDate = new Date().toLocaleDateString();
   const currentDay = new Date().toLocaleDateString("en-US", {
@@ -55,18 +67,13 @@ const Index = () => {
       (localItem) => localItem.id_branch === item.id_branch
     );
 
-    // console.log("++++++", item.id_archives);
-    const statusColor =
-      item.status === "active"
-        ? styles.greenCircle
-        : item.status === "inactive"
-        ? styles.grayCircle
-        : null;
+    console.log("++++++???", isLocalBranch);
 
-    console.log("++++++", statusColor);
+    const statusLabel = isLocalBranch ? "Active" : "Inactive";
+
     return (
       <View style={styles.listItem}>
-        {statusColor && <View style={[styles.statusCircle, statusColor]} />}
+        {/* <Text style={styles.statusText}>{statusLabel}</Text> */}
         <ListItem item={item} isLocalBranch={isLocalBranch} />
       </View>
     );
@@ -79,7 +86,6 @@ const Index = () => {
         <Text style={styles.dateText}>{currentDate}</Text>
       </View>
 
-      {/* Filter Section */}
       <View style={styles.filterContainer}>
         <TextInput
           style={styles.searchBar}
@@ -88,7 +94,6 @@ const Index = () => {
           onChangeText={setSearchQuery}
         />
 
-        {/* Status Filter Dropdown */}
         <Dropdown
           style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
           placeholderStyle={styles.placeholderStyle}
@@ -107,7 +112,6 @@ const Index = () => {
         />
       </View>
 
-      {/* Header */}
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Status</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>
@@ -115,18 +119,11 @@ const Index = () => {
         </Text>
       </View>
 
-      {/* Branch List */}
       <FlatList
         data={filteredBranch}
         renderItem={renderItem}
         keyExtractor={(item) => item.id_branch.toString()}
       />
-
-      {/* <View>
-        <Link href="/places/overview" asChild>
-          <Button text={"INVENTORY OVERVIEW"} />
-        </Link>
-      </View> */}
     </View>
   );
 };
@@ -211,6 +208,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 5,
+  },
+  statusText: {
+    fontSize: 16,
+    marginRight: 10,
   },
   statusCircle: {
     width: 15,
