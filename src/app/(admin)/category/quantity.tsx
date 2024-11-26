@@ -195,6 +195,13 @@ const Index = () => {
     </Pressable>
   );
 
+  const { data } = useCategory();
+  console.log("CATEGORYsad:", data);
+  const newData = data?.map((item) => {
+    return item.id_category;
+  });
+  console.log("CATEGORYsde:", newData);
+
   return (
     <View style={styles.screenContainer}>
       <Stack.Screen options={{ title: "Update Quantity" }} />
