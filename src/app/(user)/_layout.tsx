@@ -43,6 +43,9 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: "#510C0A",
         headerShown: useClientOnlyValue(false, true),
+        headerStyle: {
+          backgroundColor: "#FFD895",
+        },
         tabBarInactiveTintColor: "#642826",
         tabBarStyle: {
           backgroundColor: "#FFD895",
@@ -58,6 +61,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
         }}
       />
+      
 
       <Tabs.Screen
         name="menu"

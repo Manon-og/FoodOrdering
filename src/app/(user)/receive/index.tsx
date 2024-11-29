@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
     fontWeight: "bold",
+    letterSpacing: 1,
   },
   container: {
     flex: 1,
