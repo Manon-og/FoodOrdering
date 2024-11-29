@@ -1,17 +1,32 @@
 import { Link, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FontAwesome } from "@expo/vector-icons";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import Colors from "../../../constants/Colors";
 import { useCategory } from "@/src/components/categoryParams";
+import { useGetNotification } from "@/api/products";
 
 export default function MenuStack() {
   const category = useCategory();
   console.log("okay", category);
 
   const [title, setTitle] = useState("Back Inventory");
-  const [hasNotification, setHasNotification] = useState(true);
+  const [hasNotification, setHasNotification] = useState(false);
   console.log("eqws:", title);
+
+  const { data: notification } = useGetNotification();
+  console.log("notificationUU:", notification);
+
+  useEffect(() => {
+    if (
+      notification &&
+      notification.some((notif) => notif.isRead === "false")
+    ) {
+      setHasNotification(true);
+    } else {
+      setHasNotification(false);
+    }
+  }, [notification]);
 
   useEffect(() => {
     setTitle(title);

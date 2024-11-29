@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, TextInput } from "react-native";
-import { useBranchData, useLocalBranchData } from "@/src/api/products";
+import {
+  useBranchData,
+  useLocalBranchData,
+  useRealLocalBranchData,
+} from "@/src/api/products";
 import { Dropdown } from "react-native-element-dropdown"; // Dropdown import
 import ListItem from "@/src/components/listItem";
 import { Link } from "expo-router";
@@ -16,6 +20,9 @@ const statusOptions = [
 const Index = () => {
   const { data: branch } = useBranchData();
   const { data: localBranch } = useLocalBranchData();
+  console.log("0213d:", localBranch);
+
+  const { data: realLocalBranch } = useRealLocalBranchData();
 
   const [selectedFilter, setSelectedFilter] = useState<string | null>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,14 +37,17 @@ const Index = () => {
 
       if (selectedFilter && selectedFilter !== "all") {
         filtered = filtered.filter((item: any) => {
-          const isLocalBranch1 = localBranch?.some(
+          const isLocalBranch2 = localBranch?.some(
+            (localItem) => localItem.id_branch === item.id_branch
+          );
+          const isLocalBranch1 = realLocalBranch?.some(
             (localItem) => localItem.id_branch === item.id_branch
           );
 
           if (selectedFilter === "active") {
-            return isLocalBranch1;
+            return isLocalBranch1 || isLocalBranch2;
           } else if (selectedFilter === "inactive") {
-            return !isLocalBranch1 && item.id_archives !== 1;
+            return !isLocalBranch1 && !isLocalBranch2 && item.id_archives !== 1;
           } else if (selectedFilter === "archived") {
             return item.id_archives === 1;
           }
@@ -53,7 +63,7 @@ const Index = () => {
 
       setFilteredBranch(filtered);
     }
-  }, [branch, localBranch, selectedFilter, searchQuery]);
+  }, [branch, localBranch, realLocalBranch, selectedFilter, searchQuery]);
 
   const currentDate = new Date().toLocaleDateString();
   const currentDay = new Date().toLocaleDateString("en-US", {
@@ -66,6 +76,9 @@ const Index = () => {
     const isLocalBranch = localBranch?.some(
       (localItem) => localItem.id_branch === item.id_branch
     );
+    const isLocalBranch2 = realLocalBranch?.some(
+      (localItem) => localItem.id_branch === item.id_branch
+    );
 
     console.log("++++++???", isLocalBranch);
 
@@ -74,7 +87,11 @@ const Index = () => {
     return (
       <View style={styles.listItem}>
         {/* <Text style={styles.statusText}>{statusLabel}</Text> */}
-        <ListItem item={item} isLocalBranch={isLocalBranch} />
+        <ListItem
+          item={item}
+          isLocalBranch={isLocalBranch}
+          isRealLocalBranch={isLocalBranch2}
+        />
       </View>
     );
   };

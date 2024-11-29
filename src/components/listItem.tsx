@@ -4,7 +4,7 @@ import { Link } from "expo-router";
 import { useBranchStore } from "@/store/branch";
 import { useInsertNotification } from "@/api/products";
 
-const ListItem = ({ item, isLocalBranch }: any) => {
+const ListItem = ({ item, isLocalBranch, isRealLocalBranch }: any) => {
   const handlePressDetails = () => {
     console.log("Branch:", item.id_branch);
   };
@@ -41,7 +41,9 @@ const ListItem = ({ item, isLocalBranch }: any) => {
           <View
             style={[
               styles.statusCircle,
-              isLocalBranch ? styles.greenCircle : styles.grayCircle,
+              isLocalBranch || isRealLocalBranch
+                ? styles.greenCircle
+                : styles.grayCircle,
             ]}
           />
         )}

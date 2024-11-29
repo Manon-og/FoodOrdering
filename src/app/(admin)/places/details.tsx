@@ -12,6 +12,7 @@ import {
 import {
   useArchiveLocation,
   useBranchAllProductList,
+  useBranchAllProductListInPendingProducts,
   useBranchName,
   useFindPendingProducts,
   useGetInitialCashCount,
@@ -27,6 +28,13 @@ const Details = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const { id_branch, branchName } = useLocalSearchParams();
   const { data: products } = useBranchAllProductList(id_branch.toString());
+  console.log("DETAILSds", id_branch);
+  const { data: productsInPending } = useBranchAllProductListInPendingProducts(
+    id_branch.toString()
+  );
+
+  console.log("DETAILSAPS", productsInPending);
+
   const { data: branch } = useBranchName(Number(id_branch));
   const [button, setButton] = useState(true);
 
@@ -182,7 +190,8 @@ const Details = () => {
           ),
         }}
       />
-      {products && products.length > 0 ? (
+      {(productsInPending && productsInPending.length > 0) ||
+      (products && products.length > 0) ? (
         <>
           <View style={styles.dateContainer}>
             <Text style={styles.dayText}>{currentDay}</Text>

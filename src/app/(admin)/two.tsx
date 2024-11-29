@@ -1,6 +1,7 @@
-import React, { memo } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import React, { memo, useEffect, useState } from "react";
+import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
 import {
+  useGetNotification,
   useGroupedSalesTransaction,
   useGroupedSalesTransactionADMIN,
 } from "@/src/api/products";
@@ -8,7 +9,8 @@ import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransacti
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import AdminViewTransaction from "@/components/AdminViewTransaction";
 import DropdownComponent from "@/components/DropDown";
-import { Stack } from "expo-router";
+import { Link, Stack } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
 
 const Index = () => {
   const filter = [
@@ -46,9 +48,47 @@ const Index = () => {
     return `${item.id_branch.id_branch}_${date}`;
   };
 
+  const [title, setTitle] = useState("Back Inventory");
+  const [hasNotification, setHasNotification] = useState(false);
+  console.log("eqws:", title);
+
+  const { data: notification } = useGetNotification();
+  console.log("notificationUU:", notification);
+
+  useEffect(() => {
+    if (
+      notification &&
+      notification.some((notif) => notif.isRead === "false")
+    ) {
+      setHasNotification(true);
+    } else {
+      setHasNotification(false);
+    }
+  }, [notification]);
+
+  useEffect(() => {
+    setTitle(title);
+  }, [title]);
+
   return (
     <View style={styles.container}>
-      {/* <Stack.Screen options={{ title: "Sales Invoice Transaction" }} /> */}
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Link href="/(admin)/notification" asChild>
+              <Pressable style={styles.notificationIconContainer}>
+                <FontAwesome
+                  name="bell"
+                  size={24}
+                  color="#0E1432"
+                  style={{ marginRight: 35.3 }}
+                />
+                {hasNotification && <View style={styles.notificationBadge} />}
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
       <View>
         <DropdownComponent data={filter} />
       </View>
@@ -69,6 +109,22 @@ const Index = () => {
 };
 
 const styles = StyleSheet.create({
+  backButtonText: {
+    color: "#0E1432",
+    fontSize: 16,
+  },
+  notificationIconContainer: {
+    position: "relative",
+    // marginRight: 15,
+  },
+  notificationBadge: {
+    position: "absolute",
+    right: 15,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "darkred",
+  },
   container: {
     flex: 1,
     justifyContent: "center",

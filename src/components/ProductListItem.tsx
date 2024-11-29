@@ -24,7 +24,7 @@ export const DefaultPhoto =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
 
 const ProductListItem = ({ product, productsByBackInventory }: any) => {
-  const [hasMutated, setHasMutated] = useState(true);
+  const [hasMutated, setHasMutated] = useState(false);
   const segments = useSegments();
   const { id_archive } = useArchivedParams();
   const { id_branch, branchName } = useBranchName();
@@ -40,6 +40,8 @@ const ProductListItem = ({ product, productsByBackInventory }: any) => {
   const backInventoryProduct = productsByBackInventory?.find(
     (item: { id_products: any }) => item.id_products === product.id_products
   );
+
+  console.log("BACK INVENTORY PRODUCT", backInventoryProduct);
   const backInventoryQuantity = backInventoryProduct
     ? backInventoryProduct.quantity
     : 0;
@@ -51,46 +53,41 @@ const ProductListItem = ({ product, productsByBackInventory }: any) => {
 
   const notification = useInsertNotification();
 
-  const warning =
-    productsByBackInventory === undefined ||
-    product.quantity <= 10 ||
-    backInventoryQuantity <= 10
-      ? "Low Stocks!"
-      : "";
+  console.log("NOTIFICATION2", productsByBackInventory);
+  console.log("NOTIFICATION2", backInventoryQuantity);
+  console.log("NOTIFICATION2", product.quantity);
 
-  // useEffect(() => {
-  //   if (
-  //     hasMutated &&
-  //     (productsByBackInventory === undefined ||
-  //       product.quantity <= 10 ||
-  //       backInventoryQuantity <= 10)
-  //   ) {
-  //     notification.mutate(
-  //       {
-  //         title: `Low Stocks Warning`,
-  //         body: `Product`,
-  //         id_branch: "",
-  //         type: "Category",
-  //       },
-  //       {
-  //         onSuccess: (data) => {
-  //           console.log("NOTIFICATION", data);
-  //           setHasMutated(false); // Prevent further mutations
-  //         },
-  //         onError: (error) => {
-  //           console.error("Error NOTIFICATION", error);
-  //         },
-  //       }
-  //     );
-  //   }
-  // }, [
-  //   hasMutated, // Dependency to prevent repeated execution
-  //   productsByBackInventory,
-  //   product.quantity,
-  //   backInventoryQuantity,
-  //   id_branch,
-  //   notification,
-  // ]);
+  const warning = id_branch
+    ? product.quantity <= 10
+      ? "Low Stocks!"
+      : ""
+    : product.quantity <= 10 || backInventoryQuantity <= 10
+    ? "Low Stocks!"
+    : "";
+
+  //product.quantity - this the quantity per product in the localbatch
+  //backInventoryQuantity - this the quantity per product in the batch
+  //hasMutated - if !hasMutated then its true, so maka insert ng notification
+
+  // if (
+  //   id_branch
+  //     ? !hasMutated && product.quantity <= 10
+  //     : !hasMutated && backInventoryQuantity <= 10
+  // ) {
+  //   setHasMutated(true);
+  //   notification.mutate({
+  //     title: `${
+  //       id_branch
+  //         ? `Low Stocks Warning (${branchName})`
+  //         : "Low Stocks Warning (Back Inventory)"
+  //     }`,
+  //     body: `Product ${product.name} is running low on stocks.`,
+  //     id_branch: id_branch || null,
+  //     type: "Category",
+  //   });
+  // } else {
+  //   console.log("NO NOTIFICATION");
+  // }
 
   const content = (
     <Pressable style={styles.container}>

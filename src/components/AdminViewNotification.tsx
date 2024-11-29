@@ -1,19 +1,41 @@
-import { StyleSheet, Image, Pressable } from "react-native";
+import {
+  StyleSheet,
+  Image,
+  Pressable,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import Colors from "../constants/Colors";
 import { Text, View } from "@/src/components/Themed";
 import { Product } from "@/src/types";
-import { Link, useSegments } from "expo-router";
+import { Link, useRouter, useSegments } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useArchivedParams } from "./archivedParams";
 import { useBranchName } from "./branchParams";
+import { useGetNotificationByIsRead } from "@/api/products";
 
 type ProductListItemProps = {
   title: string;
   body: string;
   time: string;
+  viewed: boolean;
+  navigateTo: string;
+  branchName: string;
+  item: any;
 };
 
-const AdminViewNotification = ({ title, body, time }: ProductListItemProps) => {
+const AdminViewNotification = ({
+  title,
+  body,
+  time,
+  viewed,
+  navigateTo,
+  branchName,
+  item,
+}: ProductListItemProps) => {
+  console.log("viewed", viewed);
+  console.log("navigateTo", navigateTo);
+  const router = useRouter();
   const [notificationTime, setNotificationTime] = useState("");
 
   const getCurrentTime = () => {
@@ -42,8 +64,34 @@ const AdminViewNotification = ({ title, body, time }: ProductListItemProps) => {
     setNotificationTime(timeDifference);
   }, [time]);
 
+  const showNotification = useGetNotificationByIsRead();
+
+  const handlePress = () => {
+    // Alert.alert("Notification Pressed");
+    if (navigateTo === "Location") {
+      router.push(`/(admin)/places`);
+      showNotification.mutate({
+        id_notification: Number(item.id_notification),
+      });
+    }
+    if (navigateTo === "Category") {
+      router.push("/(admin)/category/quantity");
+      showNotification.mutate({
+        id_notification: Number(item.id_notification),
+      });
+    }
+    if (navigateTo === "CategoryInBranch") {
+      router.push(
+        `/(admin)/locations?id_branch=${navigateTo}&branchName=${branchName}`
+      );
+      showNotification.mutate({
+        id_notification: Number(item.id_notification),
+      });
+    }
+  };
+
   const content = (
-    <Pressable style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={handlePress}>
       <View style={styles.insideContainer}>
         <View style={styles.textContainer}>
           <Text style={styles.title}>{title}</Text>
@@ -51,7 +99,7 @@ const AdminViewNotification = ({ title, body, time }: ProductListItemProps) => {
           <Text style={styles.time}>{notificationTime}</Text>
         </View>
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 
   return content;
@@ -96,6 +144,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     flex: 1,
 
-    paddingTop: "5%",
+    paddingTop: "2%",
   },
 });

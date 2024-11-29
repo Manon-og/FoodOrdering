@@ -50,6 +50,7 @@ export default function MenuScreen() {
   // );
 
   // console.log("MERONG settedProductsByBranch:", settedProductsByBranch);
+  console.log("MERONG CARWTOF:", category);
   const { data: unsettedProductsByBranch } = useBranchProductList(
     category,
     branchId

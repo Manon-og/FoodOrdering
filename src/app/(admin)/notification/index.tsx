@@ -22,25 +22,31 @@ const Index = () => {
   const { data: notification } = useGetNotification();
   const MemoizedProductListItem = memo(AdminViewNotification);
 
+  const sortedNotifications = notification?.sort(
+    (a: any, b: any) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+
   const renderItem = ({ item }: { item: any }) => {
     return (
       <MemoizedProductListItem
         title={item.title}
         body={item.body}
         time={item.created_at}
+        viewed={item.isRead}
+        navigateTo={item.type}
+        branchName={item.branchName}
+        item={item}
       />
     );
   };
+
   return (
     <View style={styles.container}>
-      {/* <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>From</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>Date</Text>
-      </View> */}
       <FlatList
-        data={notification}
+        data={sortedNotifications}
         renderItem={renderItem}
-        // keyExtractor={(item) => item.returned_groupID} pede bani??
+        keyExtractor={(item) => item.id_notification.toString()}
       />
     </View>
   );

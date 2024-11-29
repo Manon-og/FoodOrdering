@@ -20,6 +20,7 @@ import {
   useCategoryForProductTransfer,
   useGetNotification,
   useInsertNotification,
+  useCategory,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 import { useBranchName } from "@/components/branchParams";
@@ -37,6 +38,8 @@ const Index = () => {
   const [currentProduct, setCurrentProduct] = useState<any>(null);
   const [inputQuantity, setInputQuantity] = useState<string>("");
 
+  const category = useCategory();
+  console.log("CATEGORYLOCAIRION:", category);
   const { data: allProducts } = useAllProductList();
   const { data: products } = useProductList(selectedCategory);
   const { data: availQuantity } = useTransferBackInventoryProductList();
@@ -211,15 +214,13 @@ const Index = () => {
     }
 
     const newIDgroup = uuid.v4();
-    // const dateString = formatDateToLocalString(currentDate);
+
     Object.entries(productQuantities).forEach(([id_products, quantity]) => {
       transferQuantity({
-        // currentDate: currentDate,
         id_branch: Number(id_branch),
         id_products: Number(id_products),
         quantity: quantity,
         id_group: newIDgroup,
-        // date: dateString,
       });
     });
     Object.entries(productQuantities).forEach(([id_products, quantity]) => {

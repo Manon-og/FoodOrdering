@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, Pressable, StyleSheet, Alert } from "react-native";
-import { Link, useRouter } from "expo-router"; // Import Link and useRouter components
-import { handleLogout, getUserEmail, getUserFullName } from "@/api/products"; // Import handleLogout and getUserEmail functions
+import { Link, Stack, useRouter } from "expo-router"; // Import Link and useRouter components
+import {
+  handleLogout,
+  getUserEmail,
+  getUserFullName,
+  useGetNotification,
+} from "@/api/products"; // Import handleLogout and getUserEmail functions
 import Colors from "@/src/constants/Colors";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function UserProfile() {
   const router = useRouter();
@@ -20,8 +26,47 @@ export default function UserProfile() {
     fetchUserData();
   }, []);
 
+  const [title, setTitle] = useState("Back Inventory");
+  const [hasNotification, setHasNotification] = useState(false);
+  console.log("eqws:", title);
+
+  const { data: notification } = useGetNotification();
+  console.log("notificationUU:", notification);
+
+  useEffect(() => {
+    if (
+      notification &&
+      notification.some((notif) => notif.isRead === "false")
+    ) {
+      setHasNotification(true);
+    } else {
+      setHasNotification(false);
+    }
+  }, [notification]);
+
+  useEffect(() => {
+    setTitle(title);
+  }, [title]);
+
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Link href="/(admin)/notification" asChild>
+              <Pressable style={styles.notificationIconContainer}>
+                <FontAwesome
+                  name="bell"
+                  size={24}
+                  color="#0E1432"
+                  style={{ marginRight: 35.3 }}
+                />
+                {hasNotification && <View style={styles.notificationBadge} />}
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
       <View style={styles.topButton}>
         {/* <Pressable
           style={styles.logoutButton}
@@ -92,6 +137,22 @@ export default function UserProfile() {
 }
 
 const styles = StyleSheet.create({
+  backButtonText: {
+    color: "#0E1432",
+    fontSize: 16,
+  },
+  notificationIconContainer: {
+    position: "relative",
+    // marginRight: 15,
+  },
+  notificationBadge: {
+    position: "absolute",
+    right: 15,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "darkred",
+  },
   container: {
     flex: 1,
     backgroundColor: "white",
