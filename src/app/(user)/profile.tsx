@@ -60,7 +60,7 @@ export default function UserProfile() {
     <View style={styles.container}>
       <View style={styles.topButton}>
         <Text onPress={() => handleLogout(router)} style={styles.logoutText}>
-          Log out
+          LOG OUT
         </Text>
       </View>
 
@@ -198,6 +198,7 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     flex: 1,
+    fontWeight: "bold",
   },
   arrow: {
     paddingLeft: 10,
