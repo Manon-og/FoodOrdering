@@ -1,7 +1,6 @@
 import { StyleSheet, Image, Pressable } from "react-native";
 import Colors from "../constants/Colors";
 import { Text, View } from "@/src/components/Themed";
-import { Product } from "@/src/types";
 import { Link, useSegments } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { useArchivedParams } from "./archivedParams";
@@ -100,14 +99,6 @@ const ProductListItem = ({ product, productsByBackInventory }: any) => {
         <View style={styles.textContainer}>
           <Text style={styles.title}>{product.name}</Text>
           <View style={styles.row}>
-            <Text style={styles.price3}>
-              Available Stocks:{" "}
-              <Text style={styles.price1}>
-                {id_branch ? product.quantity : backInventoryQuantity}pcs.
-              </Text>{" "}
-            </Text>
-          </View>
-          <View style={styles.row}>
             <Text style={styles.price}>
               {id_branch ? "Back Inventory" : "Total"} Stocks:{" "}
               <Text style={styles.price2}>
@@ -115,9 +106,19 @@ const ProductListItem = ({ product, productsByBackInventory }: any) => {
               </Text>{" "}
             </Text>
           </View>
-          <Text style={styles.warning}> {warning}</Text>
+          <View style={styles.row}>
+            <Text style={styles.price3}>
+              Available Stocks:{" "}
+              <Text style={styles.price1}>
+                {id_branch ? product.quantity : backInventoryQuantity}pcs.
+              </Text>{" "}
+            </Text>
+          </View>
         </View>
       </View>
+
+      {/* Warning message */}
+      {warning ? <Text style={styles.warning}>{warning}</Text> : null}
     </Pressable>
   );
 
@@ -141,6 +142,11 @@ const styles = StyleSheet.create({
     height: 100,
     width: "100%",
     borderRadius: 7,
+    position: "relative", // Allow absolute positioning of the warning text
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    elevation: 5,
   },
   insideContainer: {
     flexDirection: "row",
@@ -157,12 +163,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   title: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold",
     color: "#0E1432",
   },
   price: {
-    fontSize: 13,
+    fontSize: 14,
     color: "#393939",
     fontWeight: "bold",
     flex: 1,
@@ -181,16 +187,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   price2: {
-    fontSize: 13,
-    color: "green",
+    fontSize: 14,
+    color: "#393939",
     fontWeight: "bold",
     textAlign: "right",
     flex: 1,
   },
   warning: {
-    fontSize: 12,
+    fontSize: 14,
     color: "darkred",
     fontWeight: "bold",
+    position: "absolute", // Position the warning text absolutely within the container
+    top: 5, // Distance from the top of the container
+    right: 10, // Distance from the right of the container
   },
   image: {
     width: 80,

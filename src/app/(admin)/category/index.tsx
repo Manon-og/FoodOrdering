@@ -4,6 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Pressable,
+  Image,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useRouter } from "expo-router";
@@ -16,9 +17,7 @@ const Index = () => {
   const { data: branch } = useBranch();
   console.log("branches:", branch);
 
-  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(
-    null
-  );
+  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(null);
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
 
   const handleSelectBranch = (id_branch: string, branchName: string) => {
@@ -97,21 +96,40 @@ const Index = () => {
       <View style={styles.container}>
         <Link href={`/(admin)/menu?category=1`} asChild>
           <Pressable style={styles.categoryCard}>
+            <Image
+              source={require("../../../../assets/images/cookies.png")} // Add your image path here
+              style={styles.categoryImage}
+            />
             <Text style={styles.categoryText}>COOKIES</Text>
           </Pressable>
         </Link>
+
         <Link href={`/(admin)/menu?category=2`} asChild>
           <Pressable style={styles.categoryCard}>
+            <Image
+              source={require("../../../../assets/images/bread.png")} // Add your image path here
+              style={styles.categoryImage}
+            />
             <Text style={styles.categoryText}>BREADS</Text>
           </Pressable>
         </Link>
+
         <Link href={`/(admin)/menu?category=3`} asChild>
           <Pressable style={styles.categoryCard}>
+            <Image
+              source={require("../../../../assets/images/cakes.png")} // Add your image path here
+              style={styles.categoryImage}
+            />
             <Text style={styles.categoryText}>CAKES</Text>
           </Pressable>
         </Link>
+
         <Link href={`/(admin)/menu?category=4`} asChild>
           <Pressable style={styles.categoryCard}>
+            <Image
+              source={require("../../../../assets/images/bentocakes.png")} // Add your image path here
+              style={styles.categoryImage}
+            />
             <Text style={styles.categoryText}>BENTO CAKES</Text>
           </Pressable>
         </Link>
@@ -135,7 +153,6 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: "row",
     flexWrap: "wrap",
-    marginTop: "10%",
   },
   menuItems: {
     width: "90%",
@@ -162,12 +179,24 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     width: "40%",
-    height: "33%",
+    height: "44%",
     backgroundColor: "#FDFDFD",
     justifyContent: "center",
     alignItems: "center",
     margin: 10,
     borderRadius: 15,
+    overflow: "hidden", // To prevent image overflow
+    shadowColor: "#000",  
+    shadowOffset: { width: 0, height: 4 }, 
+    shadowOpacity: 0.1,  
+    elevation: 5,       
+  },
+  categoryImage: {
+    width: "100%",
+    height: "75%", // Adjust the height as needed
+    resizeMode: "cover",
+    marginBottom: 10, // Space between image and text
+    marginTop: "-12%",
   },
   categoryText: {
     color: "black",
