@@ -5,13 +5,13 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import Button from "./Button";
 import { useRouter } from "expo-router";
+import { useGetNotification, useInsertNotification } from "@/api/products";
 
 interface ProductQuantities {
   [id_products: string]: number;
 }
 
 interface TransferQuantityParams {
-  // branchName: string;
   id_branch: number;
   id_products: number;
   quantity: number;
@@ -23,8 +23,6 @@ interface ProductionHistoryParams {
   id_products: string;
   quantity: number;
   location: string;
-
-  // branchName: string;
 }
 
 interface QuantityTransferProps {
@@ -68,9 +66,39 @@ const QuantityTransfer: React.FC<QuantityTransferProps> = ({
   };
 
   const currentDate = new Date().toLocaleDateString();
-  console.log("currentDate UP HEREE:", currentDate);
+  const { data: notifications } = useGetNotification();
+  const notification = useInsertNotification();
 
   const transferQuantitiesWithDate = () => {
+    const hasNotificationForTodayAndBranch = notifications?.some(
+      (notif: any) =>
+        new Date(notif.created_at).toLocaleDateString() === currentDate &&
+        notif.id_branch === id_branch
+    );
+
+    console.log("currentDate UP HEREE:", currentDate);
+    console.log("NOTIFICATIONS", notifications);
+    console.log("ID BRANCH", id_branch);
+
+    if (!hasNotificationForTodayAndBranch) {
+      notification.mutate(
+        {
+          title: `Set Cash Balance Reminder`,
+          body: `${branchName} requires a cash balance update.`,
+          id_branch: id_branch.toString(),
+          type: "Location",
+        },
+        {
+          onSuccess: (data) => {
+            console.log("NOTIFICATION", data);
+          },
+          onError: (error) => {
+            console.error("Error NOTIFICATION", error);
+          },
+        }
+      );
+    }
+
     const dateString = formatDateToLocalString(selectedDate);
     Object.entries(productQuantities).forEach(([id_products, quantity]) => {
       transferQuantity({
@@ -137,4 +165,5 @@ const styles = StyleSheet.create({
     paddingLeft: "30%",
   },
 });
+
 export default QuantityTransfer;

@@ -150,6 +150,14 @@ export default function TabLayout() {
           tabBarButton: () => null,
         }}
       />
+
+      <Tabs.Screen
+        name="receive"
+        options={{
+          headerShown: false,
+          tabBarButton: () => null,
+        }}
+      />
     </Tabs>
   );
 }

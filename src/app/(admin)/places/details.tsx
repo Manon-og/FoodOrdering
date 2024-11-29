@@ -1,6 +1,6 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
   useBranchName,
   useFindPendingProducts,
   useGetInitialCashCount,
+  useInsertNotification,
 } from "@/src/api/products"; // Adjust the import path accordingly
 import ItemDetails from "@/components/ItemsDetails";
 import Button from "@/components/Button";
@@ -28,6 +29,9 @@ const Details = () => {
   const { data: products } = useBranchAllProductList(id_branch.toString());
   const { data: branch } = useBranchName(Number(id_branch));
   const [button, setButton] = useState(true);
+
+  const notification = useInsertNotification();
+  const hasMutated = useRef(false);
 
   console.log("HERE****", id_branch);
   console.log("HERE****?", products);
@@ -78,6 +82,24 @@ const Details = () => {
 
   const currentDate = new Date().toISOString().split("T")[0];
   console.log("CURRENT DATE", currentDate);
+
+  // if (button === true) {
+  //   notification.mutate(
+  //     {
+  //       title: `Set Cash Balance Reminder`,
+  //       body: `${branchName} requires a cash balance update.`,
+  //     },
+  //     {
+  //       onSuccess: (data) => {
+  //         console.log("NOTIFICATION", data);
+  //         hasMutated.current = true;
+  //       },
+  //       onError: (error) => {
+  //         console.error("Error NOTIFICATION", error);
+  //       },
+  //     }
+  //   );
+  // }
 
   useEffect(() => {
     setButton(true);

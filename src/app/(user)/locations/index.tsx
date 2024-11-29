@@ -1,6 +1,12 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState, useEffect } from "react";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useBranch } from "@/src/api/products";
 import { useByBranch } from "@/src/providers/BranchProvider";
 import { useBranchName } from "@/src/components/branchParams";
@@ -58,8 +64,22 @@ const Index = () => {
   console.log("here:", branchName);
 
   const [showTransaction, setShowTransaction] = useState(false);
+  const router = useRouter();
+  const handleNavigatReveive = () => {
+    router.push(
+      `/(user)/receive?id_branch=${id_branch}&branchName=${branchName}`
+    );
+  };
   return (
     <View style={styles.background}>
+      <TouchableOpacity
+        style={styles.menuButton}
+        onPress={handleNavigatReveive}
+      >
+        <View style={styles.menuTextContainer}>
+          <Text style={styles.menuText}>Accept Incoming Stocks</Text>
+        </View>
+      </TouchableOpacity>
       <View style={styles.container}>
         <Link
           href={`/(user)/menu?category=1&id_branch=${id_branch}&branchName=${branchName}`}
@@ -103,8 +123,9 @@ export default Index;
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: "#FFD895",
+    backgroundColor: "white",
     alignItems: "center",
+    // backgroundColor: "#FFD895",
   },
   container: {
     flex: 1,
@@ -118,7 +139,7 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: "40%",
     height: "33%",
-    backgroundColor: "#FDFDFD",
+    backgroundColor: "#FFD895",
     justifyContent: "center",
     alignItems: "center",
     margin: 10,
@@ -160,7 +181,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   menuButton: {
-    backgroundColor: "#0E1432",
+    backgroundColor: "#FFD895",
     padding: 15,
     borderRadius: 10,
     width: "90%",
@@ -172,7 +193,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   menuText: {
-    color: "#FFFFFF",
+    color: "black",
     fontSize: 16,
     flex: 1,
     fontWeight: "bold",

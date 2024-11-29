@@ -1,12 +1,38 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import { useBranchStore } from "@/store/branch";
+import { useInsertNotification } from "@/api/products";
 
 const ListItem = ({ item, isLocalBranch }: any) => {
   const handlePressDetails = () => {
     console.log("Branch:", item.id_branch);
   };
+
+  console.log("Item33:", item);
+  console.log("Local Branch33?:", isLocalBranch);
+  // const notification = useInsertNotification();
+  // const hasMutated = useRef(false);
+
+  // useEffect(() => {
+  //   if (isLocalBranch) {
+  //     notification.mutate(
+  //       {
+  //         title: `Set Cash Balance Reminder`,
+  //         body: `${item.place} requires a cash balance update.`,
+  //       },
+  //       {
+  //         onSuccess: (data) => {
+  //           console.log("NOTIFICATION", data);
+  //           hasMutated.current = true;
+  //         },
+  //         onError: (error) => {
+  //           console.error("Error NOTIFICATION", error);
+  //         },
+  //       }
+  //     );
+  //   }
+  // }, [isLocalBranch]);
 
   return (
     <View style={styles.itemContainer}>
@@ -22,7 +48,7 @@ const ListItem = ({ item, isLocalBranch }: any) => {
         <Text style={styles.placeText}>{item.place}</Text>
       </View>
       <Link
-        href={`/places/details?id_branch=${item.id_branch}&branchName=${item.branchName}`}
+        href={`/places/details?id_branch=${item.id_branch}&branchName=${item.place}`}
         asChild
       >
         <TouchableOpacity onPress={handlePressDetails}>

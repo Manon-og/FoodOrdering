@@ -29,6 +29,7 @@ export default function MenuScreen() {
   const { setBranchName, setIdBranch } = useByBranch();
   const { id_archive } = useArchivedParams();
   const IDarchive = id_archive ? 1 : 2;
+  console.log("MERONG POTANGINANG IDarchive:", IDarchive);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
@@ -42,13 +43,13 @@ export default function MenuScreen() {
   const currentDate = new Date().toLocaleDateString();
   console.log("currentDate", currentDate);
 
-  const { data: settedProductsByBranch } = useSettedBranchProductList(
-    category,
-    branchId,
-    currentDate
-  );
+  // const { data: settedProductsByBranch } = useSettedBranchProductList(
+  //   category,
+  //   branchId,
+  //   currentDate
+  // );
 
-  console.log("MERONG settedProductsByBranch:", settedProductsByBranch);
+  // console.log("MERONG settedProductsByBranch:", settedProductsByBranch);
   const { data: unsettedProductsByBranch } = useBranchProductList(
     category,
     branchId
@@ -59,9 +60,7 @@ export default function MenuScreen() {
   //   settedProductsByBranch;
   // }, [settedProductsByBranch]);
 
-  const productsByBranch = id_branch
-    ? settedProductsByBranch
-    : unsettedProductsByBranch;
+  const productsByBranch = unsettedProductsByBranch;
 
   console.log("MERONG POTANGINANG:", productsByBranch);
 
@@ -78,18 +77,22 @@ export default function MenuScreen() {
 
   useEffect(() => {
     const productList = Array.isArray(products) ? products : [];
-    const productByBranchList = Array.isArray(productsByBranch)
-      ? productsByBranch
+    const productByBranchList = Array.isArray(unsettedProductsByBranch)
+      ? unsettedProductsByBranch
       : [];
     const useProduct = id_branch ? productByBranchList : productList;
+    console.log("MERONG POTANGINANG useProduct:", useProduct);
     const filtered = useProduct.filter(
       (item) =>
         item &&
         item.id_archive === IDarchive &&
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
+    console.log("MERONG POTANGINANG filtered:", filtered);
     setFilteredProducts(filtered);
-  }, [products, productsByBranch, id_branch, IDarchive, searchQuery]);
+  }, [products, unsettedProductsByBranch, id_branch, IDarchive, searchQuery]);
+
+  console.log("MERONG POTANGINANG filteredProducts:", filteredProducts);
 
   const renderItem = ({ item }: { item: any }) => {
     return (

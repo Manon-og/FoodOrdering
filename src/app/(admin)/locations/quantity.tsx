@@ -18,10 +18,13 @@ import {
   useInsertProductionHistory,
   useAllProductList,
   useCategoryForProductTransfer,
+  useGetNotification,
+  useInsertNotification,
 } from "@/src/api/products";
 import QuantityModal from "@/src/modals/quantityModals";
 import { useBranchName } from "@/components/branchParams";
 import QuantityTransfer from "@/components/QuantityTransfer";
+import uuid from "react-native-uuid";
 
 const Index = () => {
   const router = useRouter();
@@ -30,7 +33,7 @@ const Index = () => {
     [key: string]: number;
   }>({});
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [Date, setDate] = useState(false);
+  // const [Date, setDate] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<any>(null);
   const [inputQuantity, setInputQuantity] = useState<string>("");
 
@@ -134,10 +137,8 @@ const Index = () => {
         style: "cancel",
       },
       {
-        text: "Set Date",
-        onPress: () => {
-          setDate(true);
-        },
+        text: "Confirm",
+        onPress: () => transferQuantitiesWithDate(),
       },
     ]);
   };
@@ -167,6 +168,75 @@ const Index = () => {
     return item.id_products.id_category;
   });
   console.log("productTransferss:", newData);
+
+  // const formatDateToLocalString = (date: any): string => {
+  //   const year = date.getFullYear();
+  //   const month = String(date.getMonth() + 1).padStart(2, "0");
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   return `${year}-${month}-${day}`;
+  // };
+
+  const currentDate = new Date().toLocaleDateString();
+  const { data: notifications } = useGetNotification();
+  const notification = useInsertNotification();
+
+  const transferQuantitiesWithDate = () => {
+    const hasNotificationForTodayAndBranch = notifications?.some(
+      (notif: any) =>
+        new Date(notif.created_at).toLocaleDateString() === currentDate &&
+        notif.id_branch === id_branch
+    );
+
+    console.log("currentDate UP HEREE:", currentDate);
+    console.log("NOTIFICATIONS", notifications);
+    console.log("ID BRANCH", id_branch);
+
+    if (!hasNotificationForTodayAndBranch) {
+      notification.mutate(
+        {
+          title: `Set Cash Balance Reminder`,
+          body: `${branchName} requires a cash balance update.`,
+          id_branch: id_branch.toString(),
+          type: "Location",
+        },
+        {
+          onSuccess: (data) => {
+            console.log("NOTIFICATION", data);
+          },
+          onError: (error) => {
+            console.error("Error NOTIFICATION", error);
+          },
+        }
+      );
+    }
+
+    const newIDgroup = uuid.v4();
+    // const dateString = formatDateToLocalString(currentDate);
+    Object.entries(productQuantities).forEach(([id_products, quantity]) => {
+      transferQuantity({
+        // currentDate: currentDate,
+        id_branch: Number(id_branch),
+        id_products: Number(id_products),
+        quantity: quantity,
+        id_group: newIDgroup,
+        // date: dateString,
+      });
+    });
+    Object.entries(productQuantities).forEach(([id_products, quantity]) => {
+      insertProductionHistory({
+        location: branchName,
+        id_products: id_products.toString(),
+        quantity: quantity,
+      });
+    });
+    Alert.alert(
+      "Changes Confirmed",
+      "You have successfully added the products"
+    );
+    router.push(
+      `/(admin)/locations?id_branch=${id_branch}&branchName=${branchName}`
+    );
+  };
 
   return (
     <View style={styles.screenContainer}>
@@ -260,7 +330,7 @@ const Index = () => {
         setInputQuantity={setInputQuantity}
         name={currentProduct?.name}
       />
-      {Date && (
+      {/* {Date && (
         <QuantityTransfer
           id_branch={Number(id_branch)}
           branchName={branchName}
@@ -268,7 +338,7 @@ const Index = () => {
           transferQuantity={transferQuantity}
           insertProductionHistory={insertProductionHistory}
         />
-      )}
+      )} */}
     </View>
   );
 };

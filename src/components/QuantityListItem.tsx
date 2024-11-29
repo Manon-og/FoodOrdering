@@ -13,13 +13,14 @@ const QuantityListItem = ({ batch }: any) => {
   if (batch.label === "returned products") {
     place = "Returned Products";
   } else if (batch.type === "pending") {
-    place = "Pending";
+    place = `Pending`;
   } else if (batch.branch) {
     place = batch.branch.place;
   } else {
     place = "Back Inventory";
   }
 
+  // ${batch.branch.place}
   return (
     <View>
       <View style={styles.contentContainer}>
@@ -31,9 +32,9 @@ const QuantityListItem = ({ batch }: any) => {
                 <Text style={styles.quantity}>{place}</Text>
                 <Text style={styles.view}>{batch.branch ? "" : "edit"}</Text>
               </View>
-              {batch.type === "pending" && (
+              {/* {batch.type === "pending" && (
                 <Text style={styles.date}>Until: {batch.date}</Text>
-              )}
+              )} */}
               <Text style={styles.red}>
                 Expiry Date:{" "}
                 {batch.type === "pending"
@@ -48,12 +49,16 @@ const QuantityListItem = ({ batch }: any) => {
               <TouchableOpacity onPress={() => setModalVisible(true)}>
                 <Text style={styles.title}>Quantity: {batch.quantity}</Text>
                 <View style={styles.row}>
-                  <Text style={styles.quantity}>{place}</Text>
+                  <Text style={styles.quantity}>
+                    {batch.type === "pending"
+                      ? `Pending ${batch.branch.place}`
+                      : place}
+                  </Text>
                   <Text style={styles.view}>edit</Text>
                 </View>
-                {batch.type === "pending" && (
+                {/* {batch.type === "pending" && (
                   <Text style={styles.date}>Until: {batch.date}</Text>
-                )}
+                )} */}
                 <Text style={styles.red}>
                   Expiry Date:{" "}
                   {batch.type === "pending"

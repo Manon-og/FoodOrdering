@@ -25,6 +25,33 @@ export default function MenuStack() {
         headerStyle: {
           backgroundColor: "#FFD895",
         },
+        headerLeft: () => (
+          <Link
+            href={`/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`}
+            asChild
+          >
+            <Pressable style={styles.backButton}>
+              {({ pressed }) => (
+                <>
+                  <FontAwesome
+                    name="angle-left"
+                    size={35}
+                    color={"#0E1432"}
+                    style={{ marginRight: 5, opacity: pressed ? 0.5 : 1 }}
+                  />
+                  <Text
+                    style={[
+                      styles.backButtonText,
+                      { opacity: pressed ? 0.5 : 1 },
+                    ]}
+                  >
+                    Back
+                  </Text>
+                </>
+              )}
+            </Pressable>
+          </Link>
+        ),
       }}
     >
       <Stack.Screen

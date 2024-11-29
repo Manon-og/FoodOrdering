@@ -3,9 +3,10 @@ import Colors from "../constants/Colors";
 import { Text, View } from "@/src/components/Themed";
 import { Product } from "@/src/types";
 import { Link, useSegments } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useArchivedParams } from "./archivedParams";
 import { useBranchName } from "./branchParams";
+import { useInsertNotification } from "@/api/products";
 
 type ProductListItemProps = {
   product: {
@@ -23,6 +24,7 @@ export const DefaultPhoto =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png";
 
 const ProductListItem = ({ product, productsByBackInventory }: any) => {
+  const [hasMutated, setHasMutated] = useState(true);
   const segments = useSegments();
   const { id_archive } = useArchivedParams();
   const { id_branch, branchName } = useBranchName();
@@ -47,7 +49,48 @@ const ProductListItem = ({ product, productsByBackInventory }: any) => {
     : `/${segments[0]}/menu/${product.id_products}`;
   const newHrefLink: any = id_branch ? `/${segments[0]}/menu/` : hrefLink;
 
-  const warning = product.quantity <= 10 ? "Low Stocks!" : "";
+  const notification = useInsertNotification();
+
+  const warning =
+    productsByBackInventory === undefined ||
+    product.quantity <= 10 ||
+    backInventoryQuantity <= 10
+      ? "Low Stocks!"
+      : "";
+
+  // useEffect(() => {
+  //   if (
+  //     hasMutated &&
+  //     (productsByBackInventory === undefined ||
+  //       product.quantity <= 10 ||
+  //       backInventoryQuantity <= 10)
+  //   ) {
+  //     notification.mutate(
+  //       {
+  //         title: `Low Stocks Warning`,
+  //         body: `Product`,
+  //         id_branch: "",
+  //         type: "Category",
+  //       },
+  //       {
+  //         onSuccess: (data) => {
+  //           console.log("NOTIFICATION", data);
+  //           setHasMutated(false); // Prevent further mutations
+  //         },
+  //         onError: (error) => {
+  //           console.error("Error NOTIFICATION", error);
+  //         },
+  //       }
+  //     );
+  //   }
+  // }, [
+  //   hasMutated, // Dependency to prevent repeated execution
+  //   productsByBackInventory,
+  //   product.quantity,
+  //   backInventoryQuantity,
+  //   id_branch,
+  //   notification,
+  // ]);
 
   const content = (
     <Pressable style={styles.container}>

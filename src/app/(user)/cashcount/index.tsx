@@ -101,6 +101,8 @@ const EndDay = () => {
       {
         title: `Return Products`,
         body: `Return products request from ${branchName}`,
+        id_branch: id_branch?.toString() ?? "",
+        type: "Location",
       },
 
       {
