@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 20,
-    backgroundColor: "#B9D2F7",
+    backgroundColor: "#FFD895",
   },
   card: {
     width: "90%", 

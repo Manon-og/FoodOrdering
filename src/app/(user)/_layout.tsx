@@ -41,11 +41,11 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#FFFFFF",
+        tabBarActiveTintColor: "#510C0A",
         headerShown: useClientOnlyValue(false, true),
-        tabBarInactiveTintColor: "#D6D5D5",
+        tabBarInactiveTintColor: "#642826",
         tabBarStyle: {
-          backgroundColor: "#0E1432",
+          backgroundColor: "#FFD895",
           display: hide || hide2 ? "none" : "flex", // hide magic tab
         },
       }}

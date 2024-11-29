@@ -142,7 +142,7 @@ export default function UserProfile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#FFD895",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   menuButton: {
-    backgroundColor: "lightgray",
+    backgroundColor: "white",
     padding: 15,
     borderRadius: 10,
     width: "90%",
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   logoutText: {
-    color: Colors.light.tint,
+    color: "red",
     fontWeight: "bold",
   },
   menuTextContainer: {
