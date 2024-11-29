@@ -69,7 +69,7 @@ const Index = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#B9D2F7",
+    backgroundColor: "#FFD895",
     padding: 10,
   },
   searchBar: {
