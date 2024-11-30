@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Pressable, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import Colors from "../constants/Colors";
 import { Text, View } from "@/src/components/Themed";
 import { useState } from "react";
@@ -41,51 +41,32 @@ const QuantityListItem = ({ batch }: any) => {
 
   const formattedExpireDate = formatExpireDate(expireDate);
 
-  // ${batch.branch.place}
   return (
     <View>
       <View style={styles.contentContainer}>
         <View style={styles.itemContainer}>
-          {batch.branch && place === batch.branch.place ? (
-            <>
-              <Text style={styles.title}>Quantity: {batch.quantity}</Text>
-              <View style={styles.row}>
-                <Text style={styles.quantity}>{place}</Text>
-                <Text style={styles.view}>{batch.branch ? "" : "edit"}</Text>
-              </View>
-              {/* {batch.type === "pending" && (
-                <Text style={styles.date}>Until: {batch.date}</Text>
-              )} */}
-              <Text style={styles.red}>Expiry Date: {formattedExpireDate}</Text>
-            </>
-          ) : (
-            <View>
-              <TouchableOpacity onPress={() => setModalVisible(true)}>
-                <Text style={styles.title}>Quantity: {batch.quantity}</Text>
-                <View style={styles.row}>
-                  <Text style={styles.quantity}>
-                    {batch.type === "pending"
-                      ? `Pending ${batch.branch.place}`
-                      : place}
-                  </Text>
-                  <Text style={styles.view}>edit</Text>
-                </View>
-                {/* {batch.type === "pending" && (
-                  <Text style={styles.date}>Until: {batch.date}</Text>
-                )} */}
-                <Text style={styles.red}>
-                  Expiry Date: {formattedExpireDate}
-                </Text>
-              </TouchableOpacity>
-              <AdjustBackInventoryQuantity
-                modalVisible={modalVisible}
-                setModalVisible={setModalVisible}
-                Data={batch.quantity}
-                Location={place}
-                MainData={batch}
-              />
-            </View>
-          )}
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={styles.view}>EDIT</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Quantity: {batch.quantity}</Text>
+          <View style={styles.row}>
+            <Text style={styles.quantity}>
+              {batch.type === "pending"
+                ? `Pending ${batch.branch.place}`
+                : place}
+            </Text>
+          </View>
+          <Text style={styles.red}>Expiry Date: {formattedExpireDate}</Text>
+          <AdjustBackInventoryQuantity
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+            Data={batch.quantity}
+            Location={place}
+            MainData={batch}
+          />
         </View>
       </View>
     </View>
@@ -96,9 +77,13 @@ export default QuantityListItem;
 
 const styles = StyleSheet.create({
   view: {
-    textAlign: "right",
-    flex: 1,
-    paddingRight: 20,
+    color: "black",
+    fontWeight: "bold",
+  },
+  editButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
   },
   row: {
     flexDirection: "row",
@@ -117,6 +102,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     width: "90%",
+    position: "relative", // Ensure the container is positioned relative
   },
   title: {
     fontSize: 17,
@@ -134,7 +120,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   red: {
-    fontSize: 10,
+    fontSize: 14,
     color: "maroon",
     fontWeight: "bold",
   },
