@@ -8,6 +8,7 @@ import {
   Pressable,
   FlatList,
   Alert,
+  TextInput,
 } from "react-native";
 import {
   useArchiveLocation,
@@ -91,24 +92,6 @@ const Details = () => {
   const currentDate = new Date().toISOString().split("T")[0];
   console.log("CURRENT DATE", currentDate);
 
-  // if (button === true) {
-  //   notification.mutate(
-  //     {
-  //       title: `Set Cash Balance Reminder`,
-  //       body: `${branchName} requires a cash balance update.`,
-  //     },
-  //     {
-  //       onSuccess: (data) => {
-  //         console.log("NOTIFICATION", data);
-  //         hasMutated.current = true;
-  //       },
-  //       onError: (error) => {
-  //         console.error("Error NOTIFICATION", error);
-  //       },
-  //     }
-  //   );
-  // }
-
   useEffect(() => {
     setButton(true);
     const isDateMatched1 = formattedInitialCashCount?.some(
@@ -138,6 +121,27 @@ const Details = () => {
     (acc: number, item: any) => acc + item.quantity,
     0
   );
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 6;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  let filteredProducts =
+    products?.filter((item: any) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderItem = ({ item }: any) => {
     return <ItemDetails item={item} />;
@@ -197,6 +201,48 @@ const Details = () => {
             <Text style={styles.dayText}>{currentDay}</Text>
             <Text style={styles.dateText}>{currentDate}</Text>
           </View>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search products..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <View style={styles.paginationContainer}>
+            <Pressable
+              onPress={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={[
+                styles.pageButton,
+                currentPage === 1 && styles.disabledButton,
+              ]}
+            >
+              <Text style={styles.pageButtonText}>{"<"}</Text>
+            </Pressable>
+
+            {Array.from({ length: totalPages }, (_, index) => (
+              <Pressable
+                key={index}
+                onPress={() => handlePageChange(index + 1)}
+                style={[
+                  styles.pageButton,
+                  currentPage === index + 1 && styles.activePageButton,
+                ]}
+              >
+                <Text style={styles.pageButtonText}>{index + 1}</Text>
+              </Pressable>
+            ))}
+
+            <Pressable
+              onPress={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={[
+                styles.pageButton,
+                currentPage === totalPages && styles.disabledButton,
+              ]}
+            >
+              <Text style={styles.pageButtonText}>{">"}</Text>
+            </Pressable>
+          </View>
           <View style={styles.headerContainer}>
             <Text style={[styles.headerText, styles.statusHeader]}>
               #Product
@@ -207,10 +253,15 @@ const Details = () => {
           </View>
 
           <FlatList
-            data={products}
+            data={paginatedProducts}
             renderItem={renderItem}
             keyExtractor={(item: any) => item.id_products.toString()}
+            scrollEnabled={false} 
+            contentContainerStyle=
+            {styles.flatListContainer}
           />
+
+
           <View style={styles.footer}>
             <View style={styles.totalQuantitiesContainer}>
               <Text style={styles.totalQuantitiesText}>
@@ -325,18 +376,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderStyle: "solid",
     borderWidth: 1,
-    // flex: 1,
   },
   itemQuantity: {
     fontSize: 18,
     color: "#333",
-    // flexDirection: "row",
-    // flex: 1,
   },
   lowStock: {
     fontSize: 10,
     flex: 1,
-    //to be fixed
     textAlign: "left",
     color: "darkred",
   },
@@ -352,7 +399,6 @@ const styles = StyleSheet.create({
     color: "#007AFF",
   },
   totalQuantitiesContainer: {
-    // position: "absolute",
     bottom: 20,
     textAlign: "left",
   },
@@ -374,6 +420,40 @@ const styles = StyleSheet.create({
   footer: {
     flex: 1,
     justifyContent: "flex-end",
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  flatListContainer: {
+    paddingBottom: 20,
   },
 });
 

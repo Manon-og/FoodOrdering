@@ -5,6 +5,8 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  TextInput,
+  Pressable,
 } from "react-native";
 import {
   useBranch,
@@ -39,6 +41,27 @@ const Index = () => {
     id_branch.toString()
   );
   console.log("Pending pr:", pendingProductsDetails);
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 10;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  let filteredProducts =
+    pendingProductsDetails?.filter((item: any) =>
+      item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderItem = ({ item }: { item: any }) => {
     console.log("Item ID:", item.id_products.id_products);
@@ -94,14 +117,58 @@ const Index = () => {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "" }} />
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search products..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Products</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>Qty</Text>
       </View>
       <FlatList
-        data={pendingProductsDetails}
+        data={paginatedProducts}
         renderItem={renderItem}
-        // keyExtractor={(item) => item.id_products.id.toString()}
+        keyExtractor={(item: any) => item.id_products.id_products.toString()}
+        scrollEnabled={false}
+        contentContainerStyle={styles.flatListContainer}
       />
       <View style={styles.buttonRow}>
         <TouchableOpacity
@@ -195,6 +262,40 @@ const styles = StyleSheet.create({
     textAlign: "right",
     flex: 1,
     paddingRight: "15%",
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  flatListContainer: {
+    paddingBottom: 20,
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 10,
+    margin: 6,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
   },
 });
 

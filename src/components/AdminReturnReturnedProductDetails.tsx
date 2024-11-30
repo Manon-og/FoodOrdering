@@ -152,12 +152,13 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    marginVertical: 2,
   },
   warning: {
     marginLeft: 5,
   },
   itemLeft: {
-    fontSize: 16,
+    fontSize: 18,
     textAlign: "left",
     // borderRadius: 10,
     // borderWidth: 1,
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
     // borderRadius: 10,
     // borderWidth: 1,
     // borderColor: "black",
-    fontSize: 16,
+    fontSize: 18,
     textAlign: "center",
     paddingRight: "15%",
   },
