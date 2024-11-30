@@ -10,6 +10,7 @@ import {
   Button,
   TouchableOpacity,
   Alert,
+  TextInput,
 } from "react-native";
 import {
   useBranchAllProductList,
@@ -33,6 +34,7 @@ import { useIdGroupStore } from "@/store/idgroup";
 import ItemDetailsReturn from "@/components/ItemsDetailsReturn";
 import ItemExpireDetailsReturn from "@/components/ItemsDetailsReturn";
 import ViewCommentModal from "@/modals/viewCommentModals";
+import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 const Details = ({ ddd }: any) => {
   const { id_branch, branchName } = useBranchStoreAdmin();
@@ -141,6 +143,23 @@ const Details = ({ ddd }: any) => {
     (acc: number, item: any) => acc + item.quantity,
     0
   );
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 6;
+
+  let filteredProducts =
+    products?.filter((item: any) => []) ?? [];
+
+  const totalPages = Math.ceil((filteredProducts?.length ?? 0) / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderItem = ({ item }: any) => {
     console.log("EXPIRE", item.expiry_date);
@@ -222,7 +241,7 @@ const Details = ({ ddd }: any) => {
                   isButtonDisabled && styles.disabledText,
                 ]}
               >
-                Accept
+                ACCEPT
               </Text>
             </TouchableOpacity>
           ),
@@ -231,6 +250,43 @@ const Details = ({ ddd }: any) => {
       <View style={styles.container}>
         {products && products.length > 0 ? (
           <>
+          
+          <View style={styles.paginationContainer}>
+            <Pressable
+              onPress={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={[
+                styles.pageButton,
+                currentPage === 1 && styles.disabledButton,
+              ]}
+            >
+              <Text style={styles.pageButtonText}>{"<"}</Text>
+            </Pressable>
+
+            {Array.from({ length: totalPages }, (_, index) => (
+              <Pressable
+                key={index}
+                onPress={() => handlePageChange(index + 1)}
+                style={[
+                  styles.pageButton,
+                  currentPage === index + 1 && styles.activePageButton,
+                ]}
+              >
+                <Text style={styles.pageButtonText}>{index + 1}</Text>
+              </Pressable>
+            ))}
+
+            <Pressable
+              onPress={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={[
+                styles.pageButton,
+                currentPage === totalPages && styles.disabledButton,
+              ]}
+            >
+              <Text style={styles.pageButtonText}>{">"}</Text>
+            </Pressable>
+          </View>
             <View style={styles.headerContainer}>
               <Text style={[styles.headerText, styles.statusHeader]}>
                 Product
@@ -249,9 +305,12 @@ const Details = ({ ddd }: any) => {
             </View>
 
             <FlatList
-              data={products}
+              data={paginatedProducts}
               renderItem={renderItem}
               keyExtractor={(item: any) => item.id_products.toString()}
+              scrollEnabled={false}
+              contentContainerStyle=
+            {styles.flatListContainer}
             />
 
             <View style={styles.footer}>
@@ -331,7 +390,7 @@ const Details = ({ ddd }: any) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "gray",
+    backgroundColor: "#0E1432",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
@@ -341,7 +400,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "white",
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "bold",
   },
   container: {
@@ -480,19 +539,12 @@ const styles = StyleSheet.create({
   },
   border: {
     borderStyle: "solid",
-    borderWidth: 0, //2 just change it back to see the color
+    borderWidth: 0, 
     borderColor: Colors.light.tint,
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 3.84,
-    // elevation: 5, // For Android shadow
+
   },
   totalQuantities: {
     fontSize: 17,
@@ -520,10 +572,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "gray",
   },
-  footer: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
+
   buttonRow: {
     flexDirection: "row",
     justifyContent: "center",
@@ -531,11 +580,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   confirmText: {
-    color: Colors.light.tint,
-    fontSize: 16,
-    fontWeight: "bold",
-    marginRight: 10,
-  },
+      color: "green",
+      fontSize: 17,
+      fontWeight: "bold",
+      marginRight: 10,
+      letterSpacing: 1,
+    },
   disabledText: {
     color: "gray",
   },
@@ -543,6 +593,46 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "bold",
     color: Colors.light.tint,
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  flatListContainer: {
+    paddingBottom: 20,
+  },
+  footer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center", 
+    paddingVertical: 10,
   },
 });
 

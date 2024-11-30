@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     padding: 10,
     width: "50%",
     borderRadius: 5,
-    marginTop: 5,
+    marginTop: "5%",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   button: {
-    backgroundColor: Colors.light.tint,
+    color: "#FFD895",
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 100,

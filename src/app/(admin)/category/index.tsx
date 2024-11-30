@@ -97,7 +97,7 @@ const Index = () => {
         <Link href={`/(admin)/menu?category=1`} asChild>
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/cookies.png")} // Add your image path here
+              source={require("../../../../assets/images/cookies.png")} 
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>COOKIES</Text>
@@ -107,7 +107,7 @@ const Index = () => {
         <Link href={`/(admin)/menu?category=2`} asChild>
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/bread.png")} // Add your image path here
+              source={require("../../../../assets/images/bread.png")} 
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>BREADS</Text>
@@ -117,7 +117,7 @@ const Index = () => {
         <Link href={`/(admin)/menu?category=3`} asChild>
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/cakes.png")} // Add your image path here
+              source={require("../../../../assets/images/cakes.png")}
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>CAKES</Text>
@@ -127,7 +127,7 @@ const Index = () => {
         <Link href={`/(admin)/menu?category=4`} asChild>
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/bentocakes.png")} // Add your image path here
+              source={require("../../../../assets/images/bentocakes.png")} 
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>BENTO CAKES</Text>
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     width: "40%",
-    height: "44%",
+    height: "40%",
     backgroundColor: "#FDFDFD",
     justifyContent: "center",
     alignItems: "center",
@@ -193,16 +193,17 @@ const styles = StyleSheet.create({
   },
   categoryImage: {
     width: "100%",
-    height: "75%", // Adjust the height as needed
+    height: "81%",
     resizeMode: "cover",
-    marginBottom: 10, // Space between image and text
+    marginBottom: 10, 
     marginTop: "-12%",
   },
   categoryText: {
     color: "black",
-    fontStyle: "italic",
     fontWeight: "bold",
     fontSize: 16,
+    letterSpacing: 1,
+    marginTop: 2,
   },
   locationContainer: {
     width: "90%",

@@ -74,6 +74,16 @@ const Index = () => {
     const quantity = parseInt(inputQuantity);
     const availableQuantity = currentProduct.quantity;
 
+    if (isNaN(quantity)) {
+      setProductQuantities((prev) => ({
+        ...prev,
+        [currentProduct.id_products]: 0,
+      }));
+      setInputQuantity("0");
+      setIsModalVisible(false);
+      return;
+    }
+
     if (quantity > availableQuantity) {
       Alert.alert(
         "Invalid Input",
@@ -81,13 +91,35 @@ const Index = () => {
       );
       return;
     }
-    if (quantity > 0) {
+
+    // if (quantity > 100) {
+    //   Alert.alert("Error", "Maximum input quantity is 100");
+    //   return;
+    // }
+
+    if (quantity !== 0) {
       setProductQuantities((prev) => ({
         ...prev,
         [currentProduct.id_products]: quantity,
       }));
       setIsModalVisible(false);
+    } else {
+      setProductQuantities((prev) => ({
+        ...prev,
+        [currentProduct.id_products]: 0,
+      }));
+      setInputQuantity("0"); // Close the modal without updating if quantity is zero
+      setIsModalVisible(false);
     }
+  };
+
+  const handleResetModal = () => {
+    setProductQuantities((prev) => ({
+      ...prev,
+      [currentProduct.id_products]: 0,
+    }));
+    setInputQuantity("0");
+    setIsModalVisible(false);
   };
 
   const handleCloseModal = () => {
@@ -110,7 +142,12 @@ const Index = () => {
   };
 
   const handleSubmit = () => {
-    if (Object.keys(productQuantities).length === 0) {
+    // Filter out zero quantities
+    const nonZeroQuantities = Object.entries(productQuantities).filter(
+      ([, quantity]) => quantity > 0
+    );
+
+    if (nonZeroQuantities.length === 0) {
       Alert.alert("No Changes", "No products were updated.");
       return;
     }
@@ -327,6 +364,7 @@ const Index = () => {
         visible={isModalVisible}
         onClose={handleCloseModal}
         onConfirm={handleConfirmModal}
+        onReset={handleResetModal}
         inputQuantity={inputQuantity}
         setInputQuantity={setInputQuantity}
         name={currentProduct?.name}

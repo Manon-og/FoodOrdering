@@ -260,7 +260,7 @@ const CreateProductScreen = () => {
       <Stack.Screen
         options={{
           title: isUpdating
-            ? `Update ${categoryData?.categoryName} Product`
+            ? `Update Product`
             : `Create ${categoryData?.categoryName} Product`,
         }}
       />

@@ -13,6 +13,7 @@ interface QuantityModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  // onReset: () => void;
   inputQuantity: string;
   setInputQuantity: (text: string) => void;
   name: string;
@@ -22,10 +23,15 @@ const QuantityModal: React.FC<QuantityModalProps> = ({
   visible,
   onClose,
   onConfirm,
+  // onReset
   inputQuantity,
   setInputQuantity,
   name,
 }) => {
+  const handleReset = () => {
+    setInputQuantity("0");
+  };
+
   return (
     <Modal visible={visible} transparent={true} animationType="fade">
       <View style={styles.modalContainer}>
@@ -37,8 +43,8 @@ const QuantityModal: React.FC<QuantityModalProps> = ({
             value={inputQuantity}
             onChangeText={(text) => {
               const numericValue = text.replace(/[^0-9]/g, ""); // Only allow numbers
-              const limitedValue = Math.min(Number(numericValue), 100); // Limit to 100
-              setInputQuantity(limitedValue.toString());
+              // const limitedValue = Math.min(Number(numericValue), 100); // Limit to 100
+              setInputQuantity(numericValue);
             }}
             placeholder="99"
             keyboardType="numeric"
@@ -46,6 +52,7 @@ const QuantityModal: React.FC<QuantityModalProps> = ({
           />
           <View style={styles.modalButtons}>
             <Button title="Cancel" onPress={onClose} />
+            {/* <Button title="Reset" onPress={onReset} /> */}
             <Button title="Confirm" onPress={onConfirm} />
           </View>
         </View>
