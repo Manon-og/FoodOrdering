@@ -71,13 +71,25 @@ const Index = () => {
 
   const handleConfirmModal = () => {
     const quantity = parseInt(inputQuantity);
-    if (quantity > 0) {
+    if (quantity > 100) {
+      Alert.alert("Error", "Maximum input quantity is 100");
+    } else if (quantity !== 0) {
       setProductQuantities((prev) => ({
         ...prev,
         [currentProductId as string]: quantity,
       }));
       setIsModalVisible(false);
+    } else {
+      setIsModalVisible(false); // Close the modal without updating if quantity is zero
     }
+  };
+
+  const handleResetModal = () => {
+    setProductQuantities((prev) => ({
+      ...prev,
+      [currentProductId as string]: 0,
+    }));
+    setInputQuantity("0");
   };
 
   const handleCloseModal = () => {
@@ -100,7 +112,12 @@ const Index = () => {
   };
 
   const handleSubmit = () => {
-    if (Object.keys(productQuantities).length === 0) {
+    // Filter out zero quantities
+    const nonZeroQuantities = Object.entries(productQuantities).filter(
+      ([, quantity]) => quantity > 0
+    );
+
+    if (nonZeroQuantities.length === 0) {
       Alert.alert("No Changes", "No products were updated.");
       return;
     }
@@ -281,6 +298,7 @@ const Index = () => {
         visible={isModalVisible}
         onClose={handleCloseModal}
         onConfirm={handleConfirmModal}
+        onReset={handleResetModal}
         inputQuantity={inputQuantity}
         setInputQuantity={setInputQuantity}
         name={
