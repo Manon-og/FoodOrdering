@@ -74,6 +74,16 @@ const Index = () => {
     const quantity = parseInt(inputQuantity);
     const availableQuantity = currentProduct.quantity;
 
+    if (isNaN(quantity)) {
+      setProductQuantities((prev) => ({
+        ...prev,
+        [currentProduct.id_products]: 0,
+      }));
+      setInputQuantity("0");
+      setIsModalVisible(false);
+      return;
+    }
+
     if (quantity > availableQuantity) {
       Alert.alert(
         "Invalid Input",
@@ -87,14 +97,19 @@ const Index = () => {
     //   return;
     // }
 
-    if (quantity > 0) {
+    if (quantity !== 0) {
       setProductQuantities((prev) => ({
         ...prev,
         [currentProduct.id_products]: quantity,
       }));
       setIsModalVisible(false);
     } else {
-      setIsModalVisible(false); // Close the modal without updating if quantity is zero
+      setProductQuantities((prev) => ({
+        ...prev,
+        [currentProduct.id_products]: 0,
+      }));
+      setInputQuantity("0"); // Close the modal without updating if quantity is zero
+      setIsModalVisible(false);
     }
   };
 
