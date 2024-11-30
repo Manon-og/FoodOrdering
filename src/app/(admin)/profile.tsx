@@ -75,7 +75,7 @@ export default function UserProfile() {
           <Text style={styles.logoutText}>Log out</Text>
         </Pressable> */}
         <Text onPress={() => handleLogout(router)} style={styles.logoutText}>
-          Log out
+          LOG OUT
         </Text>
       </View>
 
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   logoutText: {
-    color: Colors.light.tint,
+    color: "red",
     fontWeight: "bold",
   },
   menuTextContainer: {
