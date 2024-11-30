@@ -33,6 +33,7 @@ import { useIdGroupStore } from "@/store/idgroup";
 import ItemDetailsReturn from "@/components/ItemsDetailsReturn";
 import ItemExpireDetailsReturn from "@/components/ItemsDetailsReturn";
 import ViewCommentModal from "@/modals/viewCommentModals";
+import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 const Details = ({ ddd }: any) => {
   const { id_branch, branchName } = useBranchStoreAdmin();
@@ -222,7 +223,7 @@ const Details = ({ ddd }: any) => {
                   isButtonDisabled && styles.disabledText,
                 ]}
               >
-                Accept
+                ACCEPT
               </Text>
             </TouchableOpacity>
           ),
@@ -531,11 +532,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   confirmText: {
-    color: Colors.light.tint,
-    fontSize: 16,
-    fontWeight: "bold",
-    marginRight: 10,
-  },
+      color: "green",
+      fontSize: 17,
+      fontWeight: "bold",
+      marginRight: 10,
+      letterSpacing: 1,
+    },
   disabledText: {
     color: "gray",
   },
