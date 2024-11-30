@@ -148,7 +148,6 @@ const App = () => {
     <ScrollView style={styles.container}>
       <View style={styles.chartContainer}>
         <Text style={styles.headerText}>Monthly Breakdown: Sales and Loss</Text>
-
         <View style={styles.chartWrapper}>
           <LineChart
             style={styles.chart}

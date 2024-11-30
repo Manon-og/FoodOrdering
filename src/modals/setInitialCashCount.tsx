@@ -40,6 +40,15 @@ const SetInitialCashBalance = ({
     setModalVisible(false);
   };
 
+  const handleChangeText = (text: string) => {
+    const numericValue = parseFloat(text);
+    if (!isNaN(numericValue)) {
+      setCash(numericValue);
+    } else {
+      setCash(0); // or handle it in another way if needed
+    }
+  };
+
   return (
     <Modal
       animationType="fade"
@@ -59,7 +68,7 @@ const SetInitialCashBalance = ({
 
           <TextInput
             value={cash.toString()}
-            onChangeText={(text) => setCash(Number(text))}
+            onChangeText={handleChangeText}
             placeholder="99.9"
             style={styles.input}
             keyboardType="numeric"
