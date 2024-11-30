@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   categoryImage: {
     width: "100%",
-    height: "80%", // Adjust the height as needed
+    height: "81%", // Adjust the height as needed
     resizeMode: "cover",
     marginBottom: 10, // Space between image and text
     marginTop: "-12%",
