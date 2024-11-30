@@ -73,8 +73,17 @@ const Index = () => {
   const user = salesTransaction?.[0]?.created_by;
   const location = salesTransaction?.[0]?.id_branch.place;
   const createdAt = salesTransaction?.[0]?.created_at;
-  const time = createdAt ? createdAt.split("T")[1].split(".")[0] : "";
-  const sunMoon = time ? (time.split(":")[0] >= 12 ? "PM" : "AM") : "";
+  const time = createdAt
+    ? new Date(createdAt).toLocaleTimeString("en-GB", {
+        hour12: false,
+        timeZone: "Asia/Manila",
+      })
+    : "";
+  const sunMoon = time
+    ? parseInt(time.split(":")[0], 10) >= 12
+      ? "PM"
+      : "AM"
+    : "";
   const currentDate = new Date().toLocaleDateString();
   const currentDay = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -220,7 +229,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "gray",
     textAlign: "center", // Center the text
-    
   },
   dayText: {
     fontSize: 20,

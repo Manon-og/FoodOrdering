@@ -13,39 +13,22 @@ type DropdownItem = {
 type DropdownComponentProps = {
   data: DropdownItem[];
   defaultValue?: string;
+  onSelect: (value: string) => void;
 };
 
-const DropdownComponent: React.FC<DropdownComponentProps> = ({
+const DropdownComponentForSales: React.FC<DropdownComponentProps> = ({
   data,
   defaultValue,
+  onSelect,
 }) => {
   const [value, setValue] = useState<string | null>(defaultValue || null);
   const router = useRouter();
 
-  //   { label: "Sales", value: "Sales" },
-  // { label: "Product Transfer", value: "Product Transfer" },
-  // { label: "Expired Products", value: "Expired Products" },
-  // { label: "Production", value: "Production" },
-  // { label: "Returned Products", value: "Returned Products" },
-
   useEffect(() => {
-    if (value === "Production") {
-      router.push("/(admin)/four");
-      setValue(null);
-    } else if (value === "Sales") {
-      router.push("/(admin)/two");
-      setValue(null);
-    } else if (value === "Expired Products") {
-      router.push("/(admin)/three");
-      setValue(null);
-    } else if (value === "Product Transfer") {
-      router.push("/(admin)/one");
-      setValue(null);
-    } else if (value === "Returned Products") {
-      router.push("/(admin)/five");
-      setValue(null);
+    if (value) {
+      onSelect(value);
     }
-  }, [value, router]);
+  }, [value, onSelect]);
 
   const renderItem = (item: DropdownItem) => {
     return (
@@ -61,12 +44,10 @@ const DropdownComponent: React.FC<DropdownComponentProps> = ({
       style={styles.dropdown}
       iconStyle={styles.iconStyle}
       data={data}
-      // search
       maxHeight={300}
       labelField="label"
       valueField="value"
-      placeholder="Select Transaction Type"
-      // searchPlaceholder="Search..."
+      placeholder="Month"
       value={value}
       onChange={(item: DropdownItem) => {
         setValue(item.value);
@@ -76,13 +57,13 @@ const DropdownComponent: React.FC<DropdownComponentProps> = ({
   );
 };
 
-export default DropdownComponent;
+export default DropdownComponentForSales;
 
 const styles = StyleSheet.create({
   dropdown: {
-    margin: 16,
-    height: 50,
-    width: 300,
+    // margin: 16,
+    height: 40,
+    width: 170,
     backgroundColor: "white",
     borderRadius: 12,
     padding: 12,

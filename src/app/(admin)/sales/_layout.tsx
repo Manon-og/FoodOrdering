@@ -13,7 +13,7 @@ export default function MenuStack() {
       <Stack.Screen
         name="index"
         options={{
-          title: `Sales`,
+          title: `Sales Performance`,
           headerLeft: () => (
             <Link href={`${change}`} asChild>
               <Pressable style={styles.backButton}>

@@ -1702,6 +1702,32 @@ export const useUserTransferQuantity = () => {
 
         const insertPromises = [];
 
+        const now = new Date();
+        const createdAtString = now.toLocaleString("en-US", {
+          timeZone: "Asia/Manila",
+        });
+        console.log("createdAtFOR BATCHs", createdAtString);
+
+        const options = { timeZone: "Asia/Manila", hour12: false };
+        const [date, time] = createdAtString.split(", ");
+        const [month, day, year] = date.split("/");
+        const [hour, minute, second] = time.split(/[:\s]/);
+        const ampm = time.split(" ")[1];
+        const hour24 =
+          ampm === "PM" && hour !== "12"
+            ? parseInt(hour) + 12
+            : ampm === "AM" && hour === "12"
+            ? "00"
+            : hour;
+        const createdAt = new Date(
+          `${year}-${month}-${day}T${hour24}:${minute}:${second}.000Z`
+        );
+        console.log("createdAt", createdAt);
+        const updatedExpiryDate = new Date(createdAt);
+        updatedExpiryDate.setDate(createdAt.getDate());
+
+        console.log("IM FKING HERE:", updatedExpiryDate);
+
         for (const batch of batches) {
           if (remainingQuantity <= 0) break;
           console.log("Batch:", batch);
@@ -1722,6 +1748,7 @@ export const useUserTransferQuantity = () => {
                 created_by: data.created_by,
                 id_group: data.id_group,
                 amount_by_product: data.amount_by_product,
+                real_time: updatedExpiryDate,
               })
               .single()
               .then(({ data: updatedLocalBatch, error: updateError }) => {
@@ -4576,6 +4603,187 @@ export const useGetReceivePendingStocks = (id_branch: string) => {
         throw new Error(error.message);
       }
       return data;
+    },
+  });
+};
+
+const getMonthName = (monthNumber: number) => {
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  return monthNames[monthNumber];
+};
+
+export const useGetDataForChart = () => {
+  return useQuery({
+    queryKey: ["useGetDataForChart"],
+    queryFn: async () => {
+      const { data: sales, error } = await supabase
+        .from("salestransaction")
+        .select("*");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const salesData = sales?.reduce((acc, item) => {
+        const date = new Date(item.created_at);
+        const monthNumber = date.getMonth();
+        const month = `${date.getFullYear()}-${String(monthNumber + 1).padStart(
+          2,
+          "0"
+        )}`;
+        if (!acc[month]) {
+          acc[month] = {
+            month: getMonthName(monthNumber),
+            amount: 0,
+          };
+        }
+        acc[month].amount += item.amount;
+        return acc;
+      }, {});
+
+      return Object.values(salesData);
+    },
+  });
+};
+
+const getWeekOfMonth = (date: Date) => {
+  const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const dayOfWeek = startOfMonth.getDay();
+  const adjustedDate = date.getDate() + dayOfWeek;
+  return Math.ceil(adjustedDate / 7);
+};
+
+export const useGetDataForChartByWeek = () => {
+  return useQuery({
+    queryKey: ["useGetDataForChartByWeek"],
+    queryFn: async () => {
+      const { data: sales, error } = await supabase
+        .from("salestransaction")
+        .select("*");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const salesData = sales?.reduce((acc, item) => {
+        const date = new Date(item.created_at);
+        const monthNumber = date.getMonth();
+        const weekOfMonth = getWeekOfMonth(date);
+        const monthWeek = `${date.getFullYear()}-${String(
+          monthNumber + 1
+        ).padStart(2, "0")}-W${weekOfMonth}`;
+        if (!acc[monthWeek]) {
+          acc[monthWeek] = {
+            month: getMonthName(monthNumber),
+            week: weekOfMonth,
+            amount: 0,
+          };
+        }
+        acc[monthWeek].amount += item.amount;
+        return acc;
+      }, {});
+
+      return Object.values(salesData);
+    },
+  });
+};
+
+export const useGetDataForChartByWeekByLoss = () => {
+  return useQuery({
+    queryKey: ["useGetDataForChartByWeekByLoss"],
+    queryFn: async () => {
+      const { data: sales, error } = await supabase
+        .from("expiredproducts")
+        .select("*");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const salesData = sales?.reduce((acc, item) => {
+        const date = new Date(item.created_at);
+        const monthNumber = date.getMonth();
+        const weekOfMonth = getWeekOfMonth(date);
+        const monthWeek = `${date.getFullYear()}-${String(
+          monthNumber + 1
+        ).padStart(2, "0")}-W${weekOfMonth}`;
+        if (!acc[monthWeek]) {
+          acc[monthWeek] = {
+            month: getMonthName(monthNumber),
+            week: weekOfMonth,
+            potential_sales: 0,
+          };
+        }
+        acc[monthWeek].potential_sales += item.potential_sales;
+        return acc;
+      }, {});
+
+      return Object.values(salesData);
+    },
+  });
+};
+
+// const getMonthName = (monthNumber: number) => {
+//   const monthNames = [
+//     "January",
+//     "February",
+//     "March",
+//     "April",
+//     "May",
+//     "June",
+//     "July",
+//     "August",
+//     "September",
+//     "October",
+//     "November",
+//     "December",
+//   ];
+//   return monthNames[monthNumber];
+// };
+
+export const useGetDataForChartByLoss = () => {
+  return useQuery({
+    queryKey: ["useGetDataForChartByLoss"],
+    queryFn: async () => {
+      const { data: sales, error } = await supabase
+        .from("expiredproducts")
+        .select("*");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const salesData = sales?.reduce((acc, item) => {
+        const date = new Date(item.created_at);
+        const monthNumber = date.getMonth();
+        const month = `${date.getFullYear()}-${String(monthNumber + 1).padStart(
+          2,
+          "0"
+        )}`;
+        if (!acc[month]) {
+          acc[month] = {
+            month: getMonthName(monthNumber),
+            potential_sales: 0,
+          };
+        }
+        acc[month].potential_sales += item.potential_sales;
+        return acc;
+      }, {});
+
+      return Object.values(salesData);
     },
   });
 };
