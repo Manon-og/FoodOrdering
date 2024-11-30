@@ -3,7 +3,11 @@ import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
 import Button from "@/src/components/Button";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEmployeeContext } from "@/providers/EmployeeProvider";
-import { deleteEmployee, getLastSignInTime } from "@/api/products"; // Ensure the correct import path
+import {
+  useArchiveEmployee,
+  useUnarchiveEmployee,
+  getLastSignInTime,
+} from "@/api/products"; // Ensure the correct import path
 import { EmployeeProvider } from "@/providers/EmployeeProvider";
 import Colors from "../../../constants/Colors";
 
@@ -18,10 +22,13 @@ const EmployeeDetail = () => {
     email: string;
     id_roles: number;
     birth_date: any;
+    id_archives: number;
   }
 
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [lastSignInTime, setLastSignInTime] = useState<string | null>(null);
+  const { mutate: archiveEmployee } = useArchiveEmployee();
+  const { mutate: unarchiveEmployee } = useUnarchiveEmployee();
 
   useEffect(() => {
     if (id) {
@@ -59,7 +66,7 @@ const EmployeeDetail = () => {
     router.push(`/employees/edit?id=${id}`);
   };
 
-  const handleDelete = () => {
+  const handleArchive = () => {
     Alert.alert(
       "Archive Employee",
       "Are you sure you want to archive this employee?",
@@ -70,18 +77,43 @@ const EmployeeDetail = () => {
         },
         {
           text: "Archive",
-          onPress: () => {
-            deleteEmployee(id)
-              .then(() => {
-                router.push("/employees");
-                Alert.alert("Success", "Employee archived successfully");
-              })
-              .catch((error) => {
-                console.error("Error archiving employee:", error);
-                Alert.alert("Error", "Failed to archive employee");
-              });
+          onPress: async () => {
+            try {
+              await archiveEmployee(id);
+              refreshEmployees();
+              router.push("/employees");
+              Alert.alert("Success", "Employee archived successfully");
+            } catch (error) {
+              console.error("Error archiving employee:", error);
+              Alert.alert("Error", "Failed to archive employee");
+            }
           },
           style: "destructive",
+        },
+      ]
+    );
+  };
+
+  const handleUnarchive = () => {
+    Alert.alert(
+      "Unarchive Employee",
+      "Are you sure you want to unarchive this employee?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Unarchive",
+          onPress: async () => {
+            try {
+              await unarchiveEmployee(id);
+              refreshEmployees();
+              router.push("/employees");
+              Alert.alert("Success", "Employee unarchived successfully");
+            } catch (error) {
+              console.error("Error unarchiving employee:", error);
+              Alert.alert("Error", "Failed to unarchive employee");
+            }
+          },
+          style: "default",
         },
       ]
     );
@@ -126,9 +158,10 @@ const EmployeeDetail = () => {
         <Text style={styles.buttonText}>Edit</Text>
       </Pressable> */}
       <Button onPress={handleEdit} text={"Edit"} />
-      <Text onPress={handleDelete} style={styles.deleteButton}>
-        Archive
-      </Text>
+      <Button
+        text={employee.id_archives === 1 ? "Unarchive" : "Archive"}
+        onPress={employee.id_archives === 1 ? handleUnarchive : handleArchive}
+      />
     </View>
   );
 };
