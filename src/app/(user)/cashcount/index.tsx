@@ -8,6 +8,7 @@ import {
   ScrollView,
   Modal,
   FlatList,
+  Pressable,
 } from "react-native";
 import {
   useAllLocalBranchData,
@@ -97,14 +98,18 @@ const EndDay = () => {
   };
 
   const handleInsertPendingProducts = () => {
+    if (!id_branch || !id) {
+      console.error("id_branch or id is undefined");
+      return;
+    }
+
     notification.mutate(
       {
         title: `Return Products`,
         body: `Return products request from ${branchName}`,
-        id_branch: id_branch?.toString() ?? "",
+        id_branch: id_branch.toString(),
         type: "Location",
       },
-
       {
         onSuccess: (data) => {
           console.log("NOTIFICATION", data);
@@ -114,20 +119,17 @@ const EndDay = () => {
         },
       }
     );
+
     insertPendingProducts.mutate(
       {
         id_branch: Number(id_branch),
-        id_user: id?.toString() ?? "",
+        id_user: id.toString(),
         id_group: transactionId,
       },
       {
         onSuccess: (data) => {
           console.log("Inserted IDs:", data);
           router.push("/(user)/salesreport");
-          // Alert.alert("Success", "Request for return products sent");
-
-          // Show the final modal after returning products
-          // setShowFinalModal(true);
         },
         onError: (error) => {
           console.error("Error inserting pending products:", error);
@@ -175,6 +177,27 @@ const EndDay = () => {
     );
   };
 
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 9;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  let filteredProducts =
+    returnProducts?.filter((item: any) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {!showReturnProducts ? (
@@ -219,6 +242,49 @@ const EndDay = () => {
           <View style={styles.dateContainer}>
             <Text style={styles.dayText}>Return Products</Text>
           </View>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search products..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <View style={styles.paginationContainer}>
+            <Pressable
+              onPress={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={[
+                styles.pageButton,
+                currentPage === 1 && styles.disabledButton,
+              ]}
+            >
+              <Text style={styles.pageButtonText}>{"<"}</Text>
+            </Pressable>
+
+            {Array.from({ length: totalPages }, (_, index) => (
+              <Pressable
+                key={index}
+                onPress={() => handlePageChange(index + 1)}
+                style={[
+                  styles.pageButton,
+                  currentPage === index + 1 && styles.activePageButton,
+                ]}
+              >
+                <Text style={styles.pageButtonText}>{index + 1}</Text>
+              </Pressable>
+            ))}
+
+            <Pressable
+              onPress={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={[
+                styles.pageButton,
+                currentPage === totalPages && styles.disabledButton,
+              ]}
+            >
+              <Text style={styles.pageButtonText}>{">"}</Text>
+            </Pressable>
+          </View>
+          
           <View style={styles.headerContainer}>
             <Text style={[styles.headerText, styles.statusHeader]}>
               Products
@@ -228,17 +294,18 @@ const EndDay = () => {
             </Text>
           </View>
           <FlatList
-            data={returnProducts}
+            data={paginatedProducts}
             keyExtractor={(item: any) => item.id_products.toString()}
             renderItem={({ item }: any) => (
               <ReturnProducts name={item.name} quantity={item.quantity} />
             )}
+            scrollEnabled={false}
+            contentContainerStyle={styles.flatListContainer}
           />
           <Button text={"Return"} onPress={confirmReturnProducts} />
         </>
       )}
 
-      {/* Modal to show the final summary */}
       <Modal visible={showFinalModal} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -368,6 +435,40 @@ const styles = StyleSheet.create({
   modalText: {
     fontSize: 18,
     marginBottom: 10,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  flatListContainer: {
+    paddingBottom: 20,
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
   },
 });
 
