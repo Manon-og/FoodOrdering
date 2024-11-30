@@ -38,7 +38,7 @@ const Index = () => {
     "default"
   );
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 5; 
+  const itemsPerPage = 9; 
 
   let filteredOverview =
     overview?.filter(
