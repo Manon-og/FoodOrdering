@@ -1,164 +1,265 @@
-import { FontAwesome } from "@expo/vector-icons";
-import { router, Stack, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   FlatList,
+  Pressable,
   TouchableOpacity,
   Alert,
-  Modal,
+  TextInput,
 } from "react-native";
-
 import {
-  useBranchAllProductList,
-  useBranchName,
-  useDeleteLocalBatch,
-  useGetCashCount,
-  useGetComment,
-  useGetInitialCashCount,
-  useGetVoidedTransaction,
-  useGroupedSalesReport,
+  useBranchData,
+  useGetPendingProducts,
+  useLocalBranchData,
+  useInsertReceivePendingStocks,
+  useGetReceivePendingStocks,
 } from "@/src/api/products";
 
-import { useBranchStoreAdmin } from "@/store/branchAdmin";
+import GroupedReturnedItem from "@/components/AdminReturnReturnedProducts";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useBranchName } from "@/components/branchParams";
+import StaffViewPendingProducts from "@/components/StaffViewPendingProducts";
+import Button from "@/components/Button";
 
-import Colors from "@/constants/Colors";
-import { useUUIDStore } from "@/store/user";
-import { useIdGroupStore } from "@/store/idgroup";
-import ItemExpireDetailsReturn from "@/components/ItemsDetailsReturn";
-import ViewCommentModal from "@/modals/viewCommentModals";
+const Index = () => {
+  const { data: branch } = useBranchData();
+  const { data: localBranch } = useLocalBranchData();
 
-const Details = ({ ddd }: any) => {
-  const { id_branch } = useBranchStoreAdmin();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [summaryModalVisible, setSummaryModalVisible] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
-  const { data: products } = useBranchAllProductList(id_branch?.toString() ?? "");
-  const deleteLocalBatch = useDeleteLocalBatch();
-  const router = useRouter();
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const { id_branch, branchName } = useBranchName();
+  console.log("asdxzc:", id_branch);
 
-  const addProductToSummary = (item: any) => {
-    setSelectedProducts((prev) => [...prev, { name: item.name, qty: item.quantity }]);
+  const receiveStocks = useInsertReceivePendingStocks();
+  const { data: viewPendingProducts } = useGetReceivePendingStocks(id_branch);
+  console.log("viewPendingProducts:", viewPendingProducts);
+
+  console.log("Branch data:", branch);
+  console.log("Local branch data:", localBranch);
+
+  const currentDate = new Date().toLocaleDateString();
+  const currentDay = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+
+  const { data: pendingProducts } = useGetPendingProducts();
+  console.log("Pending products??:", pendingProducts);
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 9;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  let filteredProducts =
+    viewPendingProducts?.filter((item: any) =>
+      item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
-  const renderItem = ({ item }: any) => {
-    const date = new Date(item.expiry_date);
-    date.setDate(date.getDate() - 1);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const newDateString = `${year}-${month}-${day}`;
-
+  const renderItem = ({ item }: { item: any }) => {
+    const createdAtDate = item.created_at.split("T")[0];
+    console.log("IDBRNch:", item.id_branch.id_branch);
     return (
-      <TouchableOpacity onPress={() => addProductToSummary(item)}>
-        <ItemExpireDetailsReturn
-          item={item}
-          expiry={newDateString}
-          id_batch={item.id_batch}
-          id_branch={id_branch}
-        />
-      </TouchableOpacity>
+      <StaffViewPendingProducts
+        name={item.id_products.name}
+        quantity={item.quantity}
+      />
     );
   };
 
-  const handleInsertPendingProducts = () => {
-    setIsButtonDisabled(true);
-    deleteLocalBatch.mutate(
-      {
-        id_branch: Number(id_branch),
-      },
-      {
-        onSuccess: (data) => {
-          Alert.alert("Success", "Request for return products accepted");
-          router.push("/(admin)/profile");
-        },
-        onError: (error) => {
-          console.error("Error inserting pending products:", error);
-          setIsButtonDisabled(false);
-        },
-      }
+  const router = useRouter();
+  const handleAcceptPress = () => {
+    receiveStocks.mutate(id_branch);
+    router.push(
+      `/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`
     );
+    Alert.alert("Accepted", "You have accepted the pending products.");
   };
 
   return (
-    <>
+    <View style={styles.container}>
       <Stack.Screen
         options={{
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => setSummaryModalVisible(true)}
-              disabled={isButtonDisabled}
-            >
-              <Text style={[styles.confirmText, isButtonDisabled && styles.disabledText]}>
-                ACCEPT
-              </Text>
-            </TouchableOpacity>
-          ),
+          title: "Pending Stocks",
         }}
       />
-      <View style={styles.container}>
-        <FlatList
-          data={products}
-          renderItem={renderItem}
-          keyExtractor={(item: any) => item.id_products.toString()}
-        />
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search products..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
+      <View style={styles.headerContainer}>
+        <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>Qty</Text>
       </View>
 
-      {/* Summary Modal */}
-      <Modal visible={summaryModalVisible} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Summary</Text>
-            {selectedProducts.map((product, index) => (
-              <Text key={index} style={styles.productText}>
-                {product.name}: {product.qty} pcs
-              </Text>
-            ))}
-            <TouchableOpacity
-              style={styles.acceptButton}
-              onPress={handleInsertPendingProducts}
-            >
-              <Text style={styles.buttonText}>Confirm</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => setSummaryModalVisible(false)}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    </>
+      <FlatList
+        data={paginatedProducts}
+        renderItem={renderItem}
+        keyExtractor={(item: any) => item.id_products.toString()}
+        scrollEnabled={false}
+        contentContainerStyle={styles.flatListContainer}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={handleAcceptPress}>
+        <Text style={styles.buttonText}>Accept</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  confirmText: { color: "blue" },
-  disabledText: { color: "gray" },
-  modalContainer: {
+  button: {
+    backgroundColor: "#FFD895",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: "black",
+    fontSize: 17,
+    paddingLeft: 10,
+    paddingRight: 10,
+    fontWeight: "bold",
+    letterSpacing: 1,
+  },
+  container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    width: "80%",
     padding: 20,
-    backgroundColor: "white",
-    borderRadius: 10,
-    alignItems: "center",
+    // paddingTop: "20%",
   },
-  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
-  productText: { fontSize: 16, marginVertical: 5 },
-  acceptButton: { backgroundColor: "green", padding: 10, marginTop: 10 },
-  cancelButton: { backgroundColor: "red", padding: 10, marginTop: 10 },
-  buttonText: { color: "#fff" },
+  dateContainer: {
+    position: "absolute",
+    top: "2.5%",
+  },
+  dateText: {
+    fontSize: 20,
+    color: "gray",
+    textAlign: "center",
+  },
+  dayText: {
+    fontSize: 21,
+    fontWeight: "bold",
+    color: "#0E1432",
+    textAlign: "center",
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingVertical: 10,
+    borderBottomWidth: 2,
+    borderBottomColor: "#ccc",
+  },
+  headerText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    flex: 1,
+    textAlign: "center",
+  },
+  statusHeader: {
+    textAlign: "left",
+    flex: 0.5,
+    paddingLeft: "5%",
+  },
+  placeHeader: {
+    textAlign: "left",
+    flex: 1.5,
+  },
+  moreInfoHeader: {
+    textAlign: "right",
+    flex: 1,
+    paddingRight: 20,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  flatListContainer: {
+    paddingBottom: 20,
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
+  },
 });
 
-export default Details;
+export default Index;
