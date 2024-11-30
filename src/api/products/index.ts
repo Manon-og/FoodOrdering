@@ -1263,7 +1263,9 @@ export const getUserFullName = async () => {
 export const fetchEmployees = async (id: string) => {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, id_roles, birth_date, password");
+    .select(
+      "id, full_name, email, id_roles, birth_date, password, id_archives"
+    );
   if (error) {
     console.error("Error fetching employees:", error);
     throw new Error(error.message);
@@ -1378,13 +1380,46 @@ export const getEmployeeById = async (id: string) => {
   return data;
 };
 
-export const deleteEmployee = async (id: string) => {
-  const { error } = await supabase.from("profiles").delete().eq("id", id);
+export const useArchiveEmployee = () => {
+  const queryClient = useQueryClient();
 
-  if (error) {
-    console.error("Error deleting employee:", error);
-    throw new Error(error.message);
-  }
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ id_archives: 1 })
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error archiving employee:", error);
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
+  });
+};
+
+export const useUnarchiveEmployee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ id_archives: 2 })
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error archiving employee:", error);
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
+  });
 };
 
 export const useTransferQuantity = () => {
