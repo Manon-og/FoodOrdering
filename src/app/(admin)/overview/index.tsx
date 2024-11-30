@@ -6,9 +6,7 @@ import {
   FlatList,
   TextInput,
   Pressable,
-  Button,
 } from "react-native";
-import { Dropdown } from "react-native-element-dropdown"; // Import the dropdown component
 import {
   useGroupedSalesTransactionADMIN,
   useOverviewProductList,
@@ -25,7 +23,7 @@ type OverviewItem = {
   id_products: any;
   name: any;
   category: string;
-  id_archive: number; // Add id_archive field
+  id_archive: number;
 };
 
 const Index = () => {
@@ -36,27 +34,25 @@ const Index = () => {
   };
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<"default" | "asc" | "desc">(
     "default"
   );
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5; 
 
   let filteredOverview =
     overview?.filter(
       (item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (selectedCategory === "" || item.category === selectedCategory) &&
-        item.id_archive !== 1 // Filter out archived products
+        item.id_archive !== 1
     ) || [];
 
   if (sortOrder === "asc") {
-    filteredOverview = filteredOverview?.sort(
+    filteredOverview = filteredOverview.sort(
       (a, b) => a.totalQuantity - b.totalQuantity
     );
   } else if (sortOrder === "desc") {
-    filteredOverview = filteredOverview?.sort(
+    filteredOverview = filteredOverview.sort(
       (a, b) => b.totalQuantity - a.totalQuantity
     );
   }
@@ -65,15 +61,17 @@ const Index = () => {
     (acc, item) => acc + item.totalQuantity,
     0
   );
-
   const totalPages = Math.ceil(filteredOverview.length / itemsPerPage);
-  const paginatedOverview =
-    filteredOverview.length !== 0
-      ? filteredOverview.slice(
-          (currentPage - 1) * itemsPerPage,
-          currentPage * itemsPerPage
-        )
-      : [];
+  const paginatedOverview = filteredOverview.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderItem = ({ item }: { item: any }) => {
     const totalLocation = [
@@ -95,67 +93,68 @@ const Index = () => {
     );
   };
 
-  const handleSortOrder = () => {
-    setSortOrder((prevOrder) => {
-      if (prevOrder === "default") return "asc";
-      if (prevOrder === "asc") return "desc";
-      return "default";
-    });
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
   return (
     <View style={styles.container}>
-      <View style={styles.filterContainer}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search products..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <View style={styles.paginationContainer}>
-          <Button
-            title="Previous"
-            onPress={handlePreviousPage}
-            disabled={currentPage === 1}
-          />
-          <Text style={styles.pageNumber}>
-            {currentPage} / {totalPages}
-          </Text>
-          <Button
-            title="Next"
-            onPress={handleNextPage}
-            disabled={currentPage === totalPages}
-          />
-        </View>
-      </View>
-      <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
-        <Pressable onPress={handleSortOrder}>
-          <Text style={[styles.headerText, styles.statusMiddle]}>
-            Total Qty
-          </Text>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search products..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
         </Pressable>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>
-          Available In
-        </Text>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
       </View>
 
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Product</Text>
+        <Pressable
+          onPress={() =>
+            setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+          }
+        >
+          <Text style={styles.headerText}>Total Qty</Text>
+        </Pressable>
+        <Text style={styles.headerText}>Available In</Text>
+      </View>
       <FlatList
         data={paginatedOverview}
         keyExtractor={(item) => item.id_products.toString()}
         renderItem={renderItem}
+        scrollEnabled={false} // Disable scrolling
+        contentContainerStyle={styles.flatListContainer}
       />
 
       <View style={styles.footer}>
@@ -170,70 +169,7 @@ const Index = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     padding: 20,
-  },
-  filterContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-    width: "100%",
-  },
-  searchBar: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginRight: 10,
-    flex: 1,
-  },
-  dropdown: {
-    height: 40,
-    flex: 1,
-    borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-  },
-  placeholderText: {
-    color: "gray",
-    fontSize: 16,
-  },
-  selectedText: {
-    color: "black",
-    fontSize: 16,
-  },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    paddingVertical: 10,
-    borderBottomWidth: 2,
-    borderBottomColor: "#ccc",
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    flex: 1,
-    textAlign: "center",
-  },
-  statusHeader: {
-    fontSize: 15,
-    textAlign: "left",
-    flex: 1,
-    paddingLeft: 10,
-  },
-  statusMiddle: {
-    fontSize: 15,
-    flex: 1,
-  },
-  moreInfoHeader: {
-    fontSize: 15,
-    textAlign: "right",
-    flex: 1,
   },
   footer: {
     marginTop: 20,
@@ -247,14 +183,52 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingBottom: 10,
+  },
+  headerText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  flatListContainer: {
+    minHeight: 200, 
+  },
   paginationContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
   },
-  pageNumber: {
-    marginHorizontal: 10,
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
     fontSize: 16,
+  },
+  totalText: {
+    textAlign: "right",
+    fontSize: 14,
+    marginBottom: 10,
   },
 });
 
