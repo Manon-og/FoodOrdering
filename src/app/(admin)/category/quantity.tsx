@@ -71,6 +71,16 @@ const Index = () => {
 
   const handleConfirmModal = () => {
     const quantity = parseInt(inputQuantity);
+    if (isNaN(quantity)) {
+      setProductQuantities((prev) => ({
+        ...prev,
+        [currentProductId as string]: 0,
+      }));
+      setInputQuantity("0");
+      setIsModalVisible(false);
+      return;
+    }
+
     if (quantity > 100) {
       Alert.alert("Error", "Maximum input quantity is 100");
     } else if (quantity !== 0) {
@@ -80,17 +90,22 @@ const Index = () => {
       }));
       setIsModalVisible(false);
     } else {
-      setIsModalVisible(false); // Close the modal without updating if quantity is zero
+      setProductQuantities((prev) => ({
+        ...prev,
+        [currentProductId as string]: 0,
+      }));
+      setInputQuantity("0"); // Close the modal without updating if quantity is zero
+      setIsModalVisible(false);
     }
   };
 
-  const handleResetModal = () => {
-    setProductQuantities((prev) => ({
-      ...prev,
-      [currentProductId as string]: 0,
-    }));
-    setInputQuantity("0");
-  };
+  // const handleResetModal = () => {
+  //   setProductQuantities((prev) => ({
+  //     ...prev,
+  //     [currentProductId as string]: 0,
+  //   }));
+  //   setInputQuantity("0");
+  // };
 
   const handleCloseModal = () => {
     if (inputQuantity) {
@@ -298,7 +313,7 @@ const Index = () => {
         visible={isModalVisible}
         onClose={handleCloseModal}
         onConfirm={handleConfirmModal}
-        onReset={handleResetModal}
+        // onReset={handleResetModal}
         inputQuantity={inputQuantity}
         setInputQuantity={setInputQuantity}
         name={

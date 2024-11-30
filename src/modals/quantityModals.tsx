@@ -13,7 +13,7 @@ interface QuantityModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  onReset: () => void;
+  // onReset: () => void;
   inputQuantity: string;
   setInputQuantity: (text: string) => void;
   name: string;
@@ -23,7 +23,7 @@ const QuantityModal: React.FC<QuantityModalProps> = ({
   visible,
   onClose,
   onConfirm,
-  onReset,
+  // onReset
   inputQuantity,
   setInputQuantity,
   name,
@@ -52,7 +52,7 @@ const QuantityModal: React.FC<QuantityModalProps> = ({
           />
           <View style={styles.modalButtons}>
             <Button title="Cancel" onPress={onClose} />
-            <Button title="Reset" onPress={onReset} />
+            {/* <Button title="Reset" onPress={onReset} /> */}
             <Button title="Confirm" onPress={onConfirm} />
           </View>
         </View>
