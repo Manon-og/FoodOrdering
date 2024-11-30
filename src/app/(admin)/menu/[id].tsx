@@ -87,7 +87,9 @@ function ProductDetailScreen() {
       <Text style={styles.title}>{product.name}</Text>
       <Text style={styles.price}>₱ {product.id_price.amount.toFixed(2)}</Text>
       <Text style={styles.shelf_life}>
-        Shelf Life: {product.shelf_life} days
+        Shelf Life:{" "}
+        {product.shelf_life <= 1 ? product.shelf_life * 24 : product.shelf_life}{" "}
+        {product.shelf_life <= 1 ? "hours" : "days"}{" "}
       </Text>
       <Text style={styles.description}>{product.description}</Text>
 

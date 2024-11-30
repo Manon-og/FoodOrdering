@@ -20,6 +20,27 @@ const QuantityListItem = ({ batch }: any) => {
     place = "Back Inventory";
   }
 
+  const formatExpireDate = (dateString: any) => {
+    const date = new Date(dateString);
+    const formattedDate = date.toLocaleDateString("en-CA");
+    const formattedTime = date.toLocaleString("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: true,
+    });
+    return `${formattedDate} ${formattedTime}`;
+  };
+
+  const expireDate =
+    batch.type === "pending"
+      ? batch.batch.expire_date
+      : batch.branch
+      ? batch.batch.expire_date
+      : batch.expire_date;
+
+  const formattedExpireDate = formatExpireDate(expireDate);
+
   // ${batch.branch.place}
   return (
     <View>
@@ -35,14 +56,7 @@ const QuantityListItem = ({ batch }: any) => {
               {/* {batch.type === "pending" && (
                 <Text style={styles.date}>Until: {batch.date}</Text>
               )} */}
-              <Text style={styles.red}>
-                Expiry Date:{" "}
-                {batch.type === "pending"
-                  ? batch.batch.expire_date
-                  : batch.branch
-                  ? batch.batch.expire_date
-                  : batch.expire_date}
-              </Text>
+              <Text style={styles.red}>Expiry Date: {formattedExpireDate}</Text>
             </>
           ) : (
             <View>
@@ -60,12 +74,7 @@ const QuantityListItem = ({ batch }: any) => {
                   <Text style={styles.date}>Until: {batch.date}</Text>
                 )} */}
                 <Text style={styles.red}>
-                  Expiry Date:{" "}
-                  {batch.type === "pending"
-                    ? batch.batch.expire_date
-                    : batch.branch
-                    ? batch.batch.expire_date
-                    : batch.expire_date}
+                  Expiry Date: {formattedExpireDate}
                 </Text>
               </TouchableOpacity>
               <AdjustBackInventoryQuantity

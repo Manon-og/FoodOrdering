@@ -58,7 +58,7 @@ const AdjustBackInventoryQuantity = ({
     updateQuantityPerLocation.mutate({
       id: id,
       location: Location,
-      quantity: Number(quantity),
+      quantityLoss: Number(quantity),
       originalQuantity: Number(originalQuantity),
       id_products: MainData.id_products,
     });
@@ -122,12 +122,12 @@ const AdjustBackInventoryQuantity = ({
         <Pressable style={styles.modalView} onPress={() => {}}>
           <View style={styles.headerContainer}>
             <Text style={[styles.headerText, styles.statusMiddle]}>
-              Total Qty
+              Expired/Lost Qty
             </Text>
           </View>
 
           <TextInput
-            value={quantity}
+            // value={quantity}
             onChangeText={handleQuantityChange}
             placeholder="99.9"
             style={styles.input}

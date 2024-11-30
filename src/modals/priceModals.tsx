@@ -10,6 +10,14 @@ import {
 } from "react-native";
 
 const PriceHistoryModal = ({ visible, onClose, priceHistory = [] }: any) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -29,7 +37,8 @@ const PriceHistoryModal = ({ visible, onClose, priceHistory = [] }: any) => {
                   renderItem={({ item }) => (
                     <View style={styles.priceHistoryItem}>
                       <Text>
-                        {item.created_at}: ₱{item.id_price.amount}.00
+                        {formatDate(item.created_at)}: ₱
+                        {item.id_price.amount.toFixed(2)}
                       </Text>
                     </View>
                   )}

@@ -60,8 +60,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "  Transactions",
+          title: "Transactions",
+          // headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+          headerTitle: "Sales Transaction History",
         }}
       />
 
@@ -159,6 +161,7 @@ export default function TabLayout() {
         name="one"
         options={{
           title: "Product Transfer History",
+          headerTitle: "Product Transfer History",
           tabBarButton: () => null,
         }}
       />
@@ -167,6 +170,7 @@ export default function TabLayout() {
         name="three"
         options={{
           title: "Expired Products History",
+          headerTitle: "Expired Products History",
           tabBarButton: () => null,
         }}
       />
@@ -175,6 +179,7 @@ export default function TabLayout() {
         name="four"
         options={{
           title: "Production History",
+          headerTitle: "Production History",
           tabBarButton: () => null,
         }}
       />
@@ -191,6 +196,7 @@ export default function TabLayout() {
         name="five"
         options={{
           title: "Returned Products History",
+          headerTitle: "Returned Products History",
           tabBarButton: () => null,
         }}
       />

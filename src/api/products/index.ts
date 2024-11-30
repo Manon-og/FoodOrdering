@@ -749,11 +749,33 @@ export const useInsertBatch = () => {
         console.log("ALL ID BATCHES:", allIdBatches);
 
         console.log("shelfLife??", productData.shelf_life);
-        const createdAt = new Date();
+
+        // Get the current date and time in the Philippines
+        const now = new Date();
+        const createdAtString = now.toLocaleString("en-US", {
+          timeZone: "Asia/Manila",
+        });
+        console.log("createdAtFOR BATCHs", createdAtString);
+
+        // Convert the createdAtString to a Date object using the ISO string
+        const options = { timeZone: "Asia/Manila", hour12: false };
+        const [date, time] = createdAtString.split(", ");
+        const [month, day, year] = date.split("/");
+        const [hour, minute, second] = time.split(/[:\s]/);
+        const ampm = time.split(" ")[1];
+        const hour24 =
+          ampm === "PM" && hour !== "12" ? parseInt(hour) + 12 : hour;
+        const createdAt = new Date(
+          `${year}-${month}-${day}T${hour24}:${minute}:${second}.000Z`
+        );
+        console.log("createdAst", createdAt);
+        console.log("shelfLife??", productData.shelf_life);
+
+        // Calculate the updated expiry date
         const updatedExpiryDate = new Date(createdAt);
         updatedExpiryDate.setDate(createdAt.getDate() + productData.shelf_life);
 
-        console.log("OPPSSSSSS IT WORKS", updatedExpiryDate);
+        console.log("Updated Expiry Date:", updatedExpiryDate);
 
         const { data: updatedBatch, error: updatedBatchError } = await supabase
           .from("batch")
@@ -3935,19 +3957,19 @@ export const useUpdateBatchQuantity = () => {
     mutationFn: async ({
       id,
       location,
-      quantity,
+      quantityLoss,
       originalQuantity,
       id_products,
     }: {
       id: string;
       location: string;
-      quantity: number;
+      quantityLoss: number;
       originalQuantity: number;
       id_products: number;
     }) => {
       console.log("ID", id);
       console.log("LOCATION", location);
-      console.log("QUANTITY", quantity);
+      console.log("QUANTITY", quantityLoss);
       console.log("ORIGINAL QUANTITY", originalQuantity);
       console.log("ID PRODUCTS", id_products);
 
@@ -3974,7 +3996,7 @@ export const useUpdateBatchQuantity = () => {
         if (location === "Back Inventory") {
           const { data, error } = await supabase
             .from("batch")
-            .update({ quantity })
+            .update({ quantity: originalQuantity - quantityLoss })
             .eq("id_batch", id);
 
           if (error) {
@@ -3984,7 +4006,7 @@ export const useUpdateBatchQuantity = () => {
         } else if (location === "Returned Products") {
           const { data, error } = await supabase
             .from("confirmedproducts")
-            .update({ quantity })
+            .update({ quantity: originalQuantity - quantityLoss })
             .eq("id_confirmpendingproducts", id);
 
           if (error) {
@@ -3994,7 +4016,7 @@ export const useUpdateBatchQuantity = () => {
         } else if (location === "Pending") {
           const { data, error } = await supabase
             .from("pendinglocalbatch")
-            .update({ quantity })
+            .update({ quantity: originalQuantity - quantityLoss })
             .eq("id_pendinglocalbranch", id);
 
           if (error) {
@@ -4006,7 +4028,7 @@ export const useUpdateBatchQuantity = () => {
         }
       };
 
-      const newQuantity = originalQuantity - quantity;
+      const newQuantity = quantityLoss;
       const insertExpiredProducts = async () => {
         const { data, error } = await supabase.from("expiredproducts").insert({
           id_products: id_products,

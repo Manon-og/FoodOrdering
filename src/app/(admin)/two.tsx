@@ -74,6 +74,8 @@ const Index = () => {
     <View style={styles.container}>
       <Stack.Screen
         options={{
+          // title: "Transaction",
+          // headerShown: true,
           headerRight: () => (
             <Link href="/(admin)/notification" asChild>
               <Pressable style={styles.notificationIconContainer}>
