@@ -750,14 +750,12 @@ export const useInsertBatch = () => {
 
         console.log("shelfLife??", productData.shelf_life);
 
-        // Get the current date and time in the Philippines
         const now = new Date();
         const createdAtString = now.toLocaleString("en-US", {
           timeZone: "Asia/Manila",
         });
         console.log("createdAtFOR BATCHs", createdAtString);
 
-        // Convert the createdAtString to a Date object using the ISO string
         const options = { timeZone: "Asia/Manila", hour12: false };
         const [date, time] = createdAtString.split(", ");
         const [month, day, year] = date.split("/");
@@ -771,7 +769,6 @@ export const useInsertBatch = () => {
         console.log("createdAst", createdAt);
         console.log("shelfLife??", productData.shelf_life);
 
-        // Calculate the updated expiry date
         const updatedExpiryDate = new Date(createdAt);
         updatedExpiryDate.setDate(createdAt.getDate() + productData.shelf_life);
 

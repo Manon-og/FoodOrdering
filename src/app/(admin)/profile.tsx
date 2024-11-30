@@ -123,6 +123,14 @@ export default function UserProfile() {
             </View>
           </Pressable>
         </Link>
+        <Link href="/(admin)/sales" asChild>
+          <Pressable style={styles.menuButton}>
+            <View style={styles.menuTextContainer}>
+              <Text style={styles.menuText}>Sales Overview</Text>
+              <Text style={styles.arrow}>→</Text>
+            </View>
+          </Pressable>
+        </Link>
         <Link href="/(user)/category" asChild>
           <Pressable style={styles.menuButton}>
             <View style={styles.menuTextContainer}>
