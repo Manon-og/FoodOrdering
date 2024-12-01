@@ -4252,9 +4252,12 @@ export const useGetInitialCashCount = () => {
   });
 };
 
-export const useGetInitialCashCountById = (id_branch: string) => {
+export const useGetInitialCashCountById = (
+  id_branch: string,
+  currentDate: string
+) => {
   return useQuery({
-    queryKey: ["initialcashcount", id_branch],
+    queryKey: ["initialcashcount", id_branch, currentDate],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("initialcashcount")
@@ -4263,6 +4266,15 @@ export const useGetInitialCashCountById = (id_branch: string) => {
       if (error) {
         throw new Error(error.message);
       }
+
+      for (const item of data) {
+        item.created_at = new Date(item.created_at).toISOString().split("T")[0];
+
+        if (item.created_at === currentDate) {
+          return item;
+        }
+      }
+
       return data;
     },
   });

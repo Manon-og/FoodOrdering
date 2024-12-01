@@ -74,52 +74,60 @@ const Details = () => {
     name = b.place;
   });
 
+  const currentDate = new Date().toISOString().split("T")[0];
+
   const {
     data: dateOfInitialCashCount,
     refetch: dateOfInitialCashCountRefetch,
-  } = useGetInitialCashCountById(id_branch.toString());
+  } = useGetInitialCashCountById(id_branch.toString(), currentDate);
 
   console.log("DATE OF s CASH COUNT", dateOfInitialCashCount);
-  const currentInitialCashCount1 = dateOfInitialCashCount?.map(
-    (item: any) => item.created_at
-  );
-  console.log("DATE OF INITIAL CASH COUNT", currentInitialCashCount1);
+  console.log("DATE OF s CASH COUsNT", dateOfInitialCashCountRefetch);
+  // const currentInitialCashCounst1 = dateOfInitialCashCount?.map((item: any) => {
+  //   const date = new Date(item.created_at);
+  //   return date.toISOString().split("T")[0];
+  // });
+  // console.log("DATE OF INITIAL CASH COUNT", currentInitialCashCount1);
 
-  const currentInitialCashCount2 = dateOfInitialCashCount?.map(
-    (item: any) => item.id_branch
-  );
-  console.log("ID OF INITIAL CASH COUNT", currentInitialCashCount2);
-  console.log("ID BRANCH", id_branch);
+  // const currentInitialCashCount2 = dateOfInitialCashCount?.map(
+  //   (item: any) => item.id_branch
+  // );
+  // console.log("ID OF INITIAL CASH COUNT", currentInitialCashCount2);
+  // console.log("ID BRANCH", id_branch);
 
-  const formattedInitialCashCount = currentInitialCashCount1?.map(
-    (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toISOString().split("T")[0];
-    }
-  );
-  console.log("FORMATTED DATE", formattedInitialCashCount);
+  // const formattedInitialCashCount = currentInitialCashCount1?.map(
+  //   (dateString: string) => {
+  //     const date = new Date(dateString);
+  //     return date.toISOString().split("T")[0];
+  //   }
+  // );
 
-  const currentDate = new Date().toISOString().split("T")[0];
-  console.log("CURRENT DATE", currentDate);
+  // console.log("FORMATTED DATE", currentInitialCashCount1);
 
-  useEffect(() => {
-    setButton(true);
-    const isDateMatched1 = formattedInitialCashCount?.some(
-      (item: string) => item === currentDate
-    );
+  // console.log("CURRENT DATE", currentDate);
 
-    const isDateMatched2 = currentInitialCashCount2?.some(
-      (item: string) => item.toString() === id_branch.toString()
-    );
+  // const isDateMatched1 = currentInitialCashCount1?.some(
+  //   (item: string) => item === currentDate
+  // );
 
-    console.log("IS DATE MATCHED 1", isDateMatched1);
-    console.log("IS DATE MATCHED 2", isDateMatched2);
+  // console.log("IS DATE MATCHED 1", isDateMatched1);
 
-    if (isDateMatched1 && isDateMatched2) {
-      setButton(false);
-      console.log("BUTTON OFF", button);
-    }
-  }, [formattedInitialCashCount, currentDate]);
+  // useEffect(() => {
+  //   setButton(true);
+  //
+
+  //   const isDateMatched2 = currentInitialCashCount2?.some(
+  //     (item: string) => item.toString() === id_branch.toString()
+  //   );
+
+  //   console.log("IS DATE MATCHED 1", isDateMatched1);
+  //   console.log("IS DATE MATCHED 2", isDateMatched2);
+
+  //   if (isDateMatched1 && isDateMatched2) {
+  //     setButton(false);
+  //     console.log("BUTTON OFF", button);
+  //   }
+  // }, [formattedInitialCashCount, currentDate]);
 
   console.log("BUTTON", button);
 
@@ -165,6 +173,7 @@ const Details = () => {
 
   const handleCash = () => {
     setModalVisible(true);
+    dateOfInitialCashCountRefetch;
   };
 
   const archiveLocation = useArchiveLocation();
@@ -275,7 +284,8 @@ const Details = () => {
               <Text style={styles.totalQuantitiesText}>
                 Total Quantities: {totalQuantity}
               </Text>
-              {dateOfInitialCashCount && dateOfInitialCashCount.length < 0 ? (
+              {!dateOfInitialCashCount ||
+              dateOfInitialCashCount.length === 0 ? (
                 <Button text={"Set Cash Balance"} onPress={handleCash} />
               ) : null}
             </View>
