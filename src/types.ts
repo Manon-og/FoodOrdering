@@ -9,6 +9,9 @@ export type Product = {
 export type PizzaSize = "S" | "M" | "L" | "XL";
 
 export type CartItem = {
+  name: any;
+  price: any;
+  name: ReactNode;
   id_localbranch: number;
   id_products: any;
   id: string;

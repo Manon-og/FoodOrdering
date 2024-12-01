@@ -249,7 +249,31 @@ const Details = ({ ddd }: any) => {
       <View style={styles.container}>
         {products && products.length > 0 ? (
           <>
-            <View style={styles.paginationContainer}>
+            <View style={styles.headerContainer}>
+              <Text style={[styles.headerText, styles.statusHeader]}>
+                Product
+              </Text>
+
+              <Text style={[styles.headerText, styles.moreInfoHeader]}>
+                Qty
+                <Text style={[styles.headerText, styles.moreInfoHeaderBefore]}>
+                  {" "}
+                  Before
+                </Text>
+              </Text>
+              <Text style={[styles.headerText, styles.moreInfoHeaderAfter]}>
+                After
+              </Text>
+            </View>
+
+            <FlatList
+              data={paginatedProducts}
+              renderItem={renderItem}
+              keyExtractor={(item: any) => item.id_products.toString()}
+              scrollEnabled={false}
+              contentContainerStyle={styles.flatListContainer}
+            />
+<View style={styles.paginationContainer}>
               <Pressable
                 onPress={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -285,31 +309,6 @@ const Details = ({ ddd }: any) => {
                 <Text style={styles.pageButtonText}>{">"}</Text>
               </Pressable>
             </View>
-            <View style={styles.headerContainer}>
-              <Text style={[styles.headerText, styles.statusHeader]}>
-                Product
-              </Text>
-
-              <Text style={[styles.headerText, styles.moreInfoHeader]}>
-                Qty
-                <Text style={[styles.headerText, styles.moreInfoHeaderBefore]}>
-                  {" "}
-                  Before
-                </Text>
-              </Text>
-              <Text style={[styles.headerText, styles.moreInfoHeaderAfter]}>
-                After
-              </Text>
-            </View>
-
-            <FlatList
-              data={paginatedProducts}
-              renderItem={renderItem}
-              keyExtractor={(item: any) => item.id_products.toString()}
-              scrollEnabled={false}
-              contentContainerStyle={styles.flatListContainer}
-            />
-
             <View style={styles.footer}>
               <View style={styles.border}>
                 <View style={styles.totalQuantitiesContainer}>
