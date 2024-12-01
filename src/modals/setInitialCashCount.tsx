@@ -28,12 +28,27 @@ const SetInitialCashBalance = ({
   const insertInitialCashBalance = useInsertInitialCashBalance();
 
   const handlePress = () => {
-    insertInitialCashBalance.mutate({
-      id_branch: id_branch,
-      cash: cash,
-    });
-    Alert.alert("Initial Cash Balance Set");
-    setModalVisible(false);
+    Alert.alert(
+      "Confirm Action",
+      "Are you sure you want to set the initial cash balance?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Set Cash Balance",
+          onPress: () => {
+            insertInitialCashBalance.mutate({
+              id_branch: id_branch,
+              cash: cash,
+            });
+            Alert.alert("Initial Cash Balance Set");
+            setModalVisible(false);
+          },
+        },
+      ]
+    );
   };
 
   const handleClose = () => {
