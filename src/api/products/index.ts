@@ -4388,20 +4388,7 @@ export const useInsertNotification = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: [
-          "branch",
-          "all",
-          "batch",
-          "batches",
-          "localbatch",
-          "id_products",
-          "products",
-          "backInventory",
-          "setBatch",
-          "useExpiredProductsHistoru",
-          "initialcashcount",
-          "useGetNotification",
-        ],
+        queryKey: ["useGetNotification"],
       });
     },
   });
@@ -4451,21 +4438,7 @@ export const useGetNotificationByIsRead = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: [
-          "useGetNotification",
-          "branch",
-          "all",
-          "batch",
-          "batches",
-          "localbatch",
-          "id_products",
-          "products",
-          "backInventory",
-          "setBatch",
-          "useExpiredProductsHistoru",
-          "initialcashcount",
-          "useGetComment",
-        ],
+        queryKey: ["useGetNotification"],
       });
     },
   });
