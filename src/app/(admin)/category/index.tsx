@@ -11,13 +11,22 @@ import { Link, useRouter } from "expo-router";
 import { useBranch } from "@/src/api/products";
 import { Dropdown } from "react-native-element-dropdown";
 import { useFocusEffect } from "@react-navigation/native";
+import useUpdateBranchChannel from "@/app/channel/useUpdateBranch";
 
 const Index = () => {
+  const { data: branch, refetch: branchRef } = useBranch();
+  useUpdateBranchChannel(() => {
+    console.log("Change recsseived!");
+    branchRef();
+  });
+
   const router = useRouter();
-  const { data: branch } = useBranch();
+
   console.log("branches:", branch);
 
-  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(null);
+  const [selectedBranchName, setSelectedBranchName] = useState<string | null>(
+    null
+  );
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
 
   const handleSelectBranch = (id_branch: string, branchName: string) => {
@@ -97,7 +106,7 @@ const Index = () => {
         <Link href={`/(admin)/menu?category=1`} asChild>
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/cookies.png")} 
+              source={require("../../../../assets/images/cookies.png")}
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>COOKIES</Text>
@@ -107,7 +116,7 @@ const Index = () => {
         <Link href={`/(admin)/menu?category=2`} asChild>
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/bread.png")} 
+              source={require("../../../../assets/images/bread.png")}
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>BREADS</Text>
@@ -127,7 +136,7 @@ const Index = () => {
         <Link href={`/(admin)/menu?category=4`} asChild>
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/bentocakes.png")} 
+              source={require("../../../../assets/images/bentocakes.png")}
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>BENTO CAKES</Text>
@@ -186,16 +195,16 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 15,
     overflow: "hidden", // To prevent image overflow
-    shadowColor: "#000",  
-    shadowOffset: { width: 0, height: 4 }, 
-    shadowOpacity: 0.1,  
-    elevation: 5,       
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    elevation: 5,
   },
   categoryImage: {
     width: "100%",
     height: "81%",
     resizeMode: "cover",
-    marginBottom: 10, 
+    marginBottom: 10,
     marginTop: "-12%",
   },
   categoryText: {

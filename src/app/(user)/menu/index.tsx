@@ -84,7 +84,9 @@ export default function MenuScreen() {
   if (show === "false") {
     return (
       <View style={styles.offlineContainer}>
-        <Text style={styles.offlineText}>NO DATA</Text>
+        <Text style={styles.offlineText}>
+          No stocks are currently available
+        </Text>
       </View>
     );
   }

@@ -9,6 +9,7 @@ import { Dropdown } from "react-native-element-dropdown"; // Dropdown import
 import ListItem from "@/src/components/listItem";
 import { Link } from "expo-router";
 import Button from "@/src/components/Button";
+import useUpdateBranchChannel from "@/app/channel/useUpdateBranch";
 
 const statusOptions = [
   { label: "All", value: "all" },
@@ -18,7 +19,11 @@ const statusOptions = [
 ];
 
 const Index = () => {
-  const { data: branch } = useBranchData();
+  // const { data: branch, refetch: branchRef } = useBranch();
+  // useUpdateBranchChannel(() => {
+  //   branchRef();
+  // });
+  const { data: branch, refetch: branchRef } = useBranchData();
   const { data: localBranch } = useLocalBranchData();
   console.log("0213d:", localBranch);
 
