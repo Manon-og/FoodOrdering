@@ -24,6 +24,7 @@ import { useBranchStore } from "@/src/store/branch";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
 import { useLogoutStore } from "@/store/logout";
+import { CreatedByStore } from "@/store/createdby";
 
 const Index = () => {
   const [comment, setComment] = useState("");
@@ -80,6 +81,8 @@ const Index = () => {
       0
     ) || 0;
 
+  const { created_by } = CreatedByStore();
+
   const { data: voidData }: any = useGetVoidedTransaction(
     id_branch?.toString() ?? "",
     date
@@ -91,7 +94,7 @@ const Index = () => {
       0
     ) || 0;
 
-  const created_by = salesReport?.map((item: any) => item.created_by);
+  // const created_by = salesReport?.map((item: any) => item.created_by);
   console.log("created_by", created_by);
   console.log("salesReport", salesReport);
   const setStatus = useLogoutStore((state) => state.setStatus);
@@ -119,7 +122,7 @@ const Index = () => {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Total Sales:</Text>
-            <Text style={styles.value}>₱ {totalSales}</Text>
+            <Text style={styles.value}>₱ {totalSales.toFixed(2)}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Total Voided Sales:</Text>

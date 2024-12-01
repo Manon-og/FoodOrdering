@@ -18,6 +18,7 @@ import { useByBranch } from "@/src/providers/BranchProvider";
 import { useBranchName } from "@/src/components/branchParams";
 import { useArchivedParams } from "@/components/archivedParams";
 import UserProductListItem from "@/components/UserProductListItem";
+import { useLocalSearchParams } from "expo-router";
 
 const MemoizedProductListItem = memo(UserProductListItem);
 
@@ -28,6 +29,8 @@ export default function MenuScreen() {
   const { id_archive } = useArchivedParams();
   const IDarchive = id_archive ? 1 : 2;
 
+  const { show } = useLocalSearchParams();
+  console.log("SHOWs:", show);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
 
@@ -78,6 +81,14 @@ export default function MenuScreen() {
     );
   }
 
+  if (show === "false") {
+    return (
+      <View style={styles.offlineContainer}>
+        <Text style={styles.offlineText}>NO DATA</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -100,6 +111,17 @@ export default function MenuScreen() {
 }
 
 const styles = StyleSheet.create({
+  offlineText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "gray",
+  },
+  offlineContainer: {
+    flex: 1,
+    paddingTop: "80%",
+    alignItems: "center",
+    backgroundColor: "#FFD895",
+  },
   container: {
     flex: 1,
     padding: 16,

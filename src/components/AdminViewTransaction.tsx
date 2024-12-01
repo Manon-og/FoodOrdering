@@ -26,7 +26,7 @@ const AdminViewTransaction: React.FC<GroupedSalesTransactionItemProps> = ({
         <View style={styles.itemContainer}>
           <Text style={styles.itemLeft}>{place}</Text>
           <Text style={styles.itemText}>{date}</Text>
-          <Text style={styles.itemRight}> {amount_by_product}</Text>
+          <Text style={styles.itemRight}>₱{amount_by_product.toFixed(2)}</Text>
         </View>
       </Pressable>
     </Link>

@@ -21,6 +21,7 @@ import { FontAwesome } from "@expo/vector-icons";
 
 import uuid from "react-native-uuid";
 import { useBranchStore } from "@/src/store/branch";
+import { CreatedByStore } from "@/store/createdby";
 
 const CartScreen = () => {
   const {
@@ -44,10 +45,13 @@ const CartScreen = () => {
   const [amountPaid, setAmountPaid] = useState<string>("");
   const [change, setChange] = useState<number | null>(null);
 
+  const setCreated_by = CreatedByStore((state) => state.setCreated_by);
+
   useEffect(() => {
     const fetchUserName = async () => {
       const userName = await getUserFullName();
       setName(userName);
+      setCreated_by(userName);
     };
 
     fetchUserName();

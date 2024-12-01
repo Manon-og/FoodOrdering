@@ -35,8 +35,10 @@ import ItemDetailsReturn from "@/components/ItemsDetailsReturn";
 import ItemExpireDetailsReturn from "@/components/ItemsDetailsReturn";
 import ViewCommentModal from "@/modals/viewCommentModals";
 import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
+import { CreatedByStore } from "@/store/createdby";
 
 const Details = ({ ddd }: any) => {
+  const { created_by } = CreatedByStore();
   const { id_branch, branchName } = useBranchStoreAdmin();
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -116,7 +118,7 @@ const Details = ({ ddd }: any) => {
   console.log("CASH VALUE_", cashValue);
 
   console.log("RETURN salesReport:", salesReport);
-  const created_by = salesReport?.map((item: any) => item.created_by);
+  // const created_by = salesReport?.map((item: any) => item.created_by);
 
   // console.log("RETURN created_by:", created_by[0]);
 
@@ -273,7 +275,7 @@ const Details = ({ ddd }: any) => {
               scrollEnabled={false}
               contentContainerStyle={styles.flatListContainer}
             />
-<View style={styles.paginationContainer}>
+            <View style={styles.paginationContainer}>
               <Pressable
                 onPress={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -334,7 +336,9 @@ const Details = ({ ddd }: any) => {
 
                 <View style={styles.totalQuantitiesContainer}>
                   <Text style={styles.totalQuantities}>Total Sales</Text>
-                  <Text style={styles.totalQuantitiesText}>₱ {totalSales}</Text>
+                  <Text style={styles.totalQuantitiesText}>
+                    ₱ {totalSales.toFixed(2)}
+                  </Text>
                 </View>
                 <View style={styles.totalQuantitiesContainer}>
                   <Text style={styles.totalQuantities}>Total Voided Sales</Text>

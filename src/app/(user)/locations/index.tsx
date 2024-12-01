@@ -8,7 +8,11 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { Link, useRouter } from "expo-router";
-import { useBranch, useGetReceivePendingStocks } from "@/src/api/products";
+import {
+  useBranch,
+  useBranchAllProductList,
+  useGetReceivePendingStocks,
+} from "@/src/api/products";
 import { useByBranch } from "@/src/providers/BranchProvider";
 import { useBranchName } from "@/src/components/branchParams";
 import Transaction from "@/src/app/(user)/two";
@@ -29,6 +33,10 @@ const Index = () => {
   console.log("viewPendingProductsssw:", viewPendingProductsRefetch);
 
   const setBranchData = useBranchStore((state) => state.setBranchData);
+  const { data: SetRestriction } = useBranchAllProductList(id_branch);
+  console.log("SetRestriction:", SetRestriction);
+  const Show = !SetRestriction || SetRestriction.length === 0 ? false : true;
+  console.log("Show:", Show);
 
   useEffect(() => {
     setBranchData(id_branch, branchName);
@@ -87,7 +95,7 @@ const Index = () => {
 
       <View style={styles.container}>
         <Link
-          href={`/(user)/menu?category=1&id_branch=${id_branch}&branchName=${branchName}`}
+          href={`/(user)/menu?category=1&id_branch=${id_branch}&branchName=${branchName}&show=${Show}`}
           asChild
         >
           <Pressable style={styles.categoryCard}>
@@ -98,8 +106,9 @@ const Index = () => {
             <Text style={styles.categoryText}>COOKIES</Text>
           </Pressable>
         </Link>
+
         <Link
-          href={`/(user)/menu?category=2&id_branch=${id_branch}&branchName=${branchName}`}
+          href={`/(user)/menu?category=2&id_branch=${id_branch}&branchName=${branchName}&show=${Show}`}
           asChild
         >
           <Pressable style={styles.categoryCard}>
@@ -111,7 +120,7 @@ const Index = () => {
           </Pressable>
         </Link>
         <Link
-          href={`/(user)/menu?category=3&id_branch=${id_branch}&branchName=${branchName}`}
+          href={`/(user)/menu?category=3&id_branch=${id_branch}&branchName=${branchName}&show=${Show}`}
           asChild
         >
           <Pressable style={styles.categoryCard}>
@@ -123,7 +132,7 @@ const Index = () => {
           </Pressable>
         </Link>
         <Link
-          href={`/(user)/menu?category=4&id_branch=${id_branch}&branchName=${branchName}`}
+          href={`/(user)/menu?category=4&id_branch=${id_branch}&branchName=${branchName}&show=${Show}`}
           asChild
         >
           <Pressable style={styles.categoryCard}>

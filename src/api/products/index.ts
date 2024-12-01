@@ -713,6 +713,7 @@ export const useInsertBatch = () => {
   return useMutation({
     mutationFn: async (data: any) => {
       try {
+        // Fetch product data
         const { data: productData, error: fetchError } = await supabase
           .from("products")
           .select("*")
@@ -723,7 +724,7 @@ export const useInsertBatch = () => {
           throw fetchError;
         }
 
-        const expireDate: any = [];
+        // Insert new batch
         const { data: newBatch, error: insertError } = await supabase
           .from("batch")
           .insert({
@@ -737,25 +738,15 @@ export const useInsertBatch = () => {
           throw insertError;
         }
 
-        expireDate.push(newBatch);
-        console.log("expireDate 1", expireDate);
-
-        // expireDate.push(newBatch);
-        // console.log("expireDate 2", expireDate);
-
+        const expireDate = [newBatch];
         const allIdBatches = expireDate.flatMap((batchArray: any[]) =>
           batchArray.map((batch) => batch.id_batch)
         );
-
-        console.log("ALL ID BATCHES:", allIdBatches);
-
-        console.log("shelfLife??", productData.shelf_life);
 
         const now = new Date();
         const createdAtString = now.toLocaleString("en-US", {
           timeZone: "Asia/Manila",
         });
-        console.log("createdAtFOR BATCHs", createdAtString);
 
         const options = { timeZone: "Asia/Manila", hour12: false };
         const [date, time] = createdAtString.split(", ");
@@ -767,40 +758,33 @@ export const useInsertBatch = () => {
         const createdAt = new Date(
           `${year}-${month}-${day}T${hour24}:${minute}:${second}.000Z`
         );
-        console.log("createdAst", createdAt);
-        console.log("shelfLife??", productData.shelf_life);
 
         const updatedExpiryDate = new Date(createdAt);
         updatedExpiryDate.setDate(createdAt.getDate() + productData.shelf_life);
 
-        console.log("Updated Expiry Date:", updatedExpiryDate);
+        // Update batch and product concurrently
+        const [updatedBatch, updatedProduct] = await Promise.all([
+          supabase
+            .from("batch")
+            .update({
+              expire_date: updatedExpiryDate,
+            })
+            .eq("id_batch", allIdBatches[0]),
+          supabase
+            .from("products")
+            .update({
+              quantity: productData.quantity + data.quantity,
+            })
+            .eq("id_products", data.id_products)
+            .single(),
+        ]);
 
-        const { data: updatedBatch, error: updatedBatchError } = await supabase
-          .from("batch")
-          .update({
-            expire_date: updatedExpiryDate,
-          })
-          .eq("id_batch", allIdBatches[0]);
-
-        if (updatedBatchError) {
-          throw updatedBatchError;
+        if (updatedBatch.error) {
+          throw updatedBatch.error;
         }
 
-        console.log("OPPSSSSSS IT WORKS", expireDate);
-
-        console.log("ID", data.id_products);
-        console.log("productData", productData);
-        console.log("productData", productData.quantity);
-        const newQuantity = productData.quantity + data.quantity;
-        console.log("newQuantity", newQuantity);
-        const { data: updatedProduct, error: updateError } = await supabase
-          .from("products")
-          .update({ quantity: newQuantity })
-          .eq("id_products", data.id_products)
-          .single();
-
-        if (updateError) {
-          throw updateError;
+        if (updatedProduct.error) {
+          throw updatedProduct.error;
         }
 
         return newBatch;
@@ -810,13 +794,15 @@ export const useInsertBatch = () => {
       }
     },
     onSuccess: async (data) => {
-      await queryClient.invalidateQueries({ queryKey: ["batches"] });
-      await queryClient.invalidateQueries({ queryKey: ["batch"] });
-      await queryClient.invalidateQueries({ queryKey: ["localbatch"] });
-      await queryClient.invalidateQueries({ queryKey: ["id_products"] });
-      await queryClient.invalidateQueries({ queryKey: ["products"] });
-      await queryClient.invalidateQueries({ queryKey: ["backInventory"] });
-      await queryClient.invalidateQueries({ queryKey: ["setBatch"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["batches"] }),
+        queryClient.invalidateQueries({ queryKey: ["batch"] }),
+        queryClient.invalidateQueries({ queryKey: ["localbatch"] }),
+        queryClient.invalidateQueries({ queryKey: ["id_products"] }),
+        queryClient.invalidateQueries({ queryKey: ["products"] }),
+        queryClient.invalidateQueries({ queryKey: ["backInventory"] }),
+        queryClient.invalidateQueries({ queryKey: ["setBatch"] }),
+      ]);
     },
   });
 };
@@ -2185,6 +2171,7 @@ export const useGroupedSalesReport = (id: string, date: Date) => {
       id,
       date.toISOString().split("T")[0],
     ],
+
     queryFn: async () => {
       const formattedDate = date.toISOString().split("T")[0];
       console.log("formattedDate", formattedDate);
@@ -2210,6 +2197,7 @@ export const useGroupedSalesReport = (id: string, date: Date) => {
 
       const groupedData = filteredData.reduce((acc, item) => {
         const key = `${item.id_products.id_products}`;
+        console.log("keyasdasdas", key);
         if (!acc[key]) {
           acc[key] = {
             id_products: item.id_products,
@@ -2226,7 +2214,9 @@ export const useGroupedSalesReport = (id: string, date: Date) => {
         return acc;
       }, {});
 
+      console.log("groupedDatsa", groupedData);
       return Object.values(groupedData);
+      console.log("groupedDatsa", groupedData);
     },
   });
 };

@@ -170,18 +170,18 @@ const Index = () => {
           <Text style={styles.pageButtonText}>{">"}</Text>
         </Pressable>
       </View>
-      <View style={styles.headerContainer}>
+      {/* <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>Qty</Text>
-      </View>
+      </View> */}
 
-      <FlatList
+      {/* <FlatList
         data={paginatedProducts}
         renderItem={renderItem}
         // keyExtractor={(item: any) => item.id_products.name}
         scrollEnabled={false}
         contentContainerStyle={styles.flatListContainer}
-      />
+      /> */}
 
       <Text style={styles.totalQuantityText}>
         Total Quantity: {totalQuantity}
