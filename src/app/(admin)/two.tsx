@@ -1,16 +1,14 @@
-import React, { memo, useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from "react-native";
 import {
   useGetNotification,
-  useGroupedSalesTransaction,
   useGroupedSalesTransactionADMIN,
 } from "@/src/api/products";
-import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
-import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import AdminViewTransaction from "@/components/AdminViewTransaction";
 import DropdownComponent from "@/components/DropDown";
 import { Link, Stack } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import { useBranchStoreAdmin } from "@/store/branchAdmin";
 
 const Index = () => {
   const filter = [
@@ -30,6 +28,27 @@ const Index = () => {
 
   const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
   console.log("GROUPED SALESs:", groupedSales);
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 8;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  let filteredSales =
+    groupedSales?.filter((item: any) =>
+      item.id_branch.place.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
+  const paginatedSales = filteredSales.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderItem = ({ item }: { item: any }) => {
     return (
@@ -94,6 +113,12 @@ const Index = () => {
       <View>
         <DropdownComponent data={filter} />
       </View>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search location..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
@@ -102,10 +127,46 @@ const Index = () => {
         </Text>
       </View>
       <FlatList
-        data={groupedSales}
+        data={paginatedSales}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -182,6 +243,37 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "right",
     flex: 1,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
   },
 });
 

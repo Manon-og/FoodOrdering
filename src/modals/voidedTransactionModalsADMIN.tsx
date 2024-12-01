@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   FlatList,
   Modal,
   Pressable,
+  TextInput,
 } from "react-native";
 import GroupedVoidSalesTransactionItem from "@/components/AdminGroupedVoidSalesTransactionItem";
 import Colors from "@/constants/Colors";
@@ -23,6 +24,27 @@ const VoidedTransactionModalADMIN = ({
   voidData,
   totalVoidedSales,
 }: VoidedTransactionModalProps) => {
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 5;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  let filteredVoidedData =
+    voidData?.filter((item: any) =>
+      item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredVoidedData.length / itemsPerPage);
+  const paginatedVoidedData = filteredVoidedData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   const renderVoidedItem = ({ item }: { item: any }) => {
     return (
       <GroupedVoidSalesTransactionItem
@@ -46,6 +68,48 @@ const VoidedTransactionModalADMIN = ({
       <View style={styles.modalContainer}>
         <View style={styles.modalView}>
           <Text style={styles.dayText}>Voided Transaction</Text>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search products..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <View style={styles.paginationContainer}>
+            <Pressable
+              onPress={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={[
+                styles.pageButton,
+                currentPage === 1 && styles.disabledButton,
+              ]}
+            >
+              <Text style={styles.pageButtonText}>{"<"}</Text>
+            </Pressable>
+
+            {Array.from({ length: totalPages }, (_, index) => (
+              <Pressable
+                key={index}
+                onPress={() => handlePageChange(index + 1)}
+                style={[
+                  styles.pageButton,
+                  currentPage === index + 1 && styles.activePageButton,
+                ]}
+              >
+                <Text style={styles.pageButtonText}>{index + 1}</Text>
+              </Pressable>
+            ))}
+
+            <Pressable
+              onPress={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={[
+                styles.pageButton,
+                currentPage === totalPages && styles.disabledButton,
+              ]}
+            >
+              <Text style={styles.pageButtonText}>{">"}</Text>
+            </Pressable>
+          </View>
           <View style={styles.headerContainer}>
             <Text style={[styles.headerText, styles.statusHeader]}>
               Product Name
@@ -58,7 +122,7 @@ const VoidedTransactionModalADMIN = ({
             </Text>
           </View>
           <FlatList
-            data={voidData}
+            data={paginatedVoidedData}
             keyExtractor={(item) => item.id_products.id_products.toString()}
             renderItem={renderVoidedItem}
           />
@@ -83,16 +147,16 @@ const VoidedTransactionModalADMIN = ({
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-
     justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "rgba(211, 211, 211, .6)",
-    marginTop: 50,
   },
   modalView: {
-    margin: 20,
+    width: "90%",
+    height: "82%",
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 35,
+    padding: 20,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -174,6 +238,37 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
     color: "darkred",
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
   },
 });
 

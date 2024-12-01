@@ -3,15 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   Modal,
   Pressable,
   TextInput,
   Alert,
 } from "react-native";
-import GroupedVoidSalesTransactionItem from "@/components/AdminGroupedVoidSalesTransactionItem";
 import Colors from "@/constants/Colors";
-import AdminOverViewDetails from "@/components/AdminOverViewDetails";
 import { useUpdateBatchQuantity } from "@/api/products";
 
 type VoidedTransactionModalProps = {
@@ -32,16 +29,8 @@ const AdjustBackInventoryQuantity = ({
   const [quantity, setQuantity] = useState("");
   const [originalQuantity, setOriginalQuantity] = useState("");
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const availableQuantity = quantity;
-  console.log("DATA FAUCUJCKCK:", Data);
 
   const updateQuantityPerLocation = useUpdateBatchQuantity();
-
-  console.log("DATA IDPRODUCT:", MainData.id_products);
-  console.log("DATA FAUCUJCKCK:", MainData.batch);
-  console.log("DATA FAUCUJCKCK:", MainData.confirmedProductsId);
-  console.log("DATA FAUCUJCKCK:", MainData.pendingLocalBatchId);
-  console.log("DATA LOCATION:", Location);
 
   let id = "";
   if (typeof MainData.batch !== "object") {
@@ -55,56 +44,57 @@ const AdjustBackInventoryQuantity = ({
   }
 
   const handlePress = () => {
-    updateQuantityPerLocation.mutate({
-      id: id,
-      location: Location,
-      quantityLoss: Number(quantity),
-      originalQuantity: Number(originalQuantity),
-      id_products: MainData.id_products,
-    });
-    setIsConfirmed(true);
-    setModalVisible(false);
+    const numericValue = parseInt(quantity, 10);
+    const availableQuantity = parseInt(Data, 10);
+
+    if (!numericValue || numericValue <= 0 || numericValue > availableQuantity) {
+      Alert.alert(
+        "Invalid Input",
+        `Please enter a valid quantity between 1 and ${availableQuantity}.`
+      );
+      return;
+    }
+
+    Alert.alert(
+      "Confirmation",
+      `Are you sure you want to dispose ${numericValue}?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: () => {
+            updateQuantityPerLocation.mutate({
+              id: id,
+              location: Location,
+              quantityLoss: numericValue,
+              originalQuantity: Number(originalQuantity),
+              id_products: MainData.id_products,
+            });
+            setIsConfirmed(true);
+            setModalVisible(false);
+          },
+        },
+      ]
+    );
   };
 
   const handleQuantityChange = (text: string) => {
-    const numericValue = parseInt(text, 0);
-    const availableQuantity = parseInt(Data, 0);
-    if (!isNaN(numericValue) && numericValue <= availableQuantity) {
-      setQuantity(text);
-    } else if (text === "" || text === "0") {
-      setQuantity(text);
-    } else {
-      Alert.alert(
-        "Invalid Input",
-        `Quantity cannot be more than ${availableQuantity}`
-      );
-    }
+    const numericValue = text.replace(/[^0-9]/g, '');
+    setQuantity(numericValue);
   };
 
   useEffect(() => {
     if (Data) {
-      setQuantity(Data.toString());
       setOriginalQuantity(Data.toString());
     }
   }, [Data, modalVisible]);
 
-  console.log("QUANTITYYYY+:", quantity);
-  console.log("QUANTITYYYY", originalQuantity);
-
-  const renderPlaceItem = ({ item }: { item: any }) => {
-    return (
-      <AdminOverViewDetails
-        places={[item.place]}
-        totalQuantity={item.quantity}
-      />
-    );
-  };
-
   const handleClose = () => {
-    if (isConfirmed === false) {
+    if (!isConfirmed) {
       setQuantity(originalQuantity);
-    } else {
-      setQuantity(quantity);
     }
     setModalVisible(false);
   };
@@ -127,25 +117,28 @@ const AdjustBackInventoryQuantity = ({
           </View>
 
           <TextInput
-            // value={quantity}
+            value={quantity}
             onChangeText={handleQuantityChange}
-            placeholder="99.9"
             style={styles.input}
             keyboardType="numeric"
+            maxLength={10}
+            autoFocus={true}
           />
 
-          {/* <FlatList
-            data={Data}
-            keyExtractor={(item) => item.id_products.toString()}
-            renderItem={renderVoidedItem}
-          /> */}
-
+          <View style={styles.buttonRow}>
           <Pressable
-            style={[styles.button, styles.buttonClose]}
-            onPress={handlePress}
-          >
-            <Text style={styles.buttonText}>Confirm</Text>
-          </Pressable>
+              style={[styles.button, styles.buttonCancel]}
+              onPress={handleClose}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={handlePress}
+            >
+              <Text style={styles.buttonText}>Confirm</Text>
+            </Pressable>
+          </View>
         </Pressable>
       </Pressable>
     </Modal>
@@ -235,13 +228,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   buttonClose: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#0E1432",
+  },
+  buttonCancel: {
+    backgroundColor: "#0E1432",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   totalSalesContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    // paddingHorizontal: 20,
     marginBottom: 40,
   },
   totalSalesText: {

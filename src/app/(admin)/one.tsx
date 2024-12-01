@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from "react-native";
 import {
   useGetNotification,
   useGetProductionHistory,
@@ -34,6 +34,27 @@ const Index = () => {
   const { data: groupedProduction }: any = useGetProductionHistory();
   console.log("GROUPED SALESs:", groupedSales);
   console.log("GROUPED PRODUCTION:", groupedProduction);
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 8;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  let filteredProduction =
+    groupedProduction?.filter((item: any) =>
+      item.location.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredProduction.length / itemsPerPage);
+  const paginatedProduction = filteredProduction.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderItem = ({ item }: { item: any }) => {
     return (
@@ -96,6 +117,12 @@ const Index = () => {
       <View>
         <DropdownComponent data={filter} />
       </View>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search location..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Location</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Date</Text>
@@ -104,10 +131,46 @@ const Index = () => {
         </Text>
       </View>
       <FlatList
-        data={groupedProduction}
+        data={paginatedProduction}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -186,6 +249,37 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "right",
     flex: 1,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
   },
 });
 
