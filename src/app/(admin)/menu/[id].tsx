@@ -16,8 +16,13 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 import { useBatchList, usePriceHistory, useProduct } from "@/src/api/products";
 import QuantityListItem from "@/src/components/QuantityListItem";
 import PriceHistoryModal from "@/src/modals/priceModals"; // Import the modal component
+import useQuantityProductChannel from "@/app/channel/useQuantityChannel";
 
 function ProductDetailScreen() {
+  useQuantityProductChannel(() => {
+    useBatchRefetchList();
+  });
+
   const { id: idString } = useLocalSearchParams();
   const id_products = parseFloat(
     typeof idString === "string" ? idString : idString[0]
@@ -25,7 +30,9 @@ function ProductDetailScreen() {
   console.log("ID BRO WTF", id_products);
   const MemoizedQuantityListItemByBatch = memo(QuantityListItem);
 
-  const { data: batch } = useBatchList(id_products.toString());
+  const { data: batch, refetch: useBatchRefetchList } = useBatchList(
+    id_products.toString()
+  );
   console.log("SHIBAAAAAL", batch);
   const { data: product, error, isLoading } = useProduct(id_products);
   console.log("PRICE PRODUCT", id_products);
