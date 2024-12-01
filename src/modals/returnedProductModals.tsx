@@ -33,9 +33,17 @@ const ReturnedViewProductModal = ({
     console.log("EXPUR?:", item.id_batch.expire_date);
     console.log("EXPire:", item.expire_date);
 
+    const formatDate = (time: any) => {
+      const date = new Date(time);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
     return (
       <AdminViewBatchToAccept
-        expiry={item.id_batch.expire_date}
+        expiry={formatDate(item.id_batch.expire_date)}
         places={item.id_products.name}
         totalQuantity={item.quantity}
         totalQty={item.quantity}

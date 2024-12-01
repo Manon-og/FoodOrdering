@@ -1638,8 +1638,9 @@ export const useSetTransferQuantity = () => {
     onSuccess: async () => {
       try {
         await queryClient.invalidateQueries({
-          queryKey: ["localbatch", "batch", "backInventory"],
+          queryKey: ["localbatch", "batch", "backInventory", "products"],
         });
+        // window.location.reload();
       } catch (error) {
         console.error("Error invalidating queries:", error);
       }
@@ -4388,20 +4389,7 @@ export const useInsertNotification = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: [
-          "branch",
-          "all",
-          "batch",
-          "batches",
-          "localbatch",
-          "id_products",
-          "products",
-          "backInventory",
-          "setBatch",
-          "useExpiredProductsHistoru",
-          "initialcashcount",
-          "useGetNotification",
-        ],
+        queryKey: ["useGetNotification"],
       });
     },
   });
@@ -4451,21 +4439,7 @@ export const useGetNotificationByIsRead = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: [
-          "useGetNotification",
-          "branch",
-          "all",
-          "batch",
-          "batches",
-          "localbatch",
-          "id_products",
-          "products",
-          "backInventory",
-          "setBatch",
-          "useExpiredProductsHistoru",
-          "initialcashcount",
-          "useGetComment",
-        ],
+        queryKey: ["useGetNotification"],
       });
     },
   });

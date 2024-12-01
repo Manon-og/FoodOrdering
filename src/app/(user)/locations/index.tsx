@@ -19,8 +19,9 @@ const Index = () => {
   const place = branch?.map((item) => item.id_branch);
 
   const { id_branch, branchName } = useBranchName();
-  const { data: viewPendingProducts } = useGetReceivePendingStocks(id_branch);
-  console.log("viewPendingProductssw:", viewPendingProducts);
+  const { data: viewPendingProducts, refetch: viewPendingProductsRefetch } =
+    useGetReceivePendingStocks(id_branch);
+  console.log("viewPendingProductsssw:", viewPendingProductsRefetch);
 
   const setBranchData = useBranchStore((state) => state.setBranchData);
 

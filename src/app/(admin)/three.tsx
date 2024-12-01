@@ -1,12 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from "react-native";
-import { useExpiredProductsHistoru, useGetNotification } from "@/src/api/products";
+import React, { memo, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  TextInput,
+} from "react-native";
+import {
+  useExpiredProductsHistoru,
+  useGetNotification,
+} from "@/src/api/products";
 import AdminViewExpiredHistory from "@/components/AdminViewExpiredHistory";
 import DropdownComponent from "@/components/DropDown";
 import { Link, Stack } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import useSupabaseChannel from "../channel/useSupabaseChannel";
 
 const Index = () => {
+  useSupabaseChannel();
+
   const filter = [
     { label: "Sales", value: "Sales" },
     { label: "Product Transfer", value: "Product Transfer" },
@@ -23,9 +36,10 @@ const Index = () => {
   const [hasNotification, setHasNotification] = useState(false);
   const { data: notification } = useGetNotification();
 
-  const filteredProducts = expiredProducts?.filter((item: any) =>
-    item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredProducts =
+    expiredProducts?.filter((item: any) =>
+      item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const paginatedProducts = filteredProducts.slice(
@@ -33,8 +47,13 @@ const Index = () => {
     currentPage * itemsPerPage
   );
 
+  const MemoizedHistory = memo(AdminViewExpiredHistory);
+
   useEffect(() => {
-    if (notification && notification.some((notif) => notif.isRead === "false")) {
+    if (
+      notification &&
+      notification.some((notif) => notif.isRead === "false")
+    ) {
       setHasNotification(true);
     } else {
       setHasNotification(false);
@@ -43,7 +62,7 @@ const Index = () => {
 
   const renderItem = ({ item }: { item: any }) => {
     return (
-      <AdminViewExpiredHistory
+      <MemoizedHistory
         productName={item.id_products.name}
         quantity={item.quantity}
         potential_sales={item.potential_sales}
@@ -65,16 +84,21 @@ const Index = () => {
           headerRight: () => (
             <Link href="/(admin)/notification" asChild>
               <Pressable style={styles.notificationIconContainer}>
-                <FontAwesome name="bell" size={24} color="#0E1432" style={{ marginRight: 35.3 }} />
+                <FontAwesome
+                  name="bell"
+                  size={24}
+                  color="#0E1432"
+                  style={{ marginRight: 35.3 }}
+                />
                 {hasNotification && <View style={styles.notificationBadge} />}
               </Pressable>
             </Link>
           ),
         }}
       />
-      
+
       <DropdownComponent data={filter} />
-      
+
       <TextInput
         style={styles.searchBar}
         placeholder="Search product..."
@@ -85,7 +109,9 @@ const Index = () => {
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Quantity</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>Potential Sales</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>
+          Potential Sales
+        </Text>
       </View>
 
       <FlatList
@@ -98,7 +124,10 @@ const Index = () => {
         <Pressable
           onPress={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          style={[styles.pageButton, currentPage === 1 && styles.disabledButton]}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
         >
           <Text style={styles.pageButtonText}>{"<"}</Text>
         </Pressable>
@@ -107,7 +136,10 @@ const Index = () => {
           <Pressable
             key={index}
             onPress={() => handlePageChange(index + 1)}
-            style={[styles.pageButton, currentPage === index + 1 && styles.activePageButton]}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
           >
             <Text style={styles.pageButtonText}>{index + 1}</Text>
           </Pressable>
@@ -116,7 +148,10 @@ const Index = () => {
         <Pressable
           onPress={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          style={[styles.pageButton, currentPage === totalPages && styles.disabledButton]}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
         >
           <Text style={styles.pageButtonText}>{">"}</Text>
         </Pressable>

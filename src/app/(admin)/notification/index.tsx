@@ -22,7 +22,6 @@ const Index = () => {
   const { data: notification } = useGetNotification();
   const MemoizedProductListItem = memo(AdminViewNotification);
 
-  // Sort notifications to put unread items at the top
   const sortedNotifications = notification?.sort((a: any, b: any) => {
     if (a.isRead === "false" && b.isRead !== "false") {
       return -1;
