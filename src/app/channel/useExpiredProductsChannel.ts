@@ -6,7 +6,7 @@ import { useCategoryStore } from "@/store/categoryAdmin";
 const useExpiredProductsChannel = (onChange: () => void) => {
   useEffect(() => {
     const channels = supabase
-      .channel("custom-all-channel")
+      .channel("useExpiredProductsChannel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "expiredproducts" },
