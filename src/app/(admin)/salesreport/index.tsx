@@ -5,6 +5,8 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  TextInput,
+  Pressable,
 } from "react-native";
 import {
   useBranchData,
@@ -56,6 +58,27 @@ const Index = () => {
   );
   console.log("Sales Report:", salesReportDetails);
 
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 9;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  let filteredSales =
+    salesReportDetails?.filter((item: any) =>
+      item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
+  const paginatedSales = filteredSales.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   const renderItem = ({ item }: { item: any }) => {
     return (
       <SalesTransactionDetails
@@ -68,14 +91,60 @@ const Index = () => {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "" }} />
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search products..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Products</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>Quantity</Text>
       </View>
-      <FlatList data={salesReportDetails} renderItem={renderItem} />
+      <FlatList
+        data={paginatedSales}
+        renderItem={renderItem}
+        keyExtractor={(item: any) => item.id_products.name}
+      />
       <Text style={styles.totalText}>
         Total Sales:{" "}
-        {salesReportDetails?.reduce(
+        {filteredSales?.reduce(
           (acc: number, item: any) => acc + item.amount_by_product,
           0
         )}
@@ -90,7 +159,7 @@ const Index = () => {
 
       <Text style={styles.createdBy}>
         Total Quantity:{" "}
-        {salesReportDetails?.reduce(
+        {filteredSales?.reduce(
           (acc: number, item: any) => acc + item.quantity,
           0
         )}
@@ -186,6 +255,37 @@ const styles = StyleSheet.create({
     textAlign: "right",
     flex: 1,
     paddingRight: 10,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginVertical: 10,
+    width: "100%",
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 0,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
   },
 });
 

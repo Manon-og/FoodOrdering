@@ -1,23 +1,13 @@
-import React, { memo, useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from "react-native";
 import {
   useGetNotification,
-  useGetProductionHistory,
-  useGetRealProductionHistoryDetails,
-  useGroupedSalesTransaction,
-  useGroupedSalesTransactionADMIN,
   useReturnedProductHistory,
 } from "@/src/api/products";
-import GroupedSalesTransactionItem from "@/components/AdminGroupedSalesTransactionItem";
-import { useBranchStoreAdmin } from "@/store/branchAdmin";
-import AdminViewTransaction from "@/components/AdminViewTransaction";
-import DropdownComponent from "@/components/DropDown";
-import AdminViewProduction from "@/components/AdminViewProduction";
-import AdminViewProductionDetails from "@/components/AdminViewProductionDetails";
-import AdminViewRealProductionDetails from "@/components/AdminViewRealProductionDetails";
 import AdminReturnReturnedProductsHistory from "@/components/AdminViewReturnedProductsHistory";
 import { Link, Stack } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import DropdownComponent from "@/components/DropDown";
 
 const Index = () => {
   const filter = [
@@ -28,17 +18,29 @@ const Index = () => {
     { label: "Returned Products", value: "Returned Products" },
   ];
 
-  const location = "Back Inventory";
-  const date = new Date().toISOString().split("T")[0];
-  const { data: production } = useGetRealProductionHistoryDetails(
-    location,
-    date
-  );
-
-  console.log("Production History Details?:", production);
-
   const { data: returnedHistory } = useReturnedProductHistory();
   console.log("Returned History!:", returnedHistory);
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 6;
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  let filteredReturnedHistory =
+    returnedHistory?.filter((item: any) =>
+      item.from.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredReturnedHistory.length / itemsPerPage);
+  const paginatedReturnedHistory = filteredReturnedHistory.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderItem = ({ item }: { item: any }) => {
     return (
@@ -49,6 +51,10 @@ const Index = () => {
         date={item.created_at}
       />
     );
+  };
+
+  const keyExtractor = (item: any) => {
+    return item.id_products?.id_products?.toString() || item.id.toString();
   };
 
   const [title, setTitle] = useState("Back Inventory");
@@ -97,16 +103,58 @@ const Index = () => {
       <View>
         <DropdownComponent data={filter} />
       </View>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search by From location..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>From</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>To</Text>
         <Text style={[styles.headerText, styles.moreInfoHeader]}>Date</Text>
       </View>
       <FlatList
-        data={returnedHistory}
-        // keyExtractor={keyExtractor} hehe
+        data={paginatedReturnedHistory}
+        //keyExtractor={keyExtractor}
         renderItem={renderItem}
       />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -186,6 +234,37 @@ const styles = StyleSheet.create({
     textAlign: "right",
     flex: 1,
     paddingRight: "13%",
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
   },
 });
 
