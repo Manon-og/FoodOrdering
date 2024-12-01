@@ -1,5 +1,12 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  TextInput,
+} from "react-native";
 import {
   useGetNotification,
   useGetProductionHistory,
@@ -13,8 +20,12 @@ import DropdownComponent from "@/components/DropDown";
 import AdminViewProduction from "@/components/AdminViewProduction";
 import { FontAwesome } from "@expo/vector-icons";
 import { Link, Stack } from "expo-router";
+import useProductTransferChannel from "../channel/useProductTransferChannel";
 
 const Index = () => {
+  useProductTransferChannel(() => {
+    refetchProductionHistory();
+  });
   const filter = [
     { label: "Sales", value: "Sales" },
     { label: "Product Transfer", value: "Product Transfer" },
@@ -31,7 +42,8 @@ const Index = () => {
   });
 
   const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
-  const { data: groupedProduction }: any = useGetProductionHistory();
+  const { data: groupedProduction, refetch: refetchProductionHistory }: any =
+    useGetProductionHistory();
   console.log("GROUPED SALESs:", groupedSales);
   console.log("GROUPED PRODUCTION:", groupedProduction);
 

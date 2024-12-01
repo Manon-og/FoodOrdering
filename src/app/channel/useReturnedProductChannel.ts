@@ -3,13 +3,13 @@ import { supabase, supabaseAdmin } from "@/src/lib/supabase";
 import { useBackInventoryProductList, useProductList } from "@/api/products";
 import { useCategoryStore } from "@/store/categoryAdmin";
 
-const useQuantityProductChannel = (onChange: () => void) => {
+const useReturnedProductChannel = (onChange: () => void) => {
   useEffect(() => {
     const channels = supabase
-      .channel("useQuantityProductChannel")
+      .channel("useReturnedProductChannel")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "batch" },
+        { event: "*", schema: "public", table: "returnedproductstransaction" },
         (payload) => {
           console.log("Change received!", payload);
           onChange(); // Call the onChange callback when a change is detected
@@ -23,4 +23,4 @@ const useQuantityProductChannel = (onChange: () => void) => {
   }, [onChange]);
 };
 
-export default useQuantityProductChannel;
+export default useReturnedProductChannel;

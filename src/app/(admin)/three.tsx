@@ -16,9 +16,13 @@ import DropdownComponent from "@/components/DropDown";
 import { Link, Stack } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import useSupabaseChannel from "../channel/useSupabaseChannel";
+import useExpiredProductsChannel from "../channel/useExpiredProductsChannel";
 
 const Index = () => {
   useSupabaseChannel();
+  useExpiredProductsChannel(() => {
+    expiredProductsRefetch();
+  });
 
   const filter = [
     { label: "Sales", value: "Sales" },
@@ -28,7 +32,8 @@ const Index = () => {
     { label: "Returned Products", value: "Returned Products" },
   ];
 
-  const { data: expiredProducts } = useExpiredProductsHistoru();
+  const { data: expiredProducts, refetch: expiredProductsRefetch } =
+    useExpiredProductsHistoru();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 8;

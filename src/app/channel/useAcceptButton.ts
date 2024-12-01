@@ -6,7 +6,7 @@ import { useCategoryStore } from "@/store/categoryAdmin";
 const useAcceptButtonChannel = (onChange: () => void) => {
   useEffect(() => {
     const channels = supabase
-      .channel("custom-all-channel")
+      .channel("useAcceptButtonChannel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "pendinglocalbatch" },

@@ -4,7 +4,7 @@ import { supabase, supabaseAdmin } from "@/src/lib/supabase";
 const useSupabaseChannel = () => {
   useEffect(() => {
     const channels = supabase
-      .channel("custom-all-channel")
+      .channel("useSupabaseChannel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notification" },
