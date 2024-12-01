@@ -6,7 +6,7 @@ import { useCategoryStore } from "@/store/categoryAdmin";
 const useProductTransferChannel = (onChange: () => void) => {
   useEffect(() => {
     const channels = supabase
-      .channel("custom-all-channel")
+      .channel("useProductTransferChannel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "stockmovement" },
