@@ -220,6 +220,7 @@ const CreateProductScreen = () => {
     console.log("Archiving product");
     archiveProduct(id, {
       onSuccess: () => {
+        alert("Product archived successfully.");
         resetFields();
         router.replace("/(admin)");
       },
@@ -227,15 +228,32 @@ const CreateProductScreen = () => {
   };
 
   const handleUnarchive = () => {
-    unarchiveProduct(id, {
-      onSuccess: () => {
-        alert("Product unarchived successfully.");
-      },
-      onError: (error) => {
-        console.error("Unarchive Product Error:", error);
-        alert("Failed to unarchive product.");
-      },
-    });
+    Alert.alert(
+      "Confirm Unarchive",
+      "Are you sure you want to unarchive this product?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Unarchive",
+          onPress: () => {
+            unarchiveProduct(id, {
+              onSuccess: () => {
+                alert("Product unarchived successfully.");
+                router.replace("/(admin)");
+              },
+              onError: (error) => {
+                console.error("Unarchive Product Error:", error);
+                alert("Failed to unarchive product.");
+              },
+            });
+          },
+          style: "default",
+        },
+      ]
+    );
   };
 
   const isArchived = id_archive === "1";
