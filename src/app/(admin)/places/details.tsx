@@ -17,6 +17,7 @@ import {
   useBranchName,
   useFindPendingProducts,
   useGetInitialCashCount,
+  useGetInitialCashCountById,
   useInsertNotification,
 } from "@/src/api/products"; // Adjust the import path accordingly
 import ItemDetails from "@/components/ItemsDetails";
@@ -24,8 +25,12 @@ import Button from "@/components/Button";
 import { useBranchStore } from "@/store/branch";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import SetInitialCashBalance from "@/modals/setInitialCashCount";
+import useInitialCashCountChannel from "@/app/channel/useSetInitialCash";
 
 const Details = () => {
+  useInitialCashCountChannel(() => {
+    dateOfInitialCashCountRefetch();
+  });
   const [modalVisible, setModalVisible] = useState(false);
   const { id_branch, branchName } = useLocalSearchParams();
   const { data: products } = useBranchAllProductList(id_branch.toString());
@@ -69,47 +74,60 @@ const Details = () => {
     name = b.place;
   });
 
-  const { data: dateOfInitialCashCount } = useGetInitialCashCount();
-  const currentInitialCashCount1 = dateOfInitialCashCount?.map(
-    (item: any) => item.created_at
-  );
-  console.log("DATE OF INITIAL CASH COUNT", currentInitialCashCount1);
-
-  const currentInitialCashCount2 = dateOfInitialCashCount?.map(
-    (item: any) => item.id_branch
-  );
-  console.log("ID OF INITIAL CASH COUNT", currentInitialCashCount2);
-  console.log("ID BRANCH", id_branch);
-
-  const formattedInitialCashCount = currentInitialCashCount1?.map(
-    (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toISOString().split("T")[0];
-    }
-  );
-  console.log("FORMATTED DATE", formattedInitialCashCount);
-
   const currentDate = new Date().toISOString().split("T")[0];
-  console.log("CURRENT DATE", currentDate);
 
-  useEffect(() => {
-    setButton(true);
-    const isDateMatched1 = formattedInitialCashCount?.some(
-      (item: string) => item === currentDate
-    );
+  const {
+    data: dateOfInitialCashCount,
+    refetch: dateOfInitialCashCountRefetch,
+  } = useGetInitialCashCountById(id_branch.toString(), currentDate);
 
-    const isDateMatched2 = currentInitialCashCount2?.some(
-      (item: string) => item.toString() === id_branch.toString()
-    );
+  console.log("DATE OF s CASH COUNT", dateOfInitialCashCount);
+  console.log("DATE OF s CASH COUsNT", dateOfInitialCashCountRefetch);
+  // const currentInitialCashCounst1 = dateOfInitialCashCount?.map((item: any) => {
+  //   const date = new Date(item.created_at);
+  //   return date.toISOString().split("T")[0];
+  // });
+  // console.log("DATE OF INITIAL CASH COUNT", currentInitialCashCount1);
 
-    console.log("IS DATE MATCHED 1", isDateMatched1);
-    console.log("IS DATE MATCHED 2", isDateMatched2);
+  // const currentInitialCashCount2 = dateOfInitialCashCount?.map(
+  //   (item: any) => item.id_branch
+  // );
+  // console.log("ID OF INITIAL CASH COUNT", currentInitialCashCount2);
+  // console.log("ID BRANCH", id_branch);
 
-    if (isDateMatched1 && isDateMatched2) {
-      setButton(false);
-      console.log("BUTTON OFF", button);
-    }
-  }, [formattedInitialCashCount, currentDate]);
+  // const formattedInitialCashCount = currentInitialCashCount1?.map(
+  //   (dateString: string) => {
+  //     const date = new Date(dateString);
+  //     return date.toISOString().split("T")[0];
+  //   }
+  // );
+
+  // console.log("FORMATTED DATE", currentInitialCashCount1);
+
+  // console.log("CURRENT DATE", currentDate);
+
+  // const isDateMatched1 = currentInitialCashCount1?.some(
+  //   (item: string) => item === currentDate
+  // );
+
+  // console.log("IS DATE MATCHED 1", isDateMatched1);
+
+  // useEffect(() => {
+  //   setButton(true);
+  //
+
+  //   const isDateMatched2 = currentInitialCashCount2?.some(
+  //     (item: string) => item.toString() === id_branch.toString()
+  //   );
+
+  //   console.log("IS DATE MATCHED 1", isDateMatched1);
+  //   console.log("IS DATE MATCHED 2", isDateMatched2);
+
+  //   if (isDateMatched1 && isDateMatched2) {
+  //     setButton(false);
+  //     console.log("BUTTON OFF", button);
+  //   }
+  // }, [formattedInitialCashCount, currentDate]);
 
   console.log("BUTTON", button);
 
@@ -155,6 +173,7 @@ const Details = () => {
 
   const handleCash = () => {
     setModalVisible(true);
+    dateOfInitialCashCountRefetch;
   };
 
   const archiveLocation = useArchiveLocation();
@@ -256,18 +275,17 @@ const Details = () => {
             data={paginatedProducts}
             renderItem={renderItem}
             keyExtractor={(item: any) => item.id_products.toString()}
-            scrollEnabled={false} 
-            contentContainerStyle=
-            {styles.flatListContainer}
+            scrollEnabled={false}
+            contentContainerStyle={styles.flatListContainer}
           />
-
 
           <View style={styles.footer}>
             <View style={styles.totalQuantitiesContainer}>
               <Text style={styles.totalQuantitiesText}>
                 Total Quantities: {totalQuantity}
               </Text>
-              {button === true ? (
+              {!dateOfInitialCashCount ||
+              dateOfInitialCashCount.length === 0 ? (
                 <Button text={"Set Cash Balance"} onPress={handleCash} />
               ) : null}
             </View>

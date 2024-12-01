@@ -4252,6 +4252,34 @@ export const useGetInitialCashCount = () => {
   });
 };
 
+export const useGetInitialCashCountById = (
+  id_branch: string,
+  currentDate: string
+) => {
+  return useQuery({
+    queryKey: ["initialcashcount", id_branch, currentDate],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("initialcashcount")
+        .select("*")
+        .eq("id_branch", id_branch);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      for (const item of data) {
+        item.created_at = new Date(item.created_at).toISOString().split("T")[0];
+
+        if (item.created_at === currentDate) {
+          return item;
+        }
+      }
+
+      return data;
+    },
+  });
+};
+
 export const useReturnedProductHistory = () => {
   return useQuery({
     queryKey: ["returnedProductHistory"],
