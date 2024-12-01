@@ -13,8 +13,13 @@ import { useByBranch } from "@/src/providers/BranchProvider";
 import { useBranchName } from "@/src/components/branchParams";
 import Transaction from "@/src/app/(user)/two";
 import { useBranchStore } from "@/src/store/branch";
+import useAcceptButtonChannel from "@/app/channel/useAcceptButton";
 
 const Index = () => {
+  useAcceptButtonChannel(() => {
+    viewPendingProductsRefetch();
+  });
+
   const { data: branch } = useBranch();
   const place = branch?.map((item) => item.id_branch);
 

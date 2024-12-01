@@ -3,13 +3,13 @@ import { supabase, supabaseAdmin } from "@/src/lib/supabase";
 import { useBackInventoryProductList, useProductList } from "@/api/products";
 import { useCategoryStore } from "@/store/categoryAdmin";
 
-const useAcceptButtonChannel = (onChange: () => void) => {
+const useInitialCashCountChannel = (onChange: () => void) => {
   useEffect(() => {
     const channels = supabase
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "pendinglocalbatch" },
+        { event: "*", schema: "public", table: "initialcashcount" },
         (payload) => {
           console.log("Change received!", payload);
           onChange(); // Call the onChange callback when a change is detected
@@ -23,4 +23,4 @@ const useAcceptButtonChannel = (onChange: () => void) => {
   }, [onChange]);
 };
 
-export default useAcceptButtonChannel;
+export default useInitialCashCountChannel;

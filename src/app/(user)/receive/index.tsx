@@ -165,7 +165,7 @@ const Index = () => {
       <FlatList
         data={paginatedProducts}
         renderItem={renderItem}
-        keyExtractor={(item: any) => item.id_products.name}
+        // keyExtractor={(item: any) => item.id_products.name}
         scrollEnabled={false}
         contentContainerStyle={styles.flatListContainer}
       />

@@ -17,6 +17,7 @@ import {
   useBranchName,
   useFindPendingProducts,
   useGetInitialCashCount,
+  useGetInitialCashCountById,
   useInsertNotification,
 } from "@/src/api/products"; // Adjust the import path accordingly
 import ItemDetails from "@/components/ItemsDetails";
@@ -24,8 +25,12 @@ import Button from "@/components/Button";
 import { useBranchStore } from "@/store/branch";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
 import SetInitialCashBalance from "@/modals/setInitialCashCount";
+import useInitialCashCountChannel from "@/app/channel/useSetInitialCash";
 
 const Details = () => {
+  useInitialCashCountChannel(() => {
+    dateOfInitialCashCountRefetch();
+  });
   const [modalVisible, setModalVisible] = useState(false);
   const { id_branch, branchName } = useLocalSearchParams();
   const { data: products } = useBranchAllProductList(id_branch.toString());
@@ -69,7 +74,12 @@ const Details = () => {
     name = b.place;
   });
 
-  const { data: dateOfInitialCashCount } = useGetInitialCashCount();
+  const {
+    data: dateOfInitialCashCount,
+    refetch: dateOfInitialCashCountRefetch,
+  } = useGetInitialCashCountById(id_branch.toString());
+
+  console.log("DATE OF s CASH COUNT", dateOfInitialCashCount);
   const currentInitialCashCount1 = dateOfInitialCashCount?.map(
     (item: any) => item.created_at
   );
@@ -256,18 +266,16 @@ const Details = () => {
             data={paginatedProducts}
             renderItem={renderItem}
             keyExtractor={(item: any) => item.id_products.toString()}
-            scrollEnabled={false} 
-            contentContainerStyle=
-            {styles.flatListContainer}
+            scrollEnabled={false}
+            contentContainerStyle={styles.flatListContainer}
           />
-
 
           <View style={styles.footer}>
             <View style={styles.totalQuantitiesContainer}>
               <Text style={styles.totalQuantitiesText}>
                 Total Quantities: {totalQuantity}
               </Text>
-              {button === true ? (
+              {dateOfInitialCashCount && dateOfInitialCashCount.length < 0 ? (
                 <Button text={"Set Cash Balance"} onPress={handleCash} />
               ) : null}
             </View>
