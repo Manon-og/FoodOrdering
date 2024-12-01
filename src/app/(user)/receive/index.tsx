@@ -54,6 +54,11 @@ const Index = () => {
       item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
+  const totalQuantity = filteredProducts.reduce(
+    (acc, item) => acc + item.quantity,
+    0
+  );
+
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const paginatedProducts = filteredProducts.slice(
     (currentPage - 1) * itemsPerPage,
@@ -81,11 +86,26 @@ const Index = () => {
 
   const router = useRouter();
   const handleAcceptPress = () => {
-    receiveStocks.mutate(id_branch);
-    router.push(
-      `/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`
+    Alert.alert(
+      "Confirmation",
+      "Are you sure you want to accept the pending products?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: () => {
+            receiveStocks.mutate(id_branch);
+            router.push(
+              `/(user)/locations?id_branch=${id_branch}&branchName=${branchName}`
+            );
+            Alert.alert("Accepted", "You have accepted the pending products.");
+          },
+        },
+      ]
     );
-    Alert.alert("Accepted", "You have accepted the pending products.");
   };
 
   return (
@@ -149,6 +169,10 @@ const Index = () => {
         scrollEnabled={false}
         contentContainerStyle={styles.flatListContainer}
       />
+
+      <Text style={styles.totalQuantityText}>
+        Total Quantity: {totalQuantity}
+      </Text>
 
       <TouchableOpacity style={styles.button} onPress={handleAcceptPress}>
         <Text style={styles.buttonText}>Accept</Text>
@@ -261,6 +285,11 @@ const styles = StyleSheet.create({
   },
   pageButtonText: {
     fontSize: 16,
+  },
+  totalQuantityText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 10,
   },
 });
 

@@ -146,6 +146,14 @@ const EndDay = () => {
   };
 
   const confirmSubmitCashCount = () => {
+    if (!isChecked) {
+      Alert.alert(
+        "Warning",
+        "Please check the checkbox to confirm that you have read the terms and are sure of the details you have inputted."
+      );
+      return;
+    }
+
     Alert.alert(
       "Confirmation",
       `Are you sure you want to submit the Cash Count?\n\nThe total is ₱${total.toLocaleString()}.\n\n⚠️ WARNING: This cannot be changed later on. Please double-check before submitting.`,
@@ -239,14 +247,13 @@ const EndDay = () => {
               checked={isChecked}
               onPress={() => setIsChecked(!isChecked)}
               containerStyle={styles.checkbox}
-              textStyle={styles.label}
+              textStyle = {styles.label}
             />
           </View>
           <Button
             text={"Confirm"}
             onPress={confirmSubmitCashCount}
-            style={[styles.confirmBtn, !isChecked && styles.disabledButton]}
-            disabled={!isChecked}
+            style={styles.confirmBtn}
           />
         </>
       ) : (
@@ -410,15 +417,14 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   totalContainer: {
-    paddingVertical: 15,
+    paddingVertical: 10,
     alignItems: "center",
     flexDirection: "row",
-    paddingEnd: 20,
   },
   totalText: {
     fontSize: 21,
     fontWeight: "bold",
-    marginHorizontal: 10,
+    paddingRight: 20,
   },
   totalValue: {
     fontSize: 21,
@@ -487,19 +493,16 @@ const styles = StyleSheet.create({
   },
   checkboxContainer: {
     flexDirection: "row",
-    marginBottom: 0,
+    marginBottom: 20,
     alignItems: "center",
-    justifyContent: "center",
   },
   checkbox: {
     alignSelf: "center",
-    justifyContent: "center",
   },
   label: {
     margin: 8,
-    color: "#000",
     letterSpacing: 0.25,
-    justifyContent: "center",
+    color: "black",
   },
 });
 
