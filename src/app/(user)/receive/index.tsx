@@ -60,6 +60,8 @@ const Index = () => {
     currentPage * itemsPerPage
   );
 
+  console.log("Filtered productssad:", paginatedProducts);
+
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
@@ -143,7 +145,7 @@ const Index = () => {
       <FlatList
         data={paginatedProducts}
         renderItem={renderItem}
-        keyExtractor={(item: any) => item.id_products.toString()}
+        keyExtractor={(item: any) => item.id_products.name}
         scrollEnabled={false}
         contentContainerStyle={styles.flatListContainer}
       />

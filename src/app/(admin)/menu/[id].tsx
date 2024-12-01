@@ -88,8 +88,13 @@ function ProductDetailScreen() {
       <Text style={styles.price}>₱ {product.id_price.amount.toFixed(2)}</Text>
       <Text style={styles.shelf_life}>
         Shelf Life:{" "}
-        {product.shelf_life <= 1 ? product.shelf_life * 24 : product.shelf_life}{" "}
-        {product.shelf_life <= 1 ? "hours" : "days"}{" "}
+        {product.shelf_life % 1 !== 0
+          ? `${
+              Math.floor(product.shelf_life) > 0
+                ? `${Math.floor(product.shelf_life)} days `
+                : ""
+            }${Math.round((product.shelf_life % 1) * 24)} hours`
+          : `${product.shelf_life} days`}{" "}
       </Text>
       <Text style={styles.description}>{product.description}</Text>
 

@@ -146,8 +146,7 @@ const Details = ({ ddd }: any) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 6;
 
-  let filteredProducts =
-    products?.filter((item: any) => []) ?? [];
+  let filteredProducts = products?.filter((item: any) => []) ?? [];
 
   const totalPages = Math.ceil((filteredProducts?.length ?? 0) / itemsPerPage);
   const paginatedProducts = filteredProducts.slice(
@@ -250,43 +249,42 @@ const Details = ({ ddd }: any) => {
       <View style={styles.container}>
         {products && products.length > 0 ? (
           <>
-          
-          <View style={styles.paginationContainer}>
-            <Pressable
-              onPress={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              style={[
-                styles.pageButton,
-                currentPage === 1 && styles.disabledButton,
-              ]}
-            >
-              <Text style={styles.pageButtonText}>{"<"}</Text>
-            </Pressable>
-
-            {Array.from({ length: totalPages }, (_, index) => (
+            <View style={styles.paginationContainer}>
               <Pressable
-                key={index}
-                onPress={() => handlePageChange(index + 1)}
+                onPress={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
                 style={[
                   styles.pageButton,
-                  currentPage === index + 1 && styles.activePageButton,
+                  currentPage === 1 && styles.disabledButton,
                 ]}
               >
-                <Text style={styles.pageButtonText}>{index + 1}</Text>
+                <Text style={styles.pageButtonText}>{"<"}</Text>
               </Pressable>
-            ))}
 
-            <Pressable
-              onPress={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              style={[
-                styles.pageButton,
-                currentPage === totalPages && styles.disabledButton,
-              ]}
-            >
-              <Text style={styles.pageButtonText}>{">"}</Text>
-            </Pressable>
-          </View>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <Pressable
+                  key={index}
+                  onPress={() => handlePageChange(index + 1)}
+                  style={[
+                    styles.pageButton,
+                    currentPage === index + 1 && styles.activePageButton,
+                  ]}
+                >
+                  <Text style={styles.pageButtonText}>{index + 1}</Text>
+                </Pressable>
+              ))}
+
+              <Pressable
+                onPress={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                style={[
+                  styles.pageButton,
+                  currentPage === totalPages && styles.disabledButton,
+                ]}
+              >
+                <Text style={styles.pageButtonText}>{">"}</Text>
+              </Pressable>
+            </View>
             <View style={styles.headerContainer}>
               <Text style={[styles.headerText, styles.statusHeader]}>
                 Product
@@ -309,8 +307,7 @@ const Details = ({ ddd }: any) => {
               renderItem={renderItem}
               keyExtractor={(item: any) => item.id_products.toString()}
               scrollEnabled={false}
-              contentContainerStyle=
-            {styles.flatListContainer}
+              contentContainerStyle={styles.flatListContainer}
             />
 
             <View style={styles.footer}>
@@ -392,7 +389,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#0E1432",
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     borderRadius: 5,
     alignItems: "center",
     marginHorizontal: 5,
@@ -539,12 +536,11 @@ const styles = StyleSheet.create({
   },
   border: {
     borderStyle: "solid",
-    borderWidth: 0, 
+    borderWidth: 0,
     borderColor: Colors.light.tint,
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
-
   },
   totalQuantities: {
     fontSize: 17,
@@ -578,14 +574,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
+    paddingLeft: 10,
   },
   confirmText: {
-      color: "green",
-      fontSize: 17,
-      fontWeight: "bold",
-      marginRight: 10,
-      letterSpacing: 1,
-    },
+    color: "green",
+    fontSize: 17,
+    fontWeight: "bold",
+    marginRight: 10,
+    letterSpacing: 1,
+  },
   disabledText: {
     color: "gray",
   },
@@ -631,7 +628,7 @@ const styles = StyleSheet.create({
   footer: {
     width: "100%",
     alignItems: "center",
-    justifyContent: "center", 
+    justifyContent: "center",
     paddingVertical: 10,
   },
 });

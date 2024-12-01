@@ -22,6 +22,7 @@ import GroupedReturnedItemDetails from "@/components/AdminReturnReturnedProductD
 import Colors from "@/constants/Colors";
 import BranchOptionsModal from "@/modals/branchModals";
 import ReturnBranchOptionsModal from "@/modals/returnProductsModals";
+import uuid from "react-native-uuid";
 
 const Index = () => {
   const { data: branch } = useBranchData();
@@ -102,6 +103,7 @@ const Index = () => {
     router.push("/(admin)/returned");
   };
 
+  const newIDgroup = uuid.v4();
   const onSelectBranch = (
     id_branch: number,
     branchName: string
@@ -110,7 +112,11 @@ const Index = () => {
     console.log("Selected branch ID:", id_branch, branchName);
     setSelectedBranchName(id_branch);
     console.log("Selected branch IDIIII:", { newId_branch: Number(branchID) });
-    transferReturnedBatch.mutate({ newId_branch: Number(branchID), id_branch });
+    transferReturnedBatch.mutate({
+      newId_branch: Number(branchID),
+      id_branch,
+      newId_Group: newIDgroup,
+    });
     router.push("/(admin)/returned");
   };
 

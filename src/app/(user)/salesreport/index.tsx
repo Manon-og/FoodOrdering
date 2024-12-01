@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ import { useBranchName } from "@/components/branchParams";
 import { useBranchStore } from "@/src/store/branch";
 import Button from "@/components/Button";
 import { useRouter } from "expo-router";
+import { useLogoutStore } from "@/store/logout";
 
 const Index = () => {
   const [comment, setComment] = useState("");
@@ -93,6 +94,17 @@ const Index = () => {
   const created_by = salesReport?.map((item: any) => item.created_by);
   console.log("created_by", created_by);
   console.log("salesReport", salesReport);
+  const setStatus = useLogoutStore((state) => state.setStatus);
+
+  const navigateToProfile = () => {
+    setStatus("done");
+    router.push("/(user)/profile");
+  };
+
+  // useEffect(() => {
+  //   setStatus("done");
+  // }, ["done"]);
+
   return (
     <View style={styles.container}>
       <View style={styles.frame}>
@@ -140,7 +152,7 @@ const Index = () => {
         </View>
 
         <View style={styles.logout}>
-          <Button onPress={() => handleLogout(router)} text={"Logout"} />
+          <Button onPress={navigateToProfile} text={"Confirm"} />
         </View>
       </View>
     </View>

@@ -9,6 +9,7 @@ import { useClientOnlyValue } from "@/src/components/useClientOnlyValue";
 import { useAuth } from "@/providers/AuthProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { useBranchStore } from "@/src/store/branch";
+import { useLogoutStore } from "@/store/logout";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -37,7 +38,12 @@ export default function TabLayout() {
   // Determine if the tab bar should be hidden
   const hide = segments.includes("category");
   const hide2 = segments.includes("salesreport");
+  const hide3 = segments.includes("profile");
 
+  const { status } = useLogoutStore();
+  console.log("status2", status);
+
+  const shouldHideTabBar = hide || hide2 || (status === "done" && hide3);
   return (
     <Tabs
       screenOptions={{
@@ -49,7 +55,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: "#642826",
         tabBarStyle: {
           backgroundColor: "#FFD895",
-          display: hide || hide2 ? "none" : "flex", // hide magic tab
+          display: shouldHideTabBar ? "none" : "flex", // hide magic tab
         },
       }}
     >
@@ -61,7 +67,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
         }}
       />
-      
 
       <Tabs.Screen
         name="menu"

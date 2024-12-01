@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
   notificationBadge: {
     position: "absolute",
-    right: 15,
+    right: 35,
     width: 10,
     height: 10,
     borderRadius: 5,

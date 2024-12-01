@@ -188,7 +188,10 @@ const Index = () => {
     : [];
 
   const renderItem = ({ item }: { item: any }) => (
-    <Pressable onPress={() => handleOpenModal(item)} style={styles.productItem}>
+    <Pressable
+      onPress={() => handleOpenModal(item)}
+      style={[styles.productItem, item.quantity < 10 && styles.lowQuantity]}
+    >
       <View style={styles.productRow}>
         <Text style={styles.productName}>{item.name}</Text>
         <Text style={styles.quantityInput}>
@@ -238,7 +241,9 @@ const Index = () => {
           body: `${branchName} requires a cash balance update.`,
           id_branch: id_branch.toString(),
           type: "Location",
+          branchName: branchName,
         },
+
         {
           onSuccess: (data) => {
             console.log("NOTIFICATION", data);
@@ -364,7 +369,7 @@ const Index = () => {
         visible={isModalVisible}
         onClose={handleCloseModal}
         onConfirm={handleConfirmModal}
-        onReset={handleResetModal}
+        // onReset={handleResetModal}
         inputQuantity={inputQuantity}
         setInputQuantity={setInputQuantity}
         name={currentProduct?.name}
@@ -384,6 +389,32 @@ const Index = () => {
 export default Index;
 
 const styles = StyleSheet.create({
+  productItem: {
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+    backgroundColor: "#fff",
+  },
+  lowQuantity: {
+    backgroundColor: "lightblue",
+  },
+  productRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  productName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  quantityInput: {
+    fontSize: 14,
+    color: "#333",
+  },
+  quantityText: {
+    fontSize: 14,
+    color: "#333",
+  },
   screenContainer: {
     flex: 1,
     backgroundColor: "white",
@@ -407,15 +438,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderRadius: 15,
   },
-  productRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  quantityInput: {
-    marginLeft: 10,
-    fontSize: 14,
-  },
+  // productRow: {
+  //   flexDirection: "row",
+  //   justifyContent: "space-between",
+  //   alignItems: "center",
+  // },
+  // quantityInput: {
+  //   marginLeft: 10,
+  //   fontSize: 14,
+  // },
   pressableText: {
     color: "lightblue",
     fontStyle: "italic",
@@ -424,23 +455,23 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 10,
   },
-  productItem: {
-    padding: 15,
-    backgroundColor: "white",
-    borderRadius: 10,
-    marginVertical: 5,
-    shadowColor: "black",
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-  },
-  productName: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  quantityText: {
-    marginTop: 5,
-    fontSize: 14,
-  },
+  // productItem: {
+  //   padding: 15,
+  //   backgroundColor: "white",
+  //   borderRadius: 10,
+  //   marginVertical: 5,
+  //   shadowColor: "black",
+  //   shadowOpacity: 0.2,
+  //   shadowRadius: 5,
+  // },
+  // productName: {
+  //   fontSize: 18,
+  //   fontWeight: "bold",
+  // },
+  // quantityText: {
+  //   marginTop: 5,
+  //   fontSize: 14,
+  // },
   modalContainer: {
     flex: 1,
     justifyContent: "center",

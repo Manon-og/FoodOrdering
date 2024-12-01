@@ -22,6 +22,7 @@ type ProductListItemProps = {
   navigateTo: string;
   branchName: string;
   item: any;
+  // notification: any;
 };
 
 const AdminViewNotification = ({
@@ -32,11 +33,25 @@ const AdminViewNotification = ({
   navigateTo,
   branchName,
   item,
-}: ProductListItemProps) => {
+}: // notification,
+ProductListItemProps) => {
   console.log("viewed", viewed);
   console.log("navigateTo", navigateTo);
   const router = useRouter();
   const [notificationTime, setNotificationTime] = useState("");
+
+  console.log("itesm", item);
+
+  const containerStyle =
+    item.isRead === "false" ? styles.unreadContainer : styles.readContainer;
+  const insideContainerStyle =
+    item.isRead === "false"
+      ? styles.unreadInsideContainer
+      : styles.readInsideContainer;
+  const textContainerStyle =
+    item.isRead === "false"
+      ? styles.unreadTextContainer
+      : styles.readTextContainer;
 
   const getCurrentTime = () => {
     const now = new Date();
@@ -91,9 +106,12 @@ const AdminViewNotification = ({
   };
 
   const content = (
-    <TouchableOpacity style={styles.container} onPress={handlePress}>
-      <View style={styles.insideContainer}>
-        <View style={styles.textContainer}>
+    <TouchableOpacity
+      style={[styles.container, containerStyle]}
+      onPress={handlePress}
+    >
+      <View style={[styles.insideContainer, insideContainerStyle]}>
+        <View style={[styles.textContainer, textContainerStyle]}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.body}>{body}</Text>
           <Text style={styles.time}>{notificationTime}</Text>
@@ -109,7 +127,6 @@ export default AdminViewNotification;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
@@ -117,15 +134,33 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 7,
   },
+  unreadContainer: {
+    backgroundColor: "lightblue",
+  },
+  readContainer: {
+    backgroundColor: "white",
+  },
   insideContainer: {
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
     borderRadius: 7,
   },
+  unreadInsideContainer: {
+    backgroundColor: "lightblue",
+  },
+  readInsideContainer: {
+    backgroundColor: "white",
+  },
   textContainer: {
     flex: 1,
     marginLeft: 10,
+  },
+  unreadTextContainer: {
+    backgroundColor: "lightblue",
+  },
+  readTextContainer: {
+    backgroundColor: "white",
   },
   time: {
     fontSize: 12,
@@ -143,7 +178,6 @@ const styles = StyleSheet.create({
     color: "black",
     fontWeight: "bold",
     flex: 1,
-
     paddingTop: "2%",
   },
 });

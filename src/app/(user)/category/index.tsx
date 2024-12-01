@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import {
   View,
   FlatList,
@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useBranch } from "@/src/api/products";
 import ChooseLocation from "@/src/components/ChooseLocation";
+import { useLogoutStore } from "@/store/logout";
 
 const Index = () => {
   const { data: branch } = useBranch();
@@ -36,14 +37,24 @@ const Index = () => {
       <MemoizedChooseLocation
         id_branch={item.id_branch}
         branchName={item.place}
-        style={styles.card} 
+        style={styles.card}
       />
     );
   };
 
+  const setStatus = useLogoutStore((state) => state.setStatus);
+
+  // const navigateToProfile = () => {
+  //   setStatus("done");
+  //   router.push("/(user)/profile");
+  // };
+
+  useEffect(() => {
+    setStatus("restart");
+  }, ["restart"]);
+
   return (
     <View style={styles.container}>
-  
       <TextInput
         style={styles.searchBar}
         placeholder="Search locations..."

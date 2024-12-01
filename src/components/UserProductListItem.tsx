@@ -22,7 +22,7 @@ export const DefaultPhoto =
 const ProductListItem = ({ product }: any) => {
   const segments = useSegments();
   const { id_archive } = useArchivedParams();
-  const hrefLink = `/${segments[0]}/menu/${product.id_products}?id_archive=1&id_branch=${product.id_branch.id_branch}`;
+  const hrefLink: any = `/${segments[0]}/menu/${product.id_products}?id_archive=1&id_branch=${product.id_branch.id_branch}`;
 
   const warning = product.quantity <= 10 ? "Low Stocks!" : "";
 
@@ -56,7 +56,7 @@ export default ProductListItem;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white", 
+    backgroundColor: "white",
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     position: "relative", // Ensure the warning text is positioned relative to this container
   },
   containerWarning: {
-    color: "red",  // Red background when there is a warning
+    color: "red", // Red background when there is a warning
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
@@ -112,9 +112,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "darkred",
     fontWeight: "bold",
-    position: "absolute",  // Position the warning text absolutely within the container
-    top: 5,                // Distance from the top of the container
-    right: 10,             // Distance from the right of the container
+    position: "absolute", // Position the warning text absolutely within the container
+    top: 5, // Distance from the top of the container
+    right: 10, // Distance from the right of the container
   },
   image: {
     width: 80,

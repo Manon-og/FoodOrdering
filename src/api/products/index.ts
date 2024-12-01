@@ -2942,7 +2942,11 @@ export const useTransferReturnedBatch = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { id_branch: number; newId_branch: number }) => {
+    mutationFn: async (data: {
+      id_branch: number;
+      newId_branch: number;
+      newId_Group: any;
+    }) => {
       console.log("PLSSSS||||", data.newId_branch);
       try {
         const { data: pendingproducts, error: pendingproductsError } =
@@ -3030,7 +3034,8 @@ export const useTransferReturnedBatch = () => {
             id_batch: pendingproduct.id_batch.id_batch,
             quantity: pendingproduct.quantity,
             id_branch: data.id_branch,
-            before: pendingproduct.quantity,
+            id_group: data.newId_Group,
+            // before: pendingproduct.quantity,
           };
 
           const { data: branch } = await supabase
@@ -3064,7 +3069,7 @@ export const useTransferReturnedBatch = () => {
 
           const { data: insertedProduct, error: insertConfirmedError } =
             await supabase
-              .from("localbatch")
+              .from("pendinglocalbatch")
               .insert(confirmedProduct)
               .select("id_products")
               .single();
@@ -4402,10 +4407,8 @@ export const useGetNotification = () => {
   return useQuery({
     queryKey: ["useGetNotification"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("notification")
-        .select("*")
-        .eq("isRead", false);
+      const { data, error } = await supabase.from("notification").select("*");
+      // .eq("isRead", false);
       if (error) {
         throw new Error(error.message);
       }

@@ -13,6 +13,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useBranchStore } from "@/store/branch";
 import { useUUIDStore } from "@/store/user";
 import Colors from "@/constants/Colors";
+import { useLogoutStore } from "@/store/logout";
 
 export default function UserProfile() {
   const router = useRouter();
@@ -21,6 +22,9 @@ export default function UserProfile() {
   const { session, loading } = useAuth();
   const idAuth = session?.user.id ?? "";
   const { data: user } = useAuthenticationLevel(idAuth);
+
+  const { status } = useLogoutStore();
+  console.log("status", status);
 
   console.log(
     "profile",
@@ -108,14 +112,19 @@ export default function UserProfile() {
             </View>
           </Pressable>
         </Link> */}
-        <Link href="/(user)/cashcount" asChild>
-          <Pressable style={styles.menuButton}>
-            <View style={styles.menuTextContainer}>
-              <Text style={styles.menuText}>End of Day/Bazaar</Text>
-              <Text style={styles.arrow}>→</Text>
-            </View>
-          </Pressable>
-        </Link>
+        {status === "done" ? (
+          ""
+        ) : (
+          <Link href="/(user)/cashcount" asChild>
+            <Pressable style={styles.menuButton}>
+              <View style={styles.menuTextContainer}>
+                <Text style={styles.menuText}>End of Day/Bazaar</Text>
+                <Text style={styles.arrow}>→</Text>
+              </View>
+            </Pressable>
+          </Link>
+        )}
+
         {role && role[0] === 1 && (
           <Link href="/(admin)/category" asChild>
             <Pressable style={styles.menuButton}>

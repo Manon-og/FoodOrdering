@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { Link, useRouter } from "expo-router";
-import { useBranch } from "@/src/api/products";
+import { useBranch, useGetReceivePendingStocks } from "@/src/api/products";
 import { useByBranch } from "@/src/providers/BranchProvider";
 import { useBranchName } from "@/src/components/branchParams";
 import Transaction from "@/src/app/(user)/two";
@@ -19,6 +19,8 @@ const Index = () => {
   const place = branch?.map((item) => item.id_branch);
 
   const { id_branch, branchName } = useBranchName();
+  const { data: viewPendingProducts } = useGetReceivePendingStocks(id_branch);
+  console.log("viewPendingProductssw:", viewPendingProducts);
 
   const setBranchData = useBranchStore((state) => state.setBranchData);
 
@@ -56,14 +58,27 @@ const Index = () => {
 
   return (
     <View style={styles.background}>
-      <TouchableOpacity
-        style={styles.menuButton}
-        onPress={handleNavigatReveive}
-      >
-        <View style={styles.menuTextContainer}>
-          <Text style={styles.menuText}>Accept Incoming Stocks</Text>
-        </View>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        {viewPendingProducts && viewPendingProducts.length > 0 ? (
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={handleNavigatReveive}
+          >
+            <View style={styles.menuTextContainer}>
+              <Text style={styles.menuText}>Accept Incoming Stocks</Text>
+            </View>
+          </TouchableOpacity>
+        ) : null}
+        {/* <TouchableOpacity
+          style={styles.menuButton}
+          onPress={handleNavigatReveive}
+        >
+          <View style={styles.menuTextContainer}>
+            <Text style={styles.menuText}>Accept Incoming Stocks</Text>
+          </View>
+        </TouchableOpacity> */}
+      </View>
+
       <View style={styles.container}>
         <Link
           href={`/(user)/menu?category=1&id_branch=${id_branch}&branchName=${branchName}`}
@@ -71,7 +86,7 @@ const Index = () => {
         >
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/cookies.png")} 
+              source={require("../../../../assets/images/cookies.png")}
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>COOKIES</Text>
@@ -81,13 +96,13 @@ const Index = () => {
           href={`/(user)/menu?category=2&id_branch=${id_branch}&branchName=${branchName}`}
           asChild
         >
-            <Pressable style={styles.categoryCard}>
+          <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/bread.png")} 
+              source={require("../../../../assets/images/bread.png")}
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>BREADS</Text>
-            </Pressable>
+          </Pressable>
         </Link>
         <Link
           href={`/(user)/menu?category=3&id_branch=${id_branch}&branchName=${branchName}`}
@@ -95,7 +110,7 @@ const Index = () => {
         >
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/cakes.png")} 
+              source={require("../../../../assets/images/cakes.png")}
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>CAKES</Text>
@@ -107,7 +122,7 @@ const Index = () => {
         >
           <Pressable style={styles.categoryCard}>
             <Image
-              source={require("../../../../assets/images/bentocakes.png")} 
+              source={require("../../../../assets/images/bentocakes.png")}
               style={styles.categoryImage}
             />
             <Text style={styles.categoryText}>BENTO CAKES</Text>
@@ -125,6 +140,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFD895",
     alignItems: "center",
+  },
+  buttonContainer: {
+    height: 60, // Adjust the height as needed
+    width: "80%",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: "10%",
   },
   container: {
     flex: 1,
@@ -144,10 +166,10 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 15,
     overflow: "hidden", // To prevent image overflow
-    shadowColor: "#000",  
-    shadowOffset: { width: 0, height: 4 }, 
-    shadowOpacity: 0.1,  
-    elevation: 5,       
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    elevation: 5,
   },
   categoryImage: {
     width: "100%",
@@ -167,12 +189,10 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     width: "80%",
-    marginTop: "10%",
-    
-    shadowColor: "#000",  
-    shadowOffset: { width: 0, height: 4 }, 
-    shadowOpacity: 0.1,  
-    elevation: 5,       
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    elevation: 5,
   },
   menuTextContainer: {
     flexDirection: "row",

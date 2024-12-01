@@ -22,10 +22,16 @@ const Index = () => {
   const { data: notification } = useGetNotification();
   const MemoizedProductListItem = memo(AdminViewNotification);
 
-  const sortedNotifications = notification?.sort(
-    (a: any, b: any) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  // Sort notifications to put unread items at the top
+  const sortedNotifications = notification?.sort((a: any, b: any) => {
+    if (a.isRead === "false" && b.isRead !== "false") {
+      return -1;
+    }
+    if (a.isRead !== "false" && b.isRead === "false") {
+      return 1;
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
 
   const renderItem = ({ item }: { item: any }) => {
     return (
@@ -58,7 +64,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    // paddingTop: "20%",
   },
   dateContainer: {
     position: "absolute",
