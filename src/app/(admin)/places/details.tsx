@@ -173,7 +173,7 @@ const Details = () => {
 
   const handleCash = () => {
     setModalVisible(true);
-    dateOfInitialCashCountRefetch;
+    dateOfInitialCashCountRefetch();
   };
 
   const archiveLocation = useArchiveLocation();
