@@ -74,6 +74,22 @@ const VoidedTransactionModalADMIN = ({
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
+          <View style={styles.headerContainer}>
+            <Text style={[styles.headerText, styles.statusHeader]}>
+              Product Name
+            </Text>
+            <Text style={[styles.headerText, styles.statusMiddle]}>
+              Total Quantity
+            </Text>
+            <Text style={[styles.headerText, styles.moreInfoHeader]}>
+              Total Amount
+            </Text>
+          </View>
+          <FlatList
+            data={paginatedVoidedData}
+            keyExtractor={(item) => item.id_products.id_products.toString()}
+            renderItem={renderVoidedItem}
+          />
           <View style={styles.paginationContainer}>
             <Pressable
               onPress={() => handlePageChange(currentPage - 1)}
@@ -110,23 +126,6 @@ const VoidedTransactionModalADMIN = ({
               <Text style={styles.pageButtonText}>{">"}</Text>
             </Pressable>
           </View>
-          <View style={styles.headerContainer}>
-            <Text style={[styles.headerText, styles.statusHeader]}>
-              Product Name
-            </Text>
-            <Text style={[styles.headerText, styles.statusMiddle]}>
-              Total Quantity
-            </Text>
-            <Text style={[styles.headerText, styles.moreInfoHeader]}>
-              Total Amount
-            </Text>
-          </View>
-          <FlatList
-            data={paginatedVoidedData}
-            keyExtractor={(item) => item.id_products.id_products.toString()}
-            renderItem={renderVoidedItem}
-          />
-
           <View style={styles.totalSalesContainer}>
             <Text style={styles.totalSalesText}> Total Voided Sales:</Text>
             <Text style={styles.totalSalesNumber}>₱{totalVoidedSales}</Text>
@@ -229,13 +228,13 @@ const styles = StyleSheet.create({
   },
   totalSalesText: {
     paddingTop: 40,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "bold",
     color: "darkred",
   },
   totalSalesNumber: {
     paddingTop: 40,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "bold",
     color: "darkred",
   },

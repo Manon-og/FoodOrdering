@@ -97,6 +97,15 @@ const Index = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
+      <View style={styles.headerContainer}>
+        <Text style={[styles.headerText, styles.statusHeader]}>Products</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>Quantity</Text>
+      </View>
+      <FlatList
+        data={paginatedSales}
+        renderItem={renderItem}
+        keyExtractor={(item: any) => item.id_products.name}
+      />
       <View style={styles.paginationContainer}>
         <Pressable
           onPress={() => handlePageChange(currentPage - 1)}
@@ -133,15 +142,6 @@ const Index = () => {
           <Text style={styles.pageButtonText}>{">"}</Text>
         </Pressable>
       </View>
-      <View style={styles.headerContainer}>
-        <Text style={[styles.headerText, styles.statusHeader]}>Products</Text>
-        <Text style={[styles.headerText, styles.moreInfoHeader]}>Quantity</Text>
-      </View>
-      <FlatList
-        data={paginatedSales}
-        renderItem={renderItem}
-        keyExtractor={(item: any) => item.id_products.name}
-      />
       <Text style={styles.totalText}>
         Total Sales:{" "}
         {filteredSales?.reduce(

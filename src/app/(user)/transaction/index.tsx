@@ -1,19 +1,11 @@
-import React, { memo } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Pressable,
-  Alert,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput, Alert } from "react-native";
 import {
   use,
   useGroupedSalesTransaction,
   useSalesTransactionById,
   useUserVoid,
 } from "@/src/api/products";
-
 import GroupedSalesTransactionId from "@/components/GroupSalesTransactionId";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 
@@ -21,6 +13,10 @@ const Index = () => {
   const { id_group, id_void } = useLocalSearchParams();
   const voidTransaction = useUserVoid();
   const router = useRouter();
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 6;
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleVoidTransaction = () => {
     if (id_group) {
@@ -38,7 +34,7 @@ const Index = () => {
   const confirmVoidTransaction = () => {
     Alert.alert(
       "Confirm Void",
-      "Are you sure you want to void this transaction?",
+      "Are you sure you want to void this transaction?\nProducts will be placed back into the inventory.",
       [
         {
           text: "Cancel",
@@ -89,9 +85,24 @@ const Index = () => {
     weekday: "long",
   });
 
-  // const MemoizedProductListItem = memo(GroupedSalesTransactionItem); ayaw niya mag start sa 1, wtf.
-  // const { data: groupedSales }: any = useGroupedSalesTransaction();
   let currentIdGroup = 1;
+
+  let filteredSalesTransaction =
+    salesTransaction?.filter((item: any) =>
+      item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredSalesTransaction.length / itemsPerPage);
+  const paginatedSalesTransaction = filteredSalesTransaction.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderItem = ({ item }: { item: any }) => {
     const displayIdGroup = currentIdGroup;
@@ -128,6 +139,12 @@ const Index = () => {
         <Text style={styles.dayText}>{currentDay}</Text>
         <Text style={styles.dateText}>{currentDate}</Text>
       </View>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search by product name..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Quantity</Text>
@@ -136,10 +153,46 @@ const Index = () => {
         </Text>
       </View>
       <FlatList
-        data={salesTransaction}
+        data={paginatedSalesTransaction}
         renderItem={renderItem}
         keyExtractor={(item) => item.id_salestransaction}
       />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
       <View style={styles.footer}>
         <Text style={styles.totalText}>Total: ₱{amount}</Text>
         <Text style={styles.createdBy}>Created by: {user}</Text>
@@ -162,9 +215,7 @@ const Index = () => {
             >
               <Pressable>
                 {({ pressed }) => (
-                  <>
-                    <Text style={styles.voidButton}>VOID</Text>
-                  </>
+                  <Text style={styles.voidButton}>VOID</Text>
                 )}
               </Pressable>
             </Link>
@@ -175,6 +226,12 @@ const Index = () => {
         <Text style={styles.dayText}>{currentDay}</Text>
         <Text style={styles.dateText}>{currentDate}</Text>
       </View>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search by product name..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
         <Text style={[styles.headerText, styles.statusMiddle]}>Quantity</Text>
@@ -183,10 +240,46 @@ const Index = () => {
         </Text>
       </View>
       <FlatList
-        data={salesTransaction}
+        data={paginatedSalesTransaction}
         renderItem={renderItem}
         keyExtractor={(item) => item.id_salestransaction}
       />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
       <View style={styles.footer}>
         <Text style={styles.totalText}>Total: ₱{amount}</Text>
         <Text style={styles.createdBy}>Created by: {user}</Text>
@@ -207,11 +300,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingTop: "30%",
+    paddingTop: "21%",
   },
   footer: {
-    position: "absolute",
-    bottom: 50,
+    bottom: 10,
     alignItems: "center",
   },
   totalText: {
@@ -283,6 +375,37 @@ const styles = StyleSheet.create({
     color: "darkgreen",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 20,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
   },
 });
 

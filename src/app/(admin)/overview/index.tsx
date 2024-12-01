@@ -101,6 +101,25 @@ const Index = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
+
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Product</Text>
+        <Pressable
+          onPress={() =>
+            setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+          }
+        >
+          <Text style={styles.headerText}>Total Qty</Text>
+        </Pressable>
+        <Text style={styles.headerText}>Available In</Text>
+      </View>
+      <FlatList
+        data={paginatedOverview}
+        keyExtractor={(item) => item.id_products.toString()}
+        renderItem={renderItem}
+        scrollEnabled={false} // Disable scrolling
+        contentContainerStyle={styles.flatListContainer}
+      />
       <View style={styles.paginationContainer}>
         <Pressable
           onPress={() => handlePageChange(currentPage - 1)}
@@ -137,26 +156,6 @@ const Index = () => {
           <Text style={styles.pageButtonText}>{">"}</Text>
         </Pressable>
       </View>
-
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Product</Text>
-        <Pressable
-          onPress={() =>
-            setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
-          }
-        >
-          <Text style={styles.headerText}>Total Qty</Text>
-        </Pressable>
-        <Text style={styles.headerText}>Available In</Text>
-      </View>
-      <FlatList
-        data={paginatedOverview}
-        keyExtractor={(item) => item.id_products.toString()}
-        renderItem={renderItem}
-        scrollEnabled={false} // Disable scrolling
-        contentContainerStyle={styles.flatListContainer}
-      />
-
       <View style={styles.footer}>
         <Text style={styles.footerText}>
           Overall Quantity: {overallQuantity}
