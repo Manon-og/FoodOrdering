@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  TextInput,
+} from "react-native";
 import {
   useGetNotification,
   useGroupedSalesTransactionADMIN,
@@ -9,8 +16,12 @@ import DropdownComponent from "@/components/DropDown";
 import { Link, Stack } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useBranchStoreAdmin } from "@/store/branchAdmin";
+import useGroupedSalesChannel from "../channel/useGroupedSalesChannel";
 
 const Index = () => {
+  useGroupedSalesChannel(() => {
+    groupedSalesReFetch();
+  });
   const filter = [
     { label: "Sales", value: "Sales" },
     { label: "Product Transfer", value: "Product Transfer" },
@@ -26,7 +37,8 @@ const Index = () => {
     weekday: "long",
   });
 
-  const { data: groupedSales }: any = useGroupedSalesTransactionADMIN();
+  const { data: groupedSales, refetch: groupedSalesReFetch }: any =
+    useGroupedSalesTransactionADMIN();
   console.log("GROUPED SALESs:", groupedSales);
 
   const [currentPage, setCurrentPage] = useState<number>(1);

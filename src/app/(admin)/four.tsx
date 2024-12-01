@@ -1,5 +1,12 @@
 import React, { memo, useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  TextInput,
+} from "react-native";
 import {
   useGetNotification,
   useGetProductionHistory,
@@ -16,8 +23,12 @@ import AdminViewProductionDetails from "@/components/AdminViewProductionDetails"
 import AdminViewRealProductionDetails from "@/components/AdminViewRealProductionDetails";
 import { Link, Stack } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
+import useProductTransferChannel from "../channel/useProductTransferChannel";
 
 const Index = () => {
+  useProductTransferChannel(() => {
+    reFetchRealProductionHistory();
+  });
   const filter = [
     { label: "Sales", value: "Sales" },
     { label: "Product Transfer", value: "Product Transfer" },
@@ -28,10 +39,8 @@ const Index = () => {
 
   const location = "Back Inventory";
   const date = new Date().toISOString().split("T")[0];
-  const { data: production } = useGetRealProductionHistoryDetails(
-    location,
-    date
-  );
+  const { data: production, refetch: reFetchRealProductionHistory } =
+    useGetRealProductionHistoryDetails(location, date);
 
   console.log("Production History Details?:", production);
 
@@ -123,7 +132,7 @@ const Index = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-  
+
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>
           Product Name
