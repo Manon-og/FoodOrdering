@@ -52,9 +52,9 @@ const ProductListItem = ({ product, productsByBackInventory }: any) => {
 
   const notification = useInsertNotification();
 
-  console.log("NOTIFICATION2", productsByBackInventory);
+  console.log("NOTIFICATION2sad", productsByBackInventory);
   console.log("NOTIFICATION2", backInventoryQuantity);
-  console.log("NOTIFICATION2", product.quantity);
+  console.log("NOTIFICATION2wqesad", product.quantity);
 
   const warning = id_branch
     ? product.quantity <= 10

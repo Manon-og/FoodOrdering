@@ -1638,8 +1638,9 @@ export const useSetTransferQuantity = () => {
     onSuccess: async () => {
       try {
         await queryClient.invalidateQueries({
-          queryKey: ["localbatch", "batch", "backInventory"],
+          queryKey: ["localbatch", "batch", "backInventory", "products"],
         });
+        // window.location.reload();
       } catch (error) {
         console.error("Error invalidating queries:", error);
       }

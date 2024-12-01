@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   lowQuantity: {
-    backgroundColor: "lightblue",
+    backgroundColor: "#EA7D7E",
   },
   productRow: {
     flexDirection: "row",

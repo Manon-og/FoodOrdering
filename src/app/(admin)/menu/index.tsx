@@ -19,11 +19,21 @@ import { useCategory } from "@/src/components/categoryParams";
 import { useByBranch } from "@/src/providers/BranchProvider";
 import { useBranchName } from "@/src/components/branchParams";
 import { useArchivedParams } from "@/components/archivedParams";
+import useQuantityProductChannel from "@/app/channel/useQuantityChannel";
+import { useCategoryStore } from "@/store/categoryAdmin";
+import { useMenuQuantityStore } from "@/store/menuquantity";
 
 const MemoizedProductListItem = memo(ProductListItem);
 
 export default function MenuScreen() {
+  useQuantityProductChannel();
   const category = useCategory();
+
+  const setCategory = useCategoryStore((state) => state.setCategory);
+  useEffect(() => {
+    setCategory(category);
+  }, [category, setCategory]);
+
   const { id_branch, branchName } = useBranchName();
   console.log("MERONG POTANGINANG id_branch:", id_branch);
   const { setBranchName, setIdBranch } = useByBranch();
@@ -65,8 +75,19 @@ export default function MenuScreen() {
 
   console.log("MERONG POTANGINANG:", productsByBranch);
 
-  const { data: productsByBackInventory } =
-    useBackInventoryProductList(category);
+  // const setMenuQuantity = useMenuQuantityStore(
+  //   (state) => state.setMenuQuantity
+  // );
+
+  const {
+    data: productsByBackInventory,
+    refetch: productsByBackInventoryRefetch,
+  } = useBackInventoryProductList(category);
+
+  // setMenuQuantity(productsByBackInventoryRefetch);
+
+  // const { quantity } = useMenuQuantityStore();
+  // console.log("MERONG POTANGINANG**asdas******", quantity);
 
   console.log("MERONG POTANGINANG********", productsByBackInventory);
 
