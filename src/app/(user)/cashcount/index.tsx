@@ -24,6 +24,7 @@ import { useRouter } from "expo-router";
 import ReturnProducts from "@/components/ReturnProducts";
 import { v4 as uuidv4 } from "uuid";
 import uuid from "react-native-uuid";
+import { CheckBox } from 'react-native-elements';
 
 const EndDay = () => {
   const router = useRouter();
@@ -35,6 +36,7 @@ const EndDay = () => {
   const [showFinalModal, setShowFinalModal] = useState(false);
   const [cashCountTotal, setCashCountTotal] = useState(0);
   const [totalSales, setTotalSales] = useState(0);
+  const [isChecked, setIsChecked] = useState(false);
 
   const { id } = useUUIDStore();
   const { id_branch, branchName } = useBranchStore();
@@ -231,10 +233,20 @@ const EndDay = () => {
             <Text style={styles.totalText}>TOTAL</Text>
             <Text style={styles.totalValue}>₱ {total}</Text>
           </View>
+          <View style={styles.checkboxContainer}>
+            <CheckBox
+              title="I am sure of the details I have inputted and understand that this cannot be changed later on"
+              checked={isChecked}
+              onPress={() => setIsChecked(!isChecked)}
+              containerStyle={styles.checkbox}
+              textStyle={styles.label}
+            />
+          </View>
           <Button
             text={"Confirm"}
             onPress={confirmSubmitCashCount}
-            style={styles.confirmBtn}
+            style={[styles.confirmBtn, !isChecked && styles.disabledButton]}
+            disabled={!isChecked}
           />
         </>
       ) : (
@@ -398,15 +410,18 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   totalContainer: {
-    paddingVertical: 20,
+    paddingVertical: 15,
     alignItems: "center",
+    flexDirection: "row",
+    paddingEnd: 20,
   },
   totalText: {
-    fontSize: 22,
+    fontSize: 21,
     fontWeight: "bold",
+    marginHorizontal: 10,
   },
   totalValue: {
-    fontSize: 22,
+    fontSize: 21,
     fontWeight: "bold",
     color: "#0078D4",
   },
@@ -469,6 +484,22 @@ const styles = StyleSheet.create({
   },
   pageButtonText: {
     fontSize: 16,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    marginBottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkbox: {
+    alignSelf: "center",
+    justifyContent: "center",
+  },
+  label: {
+    margin: 8,
+    color: "#000",
+    letterSpacing: 0.25,
+    justifyContent: "center",
   },
 });
 
