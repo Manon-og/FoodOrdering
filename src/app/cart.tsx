@@ -33,6 +33,8 @@ const CartScreen = () => {
     totalAmountPerProduct,
   } = UseCart();
 
+  console.log("TOTAL AMOUNT PERss PRODUCT:", totalAmountPerProduct);
+
   const { mutate: transferQuantity } = useUserTransferQuantity();
   const router = useRouter();
   const { id_branch, branchName } = useBranchStore();
@@ -69,7 +71,14 @@ const CartScreen = () => {
   const handleConfirmPayment = () => {
     if (change !== null && change >= 0) {
       const totalAmounts = Object.values(totalAmountPerProduct);
+      console.log("TOTAL AMOUNT PER PRODUCT:", totalAmountPerProduct);
+      console.log("Items:", items);
+
       items.forEach((item, index) => {
+        const amountByProduct = totalAmountPerProduct[item.id_products];
+        console.log(`Item ${index}:`, item);
+        console.log(`Amount by product for item ${index}:`, amountByProduct);
+
         transferQuantity({
           id_localbranch: item.id_localbranch,
           id_branch: Number(id_branch),
@@ -78,7 +87,7 @@ const CartScreen = () => {
           amount: roundedTotal,
           created_by: name || "",
           id_group: transactionId,
-          amount_by_product: totalAmounts[index],
+          amount_by_product: amountByProduct,
         });
       });
 

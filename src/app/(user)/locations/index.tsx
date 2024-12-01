@@ -18,10 +18,15 @@ import { useBranchName } from "@/src/components/branchParams";
 import Transaction from "@/src/app/(user)/two";
 import { useBranchStore } from "@/src/store/branch";
 import useAcceptButtonChannel from "@/app/channel/useAcceptButton";
+import useLocalBatchChannel from "@/app/channel/useProductTransferChannel";
 
 const Index = () => {
   useAcceptButtonChannel(() => {
     viewPendingProductsRefetch();
+  });
+
+  useLocalBatchChannel(() => {
+    SetRestrictionRefetch();
   });
 
   const { data: branch } = useBranch();
@@ -33,7 +38,8 @@ const Index = () => {
   console.log("viewPendingProductsssw:", viewPendingProductsRefetch);
 
   const setBranchData = useBranchStore((state) => state.setBranchData);
-  const { data: SetRestriction } = useBranchAllProductList(id_branch);
+  const { data: SetRestriction, refetch: SetRestrictionRefetch } =
+    useBranchAllProductList(id_branch);
   console.log("SetRestriction:", SetRestriction);
   const Show = !SetRestriction || SetRestriction.length === 0 ? false : true;
   console.log("Show:", Show);

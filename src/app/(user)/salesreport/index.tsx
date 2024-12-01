@@ -155,7 +155,7 @@ const Index = () => {
         </View>
 
         <View style={styles.logout}>
-          <Button onPress={navigateToProfile} text={"Confirm"} />
+          <Button onPress={() => handleLogout(router)} text={"Logout"} />
         </View>
       </View>
     </View>

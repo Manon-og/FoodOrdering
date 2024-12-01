@@ -1205,7 +1205,7 @@ export const useSignIn = () => {
 export const handleLogout = async (router: any) => {
   const { error } = await supabase.auth.signOut();
   if (error) {
-    Alert.alert("Error", error.message);
+    Alert.alert("Error why", error.message);
   } else {
     router.replace("/(auth)/sign-in"); // Redirect to sign-in page after logout
   }
@@ -1726,8 +1726,6 @@ export const useUserTransferQuantity = () => {
         let remainingQuantity = data.quantity;
         console.log("Remaining quantity:", remainingQuantity);
 
-        const insertPromises = [];
-
         const now = new Date();
         const createdAtString = now.toLocaleString("en-US", {
           timeZone: "Asia/Manila",
@@ -1762,114 +1760,99 @@ export const useUserTransferQuantity = () => {
           const transferQuantity = Math.min(batch.quantity, remainingQuantity);
           console.log("TtransferQuantity", transferQuantity);
 
-          insertPromises.push(
-            supabase
-              .from("salestransaction")
-              .insert({
-                id_localbranch: batch.id_localbranch,
-                id_branch: data.id_branch,
-                id_products: data.id_products,
-                amount: data.amount,
-                quantity: transferQuantity,
-                created_by: data.created_by,
-                id_group: data.id_group,
-                amount_by_product: data.amount_by_product,
-                real_time: updatedExpiryDate,
-              })
-              .single()
-              .then(({ data: updatedLocalBatch, error: updateError }) => {
-                console.log("updatedLocalBatch", updatedLocalBatch);
+          try {
+            const { data: updatedLocalBatch, error: updateError } =
+              await supabase
+                .from("salestransaction")
+                .insert({
+                  id_localbranch: batch.id_localbranch,
+                  id_branch: data.id_branch,
+                  id_products: data.id_products,
+                  amount: data.amount,
+                  quantity: transferQuantity,
+                  created_by: data.created_by,
+                  id_group: data.id_group,
+                  amount_by_product: data.amount_by_product,
+                  real_time: updatedExpiryDate,
+                })
+                .single();
 
-                if (updateError) {
-                  throw new Error(
-                    `Error inserting into salestransaction table: ${updateError.message}`
-                  );
-                }
+            console.log("updatedLocalBatch", updatedLocalBatch);
 
-                return supabase
-                  .from("localbatch")
-                  .update({
-                    quantity: batch.quantity - transferQuantity,
-                  })
-                  .eq("id_localbranch", batch.id_localbranch)
-                  .single()
-                  .then(({ data, error }) => {
-                    if (error) {
-                      console.error("Error updating batch quantity:", error);
-                    } else {
-                      return supabase
-                        .from("localbatch")
-                        .select("*, id_products(name), id_branch(*,place)")
-                        .eq("id_localbranch", batch.id_localbranch)
-                        .single()
-                        .then(
-                          ({ data: updatedLocalBatch, error: fetchError }) => {
-                            if (fetchError) {
-                              console.error(
-                                "Error fetching updated batch data:",
-                                fetchError
-                              );
-                            } else {
-                              console.log(
-                                "Updated quantity:",
-                                updatedLocalBatch.quantity
-                              );
-                              if (updatedLocalBatch.quantity <= 10) {
-                                notification.mutate({
-                                  title: `Low Stocks Warning (${updatedLocalBatch.id_branch.place})`,
-                                  body: `Product ${updatedLocalBatch.id_products.name} is running low on stocks.`,
-                                  id_branch:
-                                    updatedLocalBatch.id_branch.id_branch ||
-                                    null,
-                                  type: "CategoryInBranch",
-                                  branchName: updatedLocalBatch.id_branch.place,
-                                });
-                              } else {
-                                console.log("NO NOTIFICATION");
-                              }
-                            }
-                          }
-                        );
-                    }
+            if (updateError) {
+              throw new Error(
+                `Error inserting into salestransaction table: ${updateError.message}`
+              );
+            }
+
+            const { data: updatedBatch, error: batchUpdateError } =
+              await supabase
+                .from("localbatch")
+                .update({
+                  quantity: batch.quantity - transferQuantity,
+                })
+                .eq("id_localbranch", batch.id_localbranch)
+                .single();
+
+            if (batchUpdateError) {
+              console.error("Error updating batch quantity:", batchUpdateError);
+            } else {
+              const { data: fetchedBatch, error: fetchError } = await supabase
+                .from("localbatch")
+                .select("*, id_products(name), id_branch(*,place)")
+                .eq("id_localbranch", batch.id_localbranch)
+                .single();
+
+              if (fetchError) {
+                console.error("Error fetching updated batch data:", fetchError);
+              } else {
+                console.log("Updated quantity:", fetchedBatch.quantity);
+                if (fetchedBatch.quantity <= 10) {
+                  notification.mutate({
+                    title: `Low Stocks Warning (${fetchedBatch.id_branch.place})`,
+                    body: `Product ${fetchedBatch.id_products.name} is running low on stocks.`,
+                    id_branch: fetchedBatch.id_branch.id_branch || null,
+                    type: "CategoryInBranch",
+                    branchName: fetchedBatch.id_branch.place,
                   });
-              })
-          );
-
-          insertPromises.push(
-            supabase
-              .from("products")
-              .select("*")
-              .eq("id_products", batch.id_products)
-              .single()
-              .then(({ data: ProductTable, error: ProductTableError }) => {
-                if (ProductTableError) {
-                  throw new Error(ProductTableError.message);
+                } else {
+                  console.log("NO NOTIFICATION");
                 }
+              }
+            }
 
-                return supabase
-                  .from("products")
-                  .update({
-                    quantity: ProductTable.quantity - transferQuantity,
-                  })
-                  .eq("id_products", batch.id_products)
-                  .single()
-                  .then(
-                    ({
-                      data: updatedProductTable,
-                      error: deductProductTableError,
-                    }) => {
-                      if (deductProductTableError) {
-                        throw new Error(deductProductTableError.message);
-                      }
-                    }
-                  );
+            const { data: ProductTable, error: ProductTableError } =
+              await supabase
+                .from("products")
+                .select("*")
+                .eq("id_products", batch.id_products)
+                .single();
+
+            if (ProductTableError) {
+              throw new Error(ProductTableError.message);
+            }
+
+            const {
+              data: updatedProductTable,
+              error: deductProductTableError,
+            } = await supabase
+              .from("products")
+              .update({
+                quantity: ProductTable.quantity - transferQuantity,
               })
-          );
+              .eq("id_products", batch.id_products)
+              .single();
+
+            if (deductProductTableError) {
+              throw new Error(deductProductTableError.message);
+            }
+          } catch (error) {
+            console.error("Error processing batch:", error);
+            throw error;
+          }
 
           remainingQuantity -= transferQuantity;
         }
-
-        await Promise.all(insertPromises);
 
         return true;
       } catch (error) {
@@ -1891,7 +1874,6 @@ export const useUserTransferQuantity = () => {
     },
   });
 };
-
 export const useBranchDetails = (
   place: string,
   street: string,

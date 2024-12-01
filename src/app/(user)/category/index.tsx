@@ -1,27 +1,26 @@
 import React, { memo, useEffect, useState } from "react";
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  TextInput,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import { View, FlatList, StyleSheet, TextInput, Text } from "react-native";
 import { useBranch } from "@/src/api/products";
 import ChooseLocation from "@/src/components/ChooseLocation";
 import { useLogoutStore } from "@/store/logout";
 
 const Index = () => {
-  const { data: branch } = useBranch();
+  const { data: branch }: any = useBranch();
   const [searchText, setSearchText] = useState("");
-  const [filteredLocations, setFilteredLocations] = useState(branch);
+  const [filteredLocations, setFilteredLocations] = useState([]);
+
+  useEffect(() => {
+    if (branch) {
+      setFilteredLocations(branch);
+    }
+  }, [branch]);
 
   const filterLocations = (text: string) => {
     setSearchText(text);
     if (text.trim() === "") {
       setFilteredLocations(branch);
     } else {
-      const filtered = branch?.filter((item) =>
+      const filtered = branch?.filter((item: any) =>
         item.place.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredLocations(filtered);
@@ -44,14 +43,9 @@ const Index = () => {
 
   const setStatus = useLogoutStore((state) => state.setStatus);
 
-  // const navigateToProfile = () => {
-  //   setStatus("done");
-  //   router.push("/(user)/profile");
-  // };
-
   useEffect(() => {
     setStatus("restart");
-  }, ["restart"]);
+  }, [setStatus]);
 
   return (
     <View style={styles.container}>
