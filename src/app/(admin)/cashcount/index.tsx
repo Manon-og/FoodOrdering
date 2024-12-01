@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   totalValue: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
     paddingRight: 20,
     color: "green",

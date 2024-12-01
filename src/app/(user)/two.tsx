@@ -1,15 +1,10 @@
-import React, { memo } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
 import { useGroupedSalesTransaction } from "@/src/api/products";
-
 import GroupedSalesTransactionItem from "@/components/StaffGroupedSalesTransactionItem";
-import { useBranchName } from "@/components/branchParams";
 import { useBranchStore } from "@/src/store/branch";
 
 const Index = () => {
-  // const { branchName, id_branch } = useBranchName();
-  // console.log("TRANSACTIONNN:", branchName);
-  // console.log("TRANSACTIONNN:", id_branch);
   const { id_branch, branchName } = useBranchStore();
   console.log("ZUSTANDSSS:", id_branch);
   console.log("ZUSTANDSSS:", branchName);
@@ -18,17 +13,32 @@ const Index = () => {
     weekday: "long",
   });
 
-  const date = new Date();
-  console.log("DATEEEE:", date);
-  console.log("DATEEEE:", currentDate);
-
-  // const MemoizedProductListItem = memo(GroupedSalesTransactionItem); ayaw niya mag start sa 1, wtf.
   const { data: groupedSales }: any = useGroupedSalesTransaction(
     id_branch ?? ""
   );
 
   console.log("GROUPED SALESs:", groupedSales);
   let currentIdGroup = 1;
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 9;
+
+  const filteredGroupedSales = groupedSales?.filter((item: any) => {
+    const createdAtDate = new Date(item.created_at).toLocaleDateString();
+    return createdAtDate === currentDate;
+  }) || [];
+
+  const totalPages = Math.ceil(filteredGroupedSales.length / itemsPerPage);
+  const paginatedGroupedSales = filteredGroupedSales.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderItem = ({ item }: { item: any }) => {
     const displayIdGroup = currentIdGroup;
@@ -37,11 +47,6 @@ const Index = () => {
 
     const createdAtDate = new Date(item.created_at).toLocaleDateString();
     console.log("CREATED AT DATE:", createdAtDate);
-
-    if (createdAtDate !== currentDate) {
-      console.log("ERROR HIRS>");
-      return null;
-    }
 
     return (
       <GroupedSalesTransactionItem
@@ -70,10 +75,46 @@ const Index = () => {
         </Text>
       </View>
       <FlatList
-        data={groupedSales}
+        data={paginatedGroupedSales}
         keyExtractor={(item) => item.id_group}
         renderItem={renderItem}
       />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
+
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -136,6 +177,28 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "right",
     flex: 1,
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
   },
 });
 

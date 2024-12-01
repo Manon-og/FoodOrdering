@@ -56,9 +56,6 @@ const CreateProductScreen = () => {
   const { mutate: archiveProduct } = useArchiveProduct(id);
   const { data: updatingProduct } = useProduct(id);
   const { mutate: unarchiveProduct } = useUnarchiveProduct(id);
-  // const { data: updatingCategoryData } = useFetchCategoryById(
-  //   updatingProduct.id_category
-  // );
 
   const router = useRouter();
   console.log("Updating Product:", updatingProduct);
@@ -284,7 +281,10 @@ const CreateProductScreen = () => {
       />
 
       <Image source={{ uri: image || DefaultPhoto }} style={styles.image} />
-      <Text onPress={pickImage} style={styles.textButton}>
+      <Text
+        onPress={isArchived ? undefined : pickImage}
+        style={[styles.textButton, isArchived && styles.disabledText]}
+      >
         Select Image
       </Text>
 
@@ -295,6 +295,7 @@ const CreateProductScreen = () => {
         placeholder="Name"
         style={styles.input}
         maxLength={30}
+        editable={!isArchived}
       />
       <Text style={styles.label}>Price (PHP)</Text>
       <TextInput
@@ -303,6 +304,7 @@ const CreateProductScreen = () => {
         placeholder="99.9"
         style={styles.input}
         keyboardType="numeric"
+        editable={!isArchived}
       />
       <Text style={styles.label}>Description</Text>
       <TextInput
@@ -311,6 +313,7 @@ const CreateProductScreen = () => {
         placeholder="Description"
         style={styles.input}
         maxLength={255}
+        editable={!isArchived}
       />
       <Text style={styles.label}>Shelf Life</Text>
       <View style={styles.shelfLifeContainer}>
@@ -321,18 +324,21 @@ const CreateProductScreen = () => {
           style={[styles.input, styles.shelfLifeInput]}
           keyboardType="numeric"
           maxLength={255}
+          editable={!isArchived}
         />
         <Text style={styles.unitText}>days</Text>
       </View>
 
       {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
-      <Button onPress={onSubmit} text={isUpdating ? "Update" : "Create"} />
+      {!isArchived && (
+        <Button onPress={onSubmit} text={isUpdating ? "Update" : "Create"} />
+      )}
 
       {isUpdating ? (
         <>
           {isArchived ? (
             <Text onPress={handleUnarchive} style={styles.textButton}>
-              Unarchive
+              UNARCHIVE
             </Text>
           ) : (
             <Text onPress={confirmDelete} style={styles.textButton}>
@@ -368,21 +374,22 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   textButton: {
-    color: Colors.light.tint,
+    fontSize: 16,
+    color: "#0E1432",
     alignSelf: "center",
     fontWeight: "bold",
     marginVertical: 10,
   },
-
+  disabledText: {
+    color: "gray",
+  },
   shelfLifeContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-
   shelfLifeInput: {
     flex: 1,
   },
-
   unitText: {
     marginLeft: 8,
     fontSize: 16,

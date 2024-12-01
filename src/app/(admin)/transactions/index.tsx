@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
+  TextInput,
 } from "react-native";
 import {
   useGetVoidedTransaction,
@@ -24,6 +25,10 @@ import { useVoidedSalesStore } from "@/store/totalVoidedSalesAdmin";
 const Index = () => {
   const { id_branch, branchName } = useBranchStoreAdmin();
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 6;
+
   console.log("ADMIN TRANSACTION:", id_branch);
   console.log("ADMIN TRANSACTION:", branchName);
   const currentDate = new Date().toLocaleDateString();
@@ -57,6 +62,23 @@ const Index = () => {
     date
   );
   console.log("VOID DATA:", voidData);
+
+  const filteredSalesReport =
+    salesReport?.filter((item: any) =>
+      item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(filteredSalesReport.length / itemsPerPage);
+  const paginatedSalesReport = filteredSalesReport.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const renderSalesItem = ({ item }: { item: any }) => {
     const createdAtDate = new Date(item.created_at).toLocaleDateString();
@@ -131,6 +153,12 @@ const Index = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.dayText}>Sales Transaction</Text>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search by product name..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, styles.statusHeader]}>
           Product Name
@@ -143,11 +171,46 @@ const Index = () => {
         </Text>
       </View>
       <FlatList
-        data={salesReport}
+        data={paginatedSalesReport}
         keyExtractor={(item) => item.id_products.id_products.toString()}
         renderItem={renderSalesItem}
       />
+      <View style={styles.paginationContainer}>
+        <Pressable
+          onPress={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={[
+            styles.pageButton,
+            currentPage === 1 && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{"<"}</Text>
+        </Pressable>
 
+        {Array.from({ length: totalPages }, (_, index) => (
+          <Pressable
+            key={index}
+            onPress={() => handlePageChange(index + 1)}
+            style={[
+              styles.pageButton,
+              currentPage === index + 1 && styles.activePageButton,
+            ]}
+          >
+            <Text style={styles.pageButtonText}>{index + 1}</Text>
+          </Pressable>
+        ))}
+
+        <Pressable
+          onPress={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={[
+            styles.pageButton,
+            currentPage === totalPages && styles.disabledButton,
+          ]}
+        >
+          <Text style={styles.pageButtonText}>{">"}</Text>
+        </Pressable>
+      </View>
       <View style={styles.totalSalesContainer}>
         <Text style={styles.totalSalesText}>Total Sales:</Text>
         <Text style={styles.totalSalesNumber}>₱{totalSales}</Text>
@@ -274,6 +337,37 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#0E1432",
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  pageButton: {
+    padding: 8,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+  },
+  activePageButton: {
+    backgroundColor: "gray",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageButtonText: {
+    fontSize: 16,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    width: "100%",
   },
 });
 

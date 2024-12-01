@@ -121,6 +121,19 @@ const Index = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
+
+      <View style={styles.headerContainer}>
+        <Text style={[styles.headerText, styles.statusHeader]}>Product</Text>
+        <Text style={[styles.headerText, styles.moreInfoHeader]}>Qty</Text>
+      </View>
+
+      <FlatList
+        data={paginatedProducts}
+        renderItem={renderItem}
+        keyExtractor={(item: any) => item.id_products.name}
+        scrollEnabled={false}
+        contentContainerStyle={styles.flatListContainer}
+      />
       <View style={styles.paginationContainer}>
         <Pressable
           onPress={() => handlePageChange(currentPage - 1)}

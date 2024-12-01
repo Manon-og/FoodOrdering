@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
   Pressable,
+  Alert,
 } from "react-native";
 import {
   useBranch,
@@ -120,6 +121,40 @@ const Index = () => {
     router.push("/(admin)/returned");
   };
 
+  const confirmReturn = () => {
+    Alert.alert(
+      "Confirm Return",
+      "Are you sure you want to return the items back to inventory?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: handleReturn,
+        },
+      ]
+    );
+  };
+
+  const confirmTransfer = () => {
+    Alert.alert(
+      "Confirm Transfer",
+      "Are you sure you want to transfer the items?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: () => setModalVisible(true),
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: "" }} />
@@ -179,11 +214,11 @@ const Index = () => {
       <View style={styles.buttonRow}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => setModalVisible(true)}
+          onPress={confirmTransfer}
         >
           <Text style={styles.buttonText}>Transfer</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleReturn}>
+        <TouchableOpacity style={styles.button} onPress={confirmReturn}>
           <Text style={styles.buttonText}>Return Back Inventory</Text>
         </TouchableOpacity>
       </View>

@@ -267,6 +267,24 @@ const EndDay = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
+          
+          <View style={styles.headerContainer}>
+            <Text style={[styles.headerText, styles.statusHeader]}>
+              Products
+            </Text>
+            <Text style={[styles.headerText, styles.moreInfoHeader]}>
+              Total Quantity
+            </Text>
+          </View>
+          <FlatList
+            data={paginatedProducts}
+            keyExtractor={(item: any) => item.id_products.toString()}
+            renderItem={({ item }: any) => (
+              <ReturnProducts name={item.name} quantity={item.quantity} />
+            )}
+            scrollEnabled={false}
+            contentContainerStyle={styles.flatListContainer}
+          />
           <View style={styles.paginationContainer}>
             <Pressable
               onPress={() => handlePageChange(currentPage - 1)}
@@ -303,24 +321,6 @@ const EndDay = () => {
               <Text style={styles.pageButtonText}>{">"}</Text>
             </Pressable>
           </View>
-          
-          <View style={styles.headerContainer}>
-            <Text style={[styles.headerText, styles.statusHeader]}>
-              Products
-            </Text>
-            <Text style={[styles.headerText, styles.moreInfoHeader]}>
-              Total Quantity
-            </Text>
-          </View>
-          <FlatList
-            data={paginatedProducts}
-            keyExtractor={(item: any) => item.id_products.toString()}
-            renderItem={({ item }: any) => (
-              <ReturnProducts name={item.name} quantity={item.quantity} />
-            )}
-            scrollEnabled={false}
-            contentContainerStyle={styles.flatListContainer}
-          />
           <Button text={"Return"} onPress={confirmReturnProducts} />
         </>
       )}
