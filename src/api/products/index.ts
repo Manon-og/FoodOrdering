@@ -581,6 +581,7 @@ export const useInsertProduct = (id: number) => {
             id_price: newIdPrice.id_price,
             id_category: id,
             shelf_life: data.expiry,
+            quantity: 0,
           })
           .eq("id_products", data.id)
           .single();
@@ -2512,8 +2513,8 @@ export const useInsertPendingProducts = () => {
             .from("localbatch")
             .select("*")
             .eq("id_branch", data.id_branch)
-            .not("id_products", "is", null)
-            .neq("quantity", 0);
+            .not("id_products", "is", null);
+        // .neq("quantity", 0);
 
         if (pendingproductsError) {
           throw new Error("Error fetching transactions");
