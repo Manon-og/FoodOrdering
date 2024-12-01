@@ -20,6 +20,7 @@ import {
   fetchEmployees,
 } from "@/api/products"; // Ensure the correct import path
 import { Dropdown } from "react-native-element-dropdown"; // Import Dropdown
+import { FontAwesome } from "@expo/vector-icons";
 
 const EmployeeForm = () => {
   const router = useRouter();
@@ -34,6 +35,7 @@ const EmployeeForm = () => {
   const [error, setError] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -145,6 +147,10 @@ const EmployeeForm = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
@@ -165,13 +171,22 @@ const EmployeeForm = () => {
         autoCapitalize="none"
       />
 
-      <TextInput
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Password"
-        style={styles.input}
-        secureTextEntry
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Password"
+          style={styles.passwordInput}
+          secureTextEntry={!passwordVisible}
+        />
+        <Pressable onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+          <FontAwesome
+            name={passwordVisible ? "eye" : "eye-slash"}
+            size={20}
+            color="gray"
+          />
+        </Pressable>
+      </View>
 
       <Pressable onPress={showDatePickerModal} style={styles.input}>
         <Text>
@@ -260,6 +275,26 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "white",
+  },
+  eyeIcon: {
+    padding: 10,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: "gray",
+    backgroundColor: "white",
+
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 10,
+    borderColor: "gray",
+    backgroundColor: "white",
+    fontSize: 16,
   },
   title: {
     fontSize: 24,
