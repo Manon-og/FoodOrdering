@@ -159,7 +159,7 @@ export const useBranchProductList = (id: string, idB: string | null) => {
       try {
         const { data, error } = await supabase
           .from("localbatch")
-          .select(`*, id_products(*), id_branch(*)`)
+          .select(`*, id_products(*, id_price(amount)), id_branch(*)`)
           .eq("id_products.id_category", id)
           .eq("id_branch", idB)
           .not("id_products", "is", null);

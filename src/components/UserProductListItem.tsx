@@ -1,8 +1,12 @@
-import { StyleSheet, Image, Pressable } from "react-native";
+import { StyleSheet, Image, Pressable, Alert } from "react-native";
 import { Text, View } from "@/src/components/Themed";
 import { Link, useSegments } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { useArchivedParams } from "./archivedParams";
+import { UseCart } from "@/src/providers/CartProvider";
+import { FontAwesome } from "@expo/vector-icons";
+import { useLimitQuantity } from "@/api/products";
+import { useBranchStore } from "@/store/branch";
 
 type ProductListItemProps = {
   product: {
@@ -28,6 +32,29 @@ const ProductListItem = ({ product }: any) => {
 
   // Conditionally set background color based on the presence of a warning
   const containerStyle = warning ? styles.containerWarning : styles.container;
+  const { id_branch, branchName } = useBranchStore();
+  const { data: limitedQuantity } = useLimitQuantity(id_branch);
+  console.log("LIMIT QUANTIsTsY:", limitedQuantity);
+
+  const productLimit =
+    limitedQuantity?.find(
+      (item: any) => item.id_products === product.id_products
+    )?.quantity || 0;
+  console.log("PRODUCT LIMIT:", productLimit);
+
+  const { addItem } = UseCart();
+  const [quantity, setQuantity] = useState(0);
+
+  const incrementQuantity = () => {
+    if (quantity >= productLimit) {
+      Alert.alert("Limit Quantity", "You have reached the limit quantity", [
+        { text: "Ok", style: "cancel" },
+      ]);
+    } else {
+      setQuantity(quantity + 1);
+      addItem(product); // Automatically add to cart when incrementing
+    }
+  };
 
   return (
     <Link href={hrefLink} asChild>
@@ -46,6 +73,18 @@ const ProductListItem = ({ product }: any) => {
             </Text>
           </View>
           {warning ? <Text style={styles.warning}>{warning}</Text> : null}
+          <View style={styles.quantityContainer}>
+            <Pressable
+              style={styles.incrementButton}
+              onPress={incrementQuantity}
+            >
+              {quantity > 0 ? (
+                <Text style={styles.quantityText}>{quantity}</Text>
+              ) : (
+                <FontAwesome name="plus" size={15} color="white" />
+              )}
+            </Pressable>
+          </View>
         </View>
       </Pressable>
     </Link>
@@ -70,7 +109,7 @@ const styles = StyleSheet.create({
     position: "relative", // Ensure the warning text is positioned relative to this container
   },
   containerWarning: {
-    color: "red", // Red background when there is a warning
+    backgroundColor: "lightcoral", // Red background when there is a warning
     marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
@@ -120,5 +159,23 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 10,
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 10,
+  },
+  incrementButton: {
+    backgroundColor: "darkgreen",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 40,
+    height: 40,
+  },
+  quantityText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
   },
 });

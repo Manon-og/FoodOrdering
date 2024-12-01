@@ -18,7 +18,7 @@ const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
   const [quantityModalVisible, setQuantityModalVisible] = useState(false);
 
   const { data: limitedQuantity } = useLimitQuantity(id_branch);
-  console.log("LIMIT QUANTITY:", limitedQuantity);
+  console.log("LIMIT QUANsTITY:", limitedQuantity);
 
   const productLimit =
     limitedQuantity?.find((item: any) => item.productId === cartItem.product.id)
@@ -92,7 +92,8 @@ const CartListItem = ({ cartItem, id_branch }: CartListItemProps) => {
         <Text style={styles.title}>{cartItem.product.name}</Text>
         <View style={styles.subtitleContainer}>
           <Text style={styles.price}>
-            ₱{cartItem.product.id_price.amount.toFixed(2)}
+            {/* ₱{cartItem.product.id_price.amount.toFixed(2)} */}₱
+            {cartItem.product.id_price.amount}
           </Text>
         </View>
       </View>

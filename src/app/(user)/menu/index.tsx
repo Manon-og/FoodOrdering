@@ -38,7 +38,7 @@ export default function MenuScreen() {
 
   const branchId = id_branch || "";
   const { data: productsByBranch } = useBranchProductList(category, branchId);
-  console.log("MENUU:", productsByBranch);
+  console.log("MENUwU:", productsByBranch);
   const { data: products, error, isLoading } = useProductList(category);
 
   useEffect(() => {
