@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  TextInput,
+} from "react-native";
 import {
   useGetNotification,
   useReturnedProductHistory,
@@ -8,8 +15,12 @@ import AdminReturnReturnedProductsHistory from "@/components/AdminViewReturnedPr
 import { Link, Stack } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import DropdownComponent from "@/components/DropDown";
+import useReturnedProductChannel from "../channel/useReturnedProductChannel";
 
 const Index = () => {
+  useReturnedProductChannel(() => {
+    reFetchReturnedProduct();
+  });
   const filter = [
     { label: "Sales", value: "Sales" },
     { label: "Product Transfer", value: "Product Transfer" },
@@ -18,7 +29,8 @@ const Index = () => {
     { label: "Returned Products", value: "Returned Products" },
   ];
 
-  const { data: returnedHistory } = useReturnedProductHistory();
+  const { data: returnedHistory, refetch: reFetchReturnedProduct } =
+    useReturnedProductHistory();
   console.log("Returned History!:", returnedHistory);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
