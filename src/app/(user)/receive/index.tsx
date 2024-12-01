@@ -54,8 +54,8 @@ const Index = () => {
       item.id_products.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
-  const totalQuantity = filteredProducts.reduce(
-    (acc, item) => acc + item.quantity,
+  const totalQuantity: any = filteredProducts.reduce(
+    (acc, item: any) => acc + item.quantity,
     0
   );
 
