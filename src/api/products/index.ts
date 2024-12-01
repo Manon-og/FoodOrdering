@@ -1277,7 +1277,7 @@ export const handleUpdateEmployee = async (
   id: string,
   fullName: string,
   email: string,
-  password: string,
+  newPassword: string,
   idRoles: number,
   birthDate: string,
   refreshEmployees: () => void,
@@ -1292,7 +1292,10 @@ export const handleUpdateEmployee = async (
 
   // Update the user's email and password using the supabase.auth.admin.updateUserById method
   const { data: userData, error: userError } =
-    await supabaseAdmin.auth.admin.updateUserById(id, { email, password });
+    await supabaseAdmin.auth.admin.updateUserById(id, {
+      email,
+      password: newPassword,
+    });
 
   const { data, error } = await supabase
     .from("profiles")
@@ -1301,7 +1304,7 @@ export const handleUpdateEmployee = async (
       email,
       id_roles: idRoles,
       birth_date: birthDate,
-      password: password,
+      password: newPassword,
     })
     .eq("id", id);
 

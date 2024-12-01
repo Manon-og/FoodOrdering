@@ -16,7 +16,7 @@ const data = [
   { label: "All", value: null },
   { label: "Admin", value: 1 },
   { label: "Staff", value: 2 },
-  { label: "Archived", value: "archived" },
+  { label: "Inactive", value: "archived" },
 ];
 
 export default function EmployeeList() {
@@ -90,11 +90,21 @@ export default function EmployeeList() {
             >
               <View style={styles.employeeItem}>
                 <View style={styles.employeeInfo}>
-                  <Text style={styles.employeeName}>{item.full_name}</Text>
+                  <Text style={styles.employeeName}>
+                    {item.full_name}
+                    {item.id_archives === 1 && (
+                      <Text style={styles.inactiveText}> (Inactive)</Text>
+                    )}
+                  </Text>
                   {item.email && (
                     <Text style={styles.employeeEmail}>{item.email}</Text>
                   )}
-                  <Text style={styles.employeeRole}>
+                  <Text
+                    style={[
+                      styles.employeeRole,
+                      item.id_archives === 1 && styles.archivedRole,
+                    ]}
+                  >
                     {getRoleName(item.id_roles)}
                   </Text>
                 </View>
@@ -140,6 +150,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
+  },
+  inactiveText: {
+    fontSize: 16,
+    color: "gray",
   },
   searchInput: {
     flex: 1,
@@ -204,8 +218,11 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   employeeRole: {
-    fontSize: 16,
-    color: "blue",
+    fontSize: 14,
+    color: "blue", // Default color for active employees
+  },
+  archivedRole: {
+    color: "#666", // Grey color for archived employees
   },
   backgroundColor: {
     backgroundColor: "white",
