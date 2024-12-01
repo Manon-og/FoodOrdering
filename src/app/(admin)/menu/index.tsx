@@ -26,7 +26,10 @@ import { useMenuQuantityStore } from "@/store/menuquantity";
 const MemoizedProductListItem = memo(ProductListItem);
 
 export default function MenuScreen() {
-  useQuantityProductChannel();
+  useQuantityProductChannel(() => {
+    productsByBackInventoryRefetch();
+  });
+
   const category = useCategory();
 
   const setCategory = useCategoryStore((state) => state.setCategory);
