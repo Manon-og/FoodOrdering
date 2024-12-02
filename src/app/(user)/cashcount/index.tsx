@@ -233,6 +233,7 @@ const EndDay = () => {
                   keyboardType="numeric"
                   onChangeText={(value) => handleInputChange(value, index)}
                   value={inputValues[index].toString()}
+                  maxLength={4}
                 />
               </View>
             ))}
