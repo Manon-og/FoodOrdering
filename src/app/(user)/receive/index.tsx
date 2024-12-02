@@ -46,7 +46,7 @@ const Index = () => {
   console.log("Pending products??:", pendingProducts);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 7;
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   let filteredProducts =
@@ -130,7 +130,7 @@ const Index = () => {
       <FlatList
         data={paginatedProducts}
         renderItem={renderItem}
-        keyExtractor={(item: any) => item.id_products.name}
+        // keyExtractor={(item: any) => item.id_products.name}
         scrollEnabled={false}
         contentContainerStyle={styles.flatListContainer}
       />

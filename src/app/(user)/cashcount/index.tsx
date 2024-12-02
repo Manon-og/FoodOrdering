@@ -24,7 +24,7 @@ import { useRouter } from "expo-router";
 import ReturnProducts from "@/components/ReturnProducts";
 import { v4 as uuidv4 } from "uuid";
 import uuid from "react-native-uuid";
-import { CheckBox } from 'react-native-elements';
+import { CheckBox } from "react-native-elements";
 
 const EndDay = () => {
   const router = useRouter();
@@ -188,7 +188,7 @@ const EndDay = () => {
   };
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 8;
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   let filteredProducts =
@@ -247,7 +247,7 @@ const EndDay = () => {
               checked={isChecked}
               onPress={() => setIsChecked(!isChecked)}
               containerStyle={styles.checkbox}
-              textStyle = {styles.label}
+              textStyle={styles.label}
             />
           </View>
           <Button
@@ -267,7 +267,7 @@ const EndDay = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          
+
           <View style={styles.headerContainer}>
             <Text style={[styles.headerText, styles.statusHeader]}>
               Products

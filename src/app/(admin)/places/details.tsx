@@ -280,15 +280,16 @@ const Details = () => {
           />
 
           <View style={styles.footer}>
+            <Text style={styles.totalQuantitiesText}>
+              Total Quantities: {totalQuantity}
+            </Text>
             <View style={styles.totalQuantitiesContainer}>
-              <Text style={styles.totalQuantitiesText}>
-                Total Quantities: {totalQuantity}
-              </Text>
               {!dateOfInitialCashCount ||
               dateOfInitialCashCount.length === 0 ? (
                 <Button text={"Set Cash Balance"} onPress={handleCash} />
               ) : null}
             </View>
+
             <View>
               {pendingProducts && pendingProducts.length > 0 && (
                 <Button text={"Accept Return"} onPress={handleAcceptReturn} />

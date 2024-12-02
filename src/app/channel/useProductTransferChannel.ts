@@ -11,7 +11,7 @@ const useProductTransferChannel = (onChange: () => void) => {
         "postgres_changes",
         { event: "*", schema: "public", table: "stockmovement" },
         (payload) => {
-          console.log("Change received!", payload);
+          console.log("Change receisssved!", payload);
           onChange(); // Call the onChange callback when a change is detected
         }
       )

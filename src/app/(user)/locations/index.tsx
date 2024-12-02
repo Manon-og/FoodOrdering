@@ -18,7 +18,7 @@ import { useBranchName } from "@/src/components/branchParams";
 import Transaction from "@/src/app/(user)/two";
 import { useBranchStore } from "@/src/store/branch";
 import useAcceptButtonChannel from "@/app/channel/useAcceptButton";
-import useLocalBatchChannel from "@/app/channel/useProductTransferChannel";
+import useLocalBatchChannel from "@/app/channel/useLocalBatch";
 
 const Index = () => {
   useAcceptButtonChannel(() => {
