@@ -141,7 +141,7 @@ const Details = () => {
   );
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 5;
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   let filteredProducts =
@@ -281,19 +281,29 @@ const Details = () => {
 
           <View style={styles.footer}>
             <Text style={styles.totalQuantitiesText}>
+<<<<<<< HEAD
               Total Quantities: {totalQuantity}
             </Text>
+=======
+                Total Quantities: {totalQuantity}
+              </Text>
+>>>>>>> 9ca335d78cc94a6fc2cb99ce443c94567d7c89cc
             <View style={styles.totalQuantitiesContainer}>
               {!dateOfInitialCashCount ||
               dateOfInitialCashCount.length === 0 ? (
                 <Button text={"Set Cash Balance"} onPress={handleCash} />
               ) : null}
+<<<<<<< HEAD
             </View>
 
             <View>
+=======
+              <View>
+>>>>>>> 9ca335d78cc94a6fc2cb99ce443c94567d7c89cc
               {pendingProducts && pendingProducts.length > 0 && (
                 <Button text={"Accept Return"} onPress={handleAcceptReturn} />
               )}
+            </View>
             </View>
           </View>
         </>
@@ -418,7 +428,7 @@ const styles = StyleSheet.create({
     color: "#007AFF",
   },
   totalQuantitiesContainer: {
-    bottom: 20,
+    bottom: 0,
     textAlign: "left",
   },
   totalQuantitiesText: {
