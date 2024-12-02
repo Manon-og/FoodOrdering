@@ -47,7 +47,11 @@ const AdjustBackInventoryQuantity = ({
     const numericValue = parseInt(quantity, 10);
     const availableQuantity = parseInt(Data, 10);
 
-    if (!numericValue || numericValue <= 0 || numericValue > availableQuantity) {
+    if (
+      !numericValue ||
+      numericValue <= 0 ||
+      numericValue > availableQuantity
+    ) {
       Alert.alert(
         "Invalid Input",
         `Please enter a valid quantity between 1 and ${availableQuantity}.`
@@ -82,7 +86,7 @@ const AdjustBackInventoryQuantity = ({
   };
 
   const handleQuantityChange = (text: string) => {
-    const numericValue = text.replace(/[^0-9]/g, '');
+    const numericValue = text.replace(/[^0-9]/g, "");
     setQuantity(numericValue);
   };
 
@@ -93,9 +97,9 @@ const AdjustBackInventoryQuantity = ({
   }, [Data, modalVisible]);
 
   const handleClose = () => {
-    if (!isConfirmed) {
-      setQuantity(originalQuantity);
-    }
+    // if (!isConfirmed) {
+    //   setQuantity(originalQuantity);
+    // }
     setModalVisible(false);
   };
 
@@ -126,7 +130,7 @@ const AdjustBackInventoryQuantity = ({
           />
 
           <View style={styles.buttonRow}>
-          <Pressable
+            <Pressable
               style={[styles.button, styles.buttonCancel]}
               onPress={handleClose}
             >
