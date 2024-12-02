@@ -281,29 +281,18 @@ const Details = () => {
 
           <View style={styles.footer}>
             <Text style={styles.totalQuantitiesText}>
-<<<<<<< HEAD
               Total Quantities: {totalQuantity}
             </Text>
-=======
-                Total Quantities: {totalQuantity}
-              </Text>
->>>>>>> 9ca335d78cc94a6fc2cb99ce443c94567d7c89cc
             <View style={styles.totalQuantitiesContainer}>
               {!dateOfInitialCashCount ||
               dateOfInitialCashCount.length === 0 ? (
                 <Button text={"Set Cash Balance"} onPress={handleCash} />
               ) : null}
-<<<<<<< HEAD
-            </View>
-
-            <View>
-=======
               <View>
->>>>>>> 9ca335d78cc94a6fc2cb99ce443c94567d7c89cc
-              {pendingProducts && pendingProducts.length > 0 && (
-                <Button text={"Accept Return"} onPress={handleAcceptReturn} />
-              )}
-            </View>
+                {pendingProducts && pendingProducts.length > 0 && (
+                  <Button text={"Accept Return"} onPress={handleAcceptReturn} />
+                )}
+              </View>
             </View>
           </View>
         </>
