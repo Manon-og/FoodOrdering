@@ -1,4 +1,9 @@
 # FoodOrdering Inventory Management System
+BY: 
+Sid Adrian Digamon,
+Jhon Glenn Fabul,
+James Manon-og
+
 <p align="center">
     <img src="https://github.com/user-attachments/assets/175e68e7-6fde-4884-b2b6-2ffa04cd50c6" alt="Inventory Image 1">
 </p>
